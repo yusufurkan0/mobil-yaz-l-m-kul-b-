@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gedik MYGK - Mobil Yazılım Geliştirme Kulübü</title>
+    <meta name="description" content="Gedik MYGK (Mobil Yazılım Geliştirme Kulübü) - iOS ve Android geliştirme alanlarında geleceğin mobil yazılımcılarını yetiştiren yenilikçi topluluk.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Subtle Tech Background Orbs -->
+    <div class="bg-orb orb-blue"></div>
+    <div class="bg-orb orb-cyan"></div>
+
+    <!-- Header & Navigation -->
+    <header id="main-header">
+        <div class="container navbar-container">
+            <a href="#" class="logo">
+                <img src="img/logo.png" alt="MYGK Logo" class="logo-img">
+            </a>
+            
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="#hero" class="nav-link active">Ana Sayfa</a></li>
+                    <li><a href="#about" class="nav-link">Biz Kimiz?</a></li>
+                    <li><a href="#tracks" class="nav-link">Neler Yapıyoruz?</a></li>
+                    <li><a href="#sponsors" class="nav-link">Sponsorlar</a></li>
+                </ul>
+            </nav>
+            
+            <div class="nav-buttons">
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Temayı Değiştir">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <a href="#" id="login-trigger" class="btn btn-secondary nav-btn-login">Giriş Yap</a>
+                <a href="#" id="user-profile-trigger" class="btn btn-secondary nav-btn-profile hidden">
+                    <i class="fa-solid fa-user"></i> <span id="nav-user-name">Profilim</span>
+                </a>
+                <a href="#" id="register-trigger-nav" class="btn btn-primary nav-btn-register">Bize Katıl</a>
+            </div>
+
+            <!-- Mobile Menu Toggle -->
+            <button id="menu-toggle" aria-label="Menüyü Aç">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero">
+        <div class="container hero-grid">
+            <div class="hero-content">
+                <div class="badge animate-fade-in">
+                    <span class="badge-dot"></span>
+                    <span>Gedik Mobil Yazılım Öğrenci Topluluğu</span>
+                </div>
+                <h1 class="animate-fade-in-up">
+                    Geleceğin Mobil <br>
+                    <span class="gradient-text animate-gradient">Geliştiricileri Burada</span>
+                </h1>
+                <p class="hero-desc animate-fade-in-up-delay">
+                    iOS ve Android geliştirmeye odaklanan kulübümüzle mobil yazılım ekosistemine ilk adımını at. Sıfırdan başla, projeler geliştir, sektöre yön ver!
+                </p>
+                <div class="hero-actions animate-fade-in-up-delay-2">
+                    <a href="#" id="register-trigger-hero" class="btn btn-primary btn-large glow-btn"><i class="fa-solid fa-user-plus"></i> Topluluğa Katıl</a>
+                    <a href="#tracks" class="btn btn-outline btn-large"><i class="fa-solid fa-laptop-code"></i> Odak Alanlarımız</a>
+                </div>
+            </div>
+            
+            <div class="hero-visual animate-float">
+                <!-- Glowing Phone Mockup Simulator -->
+                <div class="phone-mockup">
+                    <div class="phone-speaker"></div>
+                    <div class="phone-camera"></div>
+                    <div class="phone-screen">
+                        <div class="phone-header">
+                            <span class="phone-time">09:41</span>
+                            <div class="phone-icons">
+                                <i class="fa-solid fa-signal"></i>
+                                <i class="fa-solid fa-wifi"></i>
+                                <i class="fa-solid fa-battery-full"></i>
+                            </div>
+                        </div>
+                        <div class="phone-body">
+                            <div class="app-card">
+                                <div class="app-user">
+                                    <div class="app-avatar"><i class="fa-solid fa-terminal"></i></div>
+                                    <div>
+                                        <div class="app-name">Mobil Yazılım Kulübü</div>
+                                        <div class="app-status">Aktif Çalışma Grubu</div>
+                                    </div>
+                                </div>
+                                <div class="code-preview">
+                                    <span class="code-keyword">import</span> SwiftUI<br>
+                                    <span class="code-keyword">struct</span> <span class="code-type">MainView</span>: <span class="code-type">View</span> {<br>
+                                    &nbsp;&nbsp;<span class="code-keyword">var</span> body: <span class="code-keyword">some</span> <span class="code-type">View</span> {<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-type">Text</span>(<span class="code-string">"Hello, World!"</span>)<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.font(.largeTitle)<br>
+                                    &nbsp;&nbsp;}<br>
+                                    }
+                                </div>
+                            </div>
+                            <div class="app-chart-section">
+                                <div class="chart-header">
+                                    <span>Geliştirme Hızı</span>
+                                    <span class="chart-percent"><i class="fa-solid fa-arrow-trend-up"></i> %92.4</span>
+                                </div>
+                                <div class="chart-bars">
+                                    <div class="chart-bar" style="--h: 50%"><span>Pzt</span></div>
+                                    <div class="chart-bar" style="--h: 70%"><span>Sal</span></div>
+                                    <div class="chart-bar active" style="--h: 95%"><span>Çar</span></div>
+                                    <div class="chart-bar" style="--h: 80%"><span>Per</span></div>
+                                    <div class="chart-bar" style="--h: 90%"><span>Cum</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="phone-home-indicator"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Biz Kimiz? (Hakkımızda) Section -->
+    <section id="about">
+        <div class="container">
+            <div class="section-title text-center">
+                <span class="subtitle">Biz Kimiz?</span>
+                <h2>Vizyonumuz ve Amacımız</h2>
+            </div>
+            <div class="about-card-large card-glow">
+                <div class="about-text-content">
+                    <p>Mobil Yazılım Kulübü, geleceğin mobil uygulama ekosistemini inşa edecek geliştiricileri ve tasarımcıları bir araya getiren dinamik bir öğrenci topluluğudur. Mobil platformların (iOS, Android, Cross-platform) gücünü keşfederek, teorik bilgiyi pratik projelerle pekiştiriyor ve üyelerimizi sektöre hazır hale getiriyoruz.</p>
+                    <p>Yeni kurulan kulübümüzle birlikte hedeflerimiz arasında; sıfırdan başlayanlar için atölyeler düzenlemek, ortak çalışma gruplarıyla App Store ve Google Play'e uygulamalar yüklemek ve hackathonlarda kampüsümüzü temsil etmek yer almaktadır.</p>
+                </div>
+                <div class="about-tech-badges">
+                    <span class="tech-badge"><i class="fa-brands fa-apple"></i> iOS / Swift</span>
+                    <span class="tech-badge"><i class="fa-brands fa-android"></i> Android / Kotlin</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- İstatistikler Bölümü (Stats Strip) -->
+    <section id="stats-strip" class="stats-strip-section">
+        <div class="container">
+            <div class="stats-grid card-glow">
+                <div class="stat-box">
+                    <div class="stat-number-wrapper">
+                        <span class="stat-number" id="homepage-member-count" data-val="0">0</span>
+                    </div>
+                    <span class="stat-label">Aktif Üye</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-box">
+                    <div class="stat-number-wrapper">
+                        <span class="stat-number" data-val="0">0</span>
+                    </div>
+                    <span class="stat-label">Düzenlenen Etkinlik</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-box">
+                    <div class="stat-number-wrapper">
+                        <span class="stat-number" data-val="0">0</span>
+                    </div>
+                    <span class="stat-label">Destekçi & Sponsor</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Neler Yapıyoruz? (Odak Alanlarımız) Section -->
+    <section id="tracks">
+        <div class="container">
+            <div class="section-title text-center">
+                <span class="subtitle">Odak Alanlarımız</span>
+                <h2>Neler Yapıyoruz?</h2>
+                <p>Kulübümüz bünyesinde yer alarak kendinizi geliştirebileceğiniz ve aktif projeler üretebileceğiniz ana çalışma alanları.</p>
+            </div>
+            
+            <div class="tracks-grid-modern">
+                <!-- Card 1 -->
+                <div class="track-card-modern card-glow">
+                    <div class="track-icon-wrap ios-color">
+                        <i class="fa-brands fa-apple"></i>
+                    </div>
+                    <h3>iOS Geliştirme (Swift)</h3>
+                    <p>Apple ekosistemine adım atın. Swift dili ve SwiftUI kütüphaneleriyle modern, hızlı ve görsel açıdan kusursuz iPhone/iPad uygulamaları geliştirmeyi öğrenin.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="track-card-modern card-glow">
+                    <div class="track-icon-wrap android-color">
+                        <i class="fa-brands fa-android"></i>
+                    </div>
+                    <h3>Android Geliştirme (Kotlin)</h3>
+                    <p>Dünyanın en çok kullanılan mobil işletim sistemine kod yazın. Kotlin dili ve Jetpack Compose ile modern mimariye sahip, yüksek performanslı native Android uygulamaları geliştirin.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sponsorlarımız (Grayscale Logos Band) -->
+    <section id="sponsors" class="sponsors-section-modern">
+        <div class="container text-center">
+            <span class="subtitle">Destekçilerimiz</span>
+            <h3>Sponsorlarımız & Ortaklarımız</h3>
+            <div class="sponsors-slider-modern">
+                <div class="sponsor-logo-modern"><i class="fa-brands fa-google"></i> Google Developers</div>
+                <div class="sponsor-logo-modern"><i class="fa-brands fa-apple"></i> Apple Academy</div>
+                <div class="sponsor-logo-modern"><i class="fa-brands fa-github"></i> GitHub Campus</div>
+                <div class="sponsor-logo-modern"><i class="fa-brands fa-microsoft"></i> Microsoft Tech</div>
+                <div class="sponsor-logo-modern"><i class="fa-brands fa-aws"></i> AWS Academy</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-info">
+                <a href="#" class="logo">
+                    <img src="img/logo.png" alt="MYGK Logo" class="logo-img">
+                </a>
+                <p>Geleceğin mobil geliştiricilerini bir araya getiren bağımsız öğrenci topluluğu.</p>
+                <div class="social-links">
+                    <a href="https://github.com" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Hızlı Menü</h4>
+                <ul>
+                    <li><a href="#hero">Ana Sayfa</a></li>
+                    <li><a href="#about">Biz Kimiz?</a></li>
+                    <li><a href="#tracks">Neler Yapıyoruz?</a></li>
+                    <li><a href="#sponsors">Sponsorlar</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Sistem</h4>
+                <ul>
+                    <li><a href="#" id="admin-trigger-footer">Yönetici Paneli</a></li>
+                    <li><a href="#">Gizlilik Politikası</a></li>
+                    <li><a href="#">Kullanım Şartları</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-contact">
+                <h4>İletişim</h4>
+                <p><i class="fa-solid fa-location-dot"></i> Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul</p>
+                <p><i class="fa-solid fa-envelope"></i> <span class="contact-email">gedikmobilyazilimkulubu@gmail.com</span></p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom text-center">
+            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with ❤️ by Antigravity.</p>
+        </div>
+    </footer>
+
+    <!-- MODAL: Register/Apply Modal -->
+    <div id="register-modal" class="modal hidden">
+        <div class="modal-content card-glow animate-zoom-in">
+            <button class="modal-close" id="close-register">&times;</button>
+            <h3>Topluluğa Katıl</h3>
+            <p class="modal-desc">Üyelik başvurusu yapmak ve etkinlik duyurularından anında haberdar olmak için formu doldurun.</p>
+            
+            <form id="membership-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first-name">Adınız</label>
+                        <input type="text" id="first-name" placeholder="Furkan" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last-name">Soyadınız</label>
+                        <input type="text" id="last-name" placeholder="Yılmaz" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-email">E-posta Adresiniz</label>
+                    <input type="email" id="user-email" placeholder="example@domain.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-password">Şifreniz</label>
+                    <input type="password" id="user-password" placeholder="••••••••" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-department">Bölümünüz</label>
+                    <input type="text" id="user-department" placeholder="Örn: Yazılım Mühendisliği" required>
+                </div>
+                
+                <div class="form-group">
+                    <label style="margin-bottom: 8px; display: block;">İlgi Alanınız (En az birini seçin)</label>
+                    <div class="interest-checkboxes-grid">
+                        <label class="interest-chip">
+                            <input type="checkbox" name="user-track" value="ios">
+                            <span><i class="fa-brands fa-apple"></i> iOS (Swift)</span>
+                        </label>
+                        <label class="interest-chip">
+                            <input type="checkbox" name="user-track" value="android">
+                            <span><i class="fa-brands fa-android"></i> Android (Kotlin)</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full glow-btn">Başvuruyu Gönder</button>
+            </form>
+            
+            <!-- Verification Step (Within Modal) -->
+            <div id="verification-container" class="hidden">
+                <div class="verification-box-inner">
+                    <i class="fa-solid fa-shield-halved verification-icon animate-pulse"></i>
+                    <h3>Onay Kodu</h3>
+                    <p>Lütfen e-posta adresinize simüle edilerek gönderilen 6 haneli doğrulama kodunu giriniz.</p>
+                    
+                    <div class="verification-inputs">
+                        <input type="text" maxlength="1" class="verify-input" data-index="0">
+                        <input type="text" maxlength="1" class="verify-input" data-index="1">
+                        <input type="text" maxlength="1" class="verify-input" data-index="2">
+                        <input type="text" maxlength="1" class="verify-input" data-index="3">
+                        <input type="text" maxlength="1" class="verify-input" data-index="4">
+                        <input type="text" maxlength="1" class="verify-input" data-index="5">
+                    </div>
+                    
+                    <div id="verification-error-message" class="hidden error-text" style="justify-content: center;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Girdiğiniz kod hatalı! Lütfen kontrol edin.
+                    </div>
+                    
+                    <button id="verify-submit-btn" class="btn btn-primary btn-full glow-btn">Kodu Doğrula</button>
+                    
+                    <div class="resend-timer-wrapper">
+                        Kodu almadınız mı? <span id="resend-countdown">Kodu Yeniden Gönder (60s)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success State -->
+            <div id="form-success-message" class="hidden alert-success">
+                <i class="fa-solid fa-circle-check"></i>
+                <div>
+                    <h4>Başvurunuz Tamamlandı!</h4>
+                    <p>Onaylama başarılı. Kulüp üyeliği başvurunuz sisteme kaydedildi. Hoş geldiniz!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Login Modal (Tabbed) -->
+    <div id="login-modal" class="modal hidden">
+        <div class="modal-content card-glow animate-zoom-in">
+            <button class="modal-close" id="close-login">&times;</button>
+            
+            <!-- Login Tabs -->
+            <div class="login-tabs">
+                <button class="login-tab active" id="tab-member-btn">Üye Girişi</button>
+                <button class="login-tab" id="tab-admin-btn">Yönetici Girişi</button>
+            </div>
+
+            <!-- MEMBER LOGIN FORM -->
+            <div id="member-login-area">
+                <p class="modal-desc">Başvuru durumunuzu görmek ve üye ayrıcalıklarına erişmek için giriş yapın.</p>
+                <form id="member-login-form">
+                    <div class="form-group">
+                        <label for="member-email">Kayıtlı E-posta</label>
+                        <input type="email" id="member-email" placeholder="E-postanızı girin" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="member-password">Şifreniz</label>
+                        <input type="password" id="member-password" placeholder="••••••••" required>
+                    </div>
+                    <div id="member-login-error" class="hidden error-text">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Kayıtlı üye bulunamadı veya şifre hatalı!
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full glow-btn">Üye Girişi Yap</button>
+                </form>
+            </div>
+
+            <!-- ADMIN LOGIN FORM (Hidden by default) -->
+            <div id="admin-login-area" class="hidden">
+                <p class="modal-desc">Üyelik başvurularını yönetmek için yönetici hesabı ile giriş yapın.</p>
+                <form id="admin-login-form">
+                    <div class="form-group">
+                        <label for="admin-email">Yönetici E-posta</label>
+                        <input type="email" id="admin-email" placeholder="admin@kulup.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-password">Yönetici Şifresi</label>
+                        <input type="password" id="admin-password" placeholder="••••••••" required>
+                    </div>
+                    <div id="login-error-message" class="hidden error-text">
+                        <i class="fa-solid fa-triangle-exclamation"></i> E-posta veya şifre hatalı! (Test: admin@kulup.com / admin)
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full glow-btn">Yönetici Girişi Yap</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Member Profile Dashboard Modal -->
+    <div id="member-dashboard-modal" class="modal hidden">
+        <div class="modal-content card-glow animate-zoom-in" style="max-width: 500px;">
+            <button class="modal-close" id="close-member-dash">&times;</button>
+            <div class="member-profile-header">
+                <div class="member-avatar">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </div>
+                <div>
+                    <h3 id="member-dash-name">Burak Kaya</h3>
+                    <p id="member-dash-email">burak@gmail.com</p>
+                </div>
+            </div>
+            <div class="member-profile-details">
+                <div class="detail-row">
+                    <span class="detail-label">Bölüm:</span>
+                    <span class="detail-val" id="member-dash-dept">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">İlgi Alanları:</span>
+                    <div class="detail-val" id="member-dash-tracks">
+                        <!-- badges added dynamically -->
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Başvuru Durumu:</span>
+                    <span class="status-badge" id="member-dash-status">-</span>
+                </div>
+            </div>
+            
+            <!-- Pending state message -->
+            <div id="member-status-pending-card" class="member-info-card info hidden">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <div>
+                    <h4>Başvurunuz İncelemede ⏳</h4>
+                    <p>Üyelik başvurunuz kulüp yöneticilerimiz tarafından değerlendiriliyor. Onaylandığında burası güncellenecektir.</p>
+                </div>
+            </div>
+            
+            <!-- Approved state message -->
+            <div id="member-status-approved-card" class="member-info-card success hidden">
+                <i class="fa-solid fa-circle-check"></i>
+                <div>
+                    <h4>Kulübe Kabul Edildiniz! 🎉</h4>
+                    <p>Tebrikler! Üyelik başvurunuz onaylanmıştır. Artık Mobil Yazılım Kulübü resmi üyesisiniz.</p>
+                    <div class="member-exclusive-links">
+                        <h5>Üyelere Özel Ayrıcalıklar:</h5>
+                        <a href="https://chat.whatsapp.com/L123abc456" target="_blank" class="exclusive-btn"><i class="fa-brands fa-whatsapp"></i> Kulüp WhatsApp Grubu</a>
+                        <a href="#" class="exclusive-btn" onclick="alert('Kulüp buluşması her Cumartesi saat 14:00\'da Mühendislik Fakültesi D-204 sınıfında yapılmaktadır.'); return false;"><i class="fa-solid fa-calendar-days"></i> Haftalık Toplantı Bilgisi</a>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-outline btn-full" id="member-logout-btn" style="margin-top: 20px;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Çıkış Yap</button>
+        </div>
+    </div>
+
+    <!-- PANEL: Admin Dashboard Panel -->
+    <div id="admin-dashboard" class="dashboard-panel hidden">
+        <div class="dashboard-container container">
+            <header class="dashboard-header">
+                <div class="dashboard-title-area">
+                    <i class="fa-solid fa-user-shield dashboard-icon"></i>
+                    <div>
+                        <h2>Yönetici Paneli (Admin)</h2>
+                        <p>Mobil Yazılım Kulübü Üye Başvuruları</p>
+                    </div>
+                </div>
+                <button id="logout-btn" class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap</button>
+            </header>
+
+            <div class="dashboard-stats-grid">
+                <div class="dash-stat-card card-glow">
+                    <span class="stat-icon-wrap purple"><i class="fa-solid fa-users"></i></span>
+                    <div>
+                        <h4 id="dash-total-members">0</h4>
+                        <p>Toplam Başvuru</p>
+                    </div>
+                </div>
+                <div class="dash-stat-card card-glow">
+                    <span class="stat-icon-wrap ios-bg-color"><i class="fa-brands fa-apple"></i></span>
+                    <div>
+                        <h4 id="dash-ios-count">0</h4>
+                        <p>iOS Başvurusu</p>
+                    </div>
+                </div>
+                <div class="dash-stat-card card-glow">
+                    <span class="stat-icon-wrap android-bg-color"><i class="fa-brands fa-android"></i></span>
+                    <div>
+                        <h4 id="dash-android-count">0</h4>
+                        <p>Android Başvurusu</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Table Section -->
+            <div class="dashboard-table-card card-glow">
+                <div class="table-header">
+                    <h3>Başvuru Listesi</h3>
+                    <div class="table-actions">
+                        <input type="text" id="member-search" placeholder="İsim veya e-posta ile ara...">
+                        <button id="clear-data-btn" class="btn btn-outline btn-sm"><i class="fa-solid fa-trash-can"></i> Sıfırla</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Ad Soyad</th>
+                                <th>E-posta</th>
+                                <th>Şifre</th>
+                                <th>Bölüm</th>
+                                <th>İlgi Alanı</th>
+                                <th>Durum</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-member-list">
+                            <!-- Members loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
