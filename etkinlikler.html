@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etkinlikler - Gedik Mobil Yazılım Kulübü</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-theme">
+
+    <!-- Header Navigation -->
+    <header id="main-header">
+        <div class="container navbar-container">
+            <a href="index.html" class="logo">
+                <img src="img/logo.png" alt="MYGK Logo" class="logo-img">
+            </a>
+            
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="index.html#hero" class="nav-link">Ana Sayfa</a></li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Hakkımızda <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.html#about">Biz Kimiz?</a></li>
+                            <li><a href="index.html#board">Yönetim Kurulu</a></li>
+                            <li><a href="index.html#regulations">Kulüp Tüzüğü</a></li>
+                            <li><a href="index.html#sponsors">Sponsorlarımız</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Etkinlikler <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#upcoming">Gelecek Etkinlikler</a></li>
+                            <li><a href="#past">Geçmiş Etkinlikler</a></li>
+                            <li><a href="#workshops">Workshoplar</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Blog <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" onclick="alert('Gezinti:\nBu bölümdeki blog yazıları kulüp üyeleri tarafından yakında paylaşılacaktır!'); return false;">Mobil Yazılım Yazıları</a></li>
+                            <li><a href="#" onclick="alert('Gezinti:\nSektör haberleri ve son güncellemeler yakında burada!'); return false;">Sektörden Haberler</a></li>
+                            <li><a href="#" onclick="alert('Gezinti:\nSwift ve Kotlin için resmi dökümantasyonları okumanızı tavsiye ederiz.'); return false;">Kaynak Tavsiyeleri</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="duyurular.html" class="nav-link">Duyurular</a></li>
+                    <li><a href="index.html#tracks" class="nav-link">Vitrin</a></li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Ek Özellikler <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.html" class="tool-link">CV Hazırlayıcı</a></li>
+                            <li><a href="index.html" class="tool-link">Yetenek Skoru</a></li>
+                            <li><a href="index.html" class="tool-link">Liderlik Tablosu</a></li>
+                            <li><a href="index.html" class="tool-link">Quiz Modülü</a></li>
+                            <li><a href="index.html" class="tool-link">CTF Alanı</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">İletişim <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.html#contact-section">İletişim Bilgileri</a></li>
+                            <li><a href="index.html#contact-section">Bize Ulaşın</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="nav-buttons">
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Temayı Değiştir">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <a href="index.html" id="login-trigger" class="btn btn-secondary nav-btn-login">Giriş Yap</a>
+                <a href="index.html" id="user-profile-trigger" class="btn btn-secondary nav-btn-profile hidden">
+                    <i class="fa-solid fa-user"></i> <span id="nav-user-name">Profilim</span>
+                </a>
+                <a href="index.html" id="register-trigger-nav" class="btn btn-primary nav-btn-register">Kayıt Ol</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- GELECEK ETKİNLİKLER SECTION -->
+    <section id="upcoming" style="padding-top: 140px; padding-bottom: 60px;">
+        <div class="container">
+            <div class="section-title text-center" style="margin-bottom: 50px;">
+                <span class="subtitle">Yaklaşan Buluşmalar</span>
+                <h2>Gelecek Etkinlikler</h2>
+                <p>Yakın tarihte düzenleyeceğimiz eğitim kampları, buluşmalar ve sunumlar.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                <!-- Event 1 -->
+                <div class="card-glow animate-hover-lift" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span class="ctf-badge kolay" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">iOS / Swift</span>
+                        <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;"><i class="fa-solid fa-circle-play"></i> Aktif Kayıt</span>
+                    </div>
+                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">SwiftUI ile Arayüz Tasarım Kampı</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">iOS uygulama dünyasının modern arayüz framework'ü SwiftUI temellerini, bildirimsel kod yazımını ve hazır animasyon bileşenlerini uygulamalı olarak işliyoruz.</p>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
+                        <span><i class="fa-regular fa-calendar"></i> 15 Şubat 2026, Cumartesi</span>
+                        <span><i class="fa-regular fa-clock"></i> 14:00 - 17:00</span>
+                        <span><i class="fa-solid fa-location-dot"></i> Teknoloji Kampüsü, Lab 404</span>
+                    </div>
+                </div>
+
+                <!-- Event 2 -->
+                <div class="card-glow animate-hover-lift" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Android / Kotlin</span>
+                        <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;"><i class="fa-solid fa-circle-play"></i> Aktif Kayıt</span>
+                    </div>
+                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">Kotlin ile Android Geliştirmeye Giriş</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Android geliştirmede kullanılan resmi dil Kotlin'in temellerini, OOP prensiplerini ve temel emülatör yapılandırmalarını sıfırdan ele alıyoruz.</p>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
+                        <span><i class="fa-regular fa-calendar"></i> 22 Şubat 2026, Cumartesi</span>
+                        <span><i class="fa-regular fa-clock"></i> 14:00 - 17:00</span>
+                        <span><i class="fa-solid fa-location-dot"></i> Teknoloji Kampüsü, Lab 404</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GEÇMİŞ ETKİNLİKLER SECTION -->
+    <section id="past" style="padding-top: 60px; padding-bottom: 60px;">
+        <div class="container">
+            <div class="section-title text-center" style="margin-bottom: 50px;">
+                <span class="subtitle">Neler Yaptık?</span>
+                <h2>Geçmiş Etkinlikler</h2>
+                <p>Daha önce kulüp olarak başarıyla tamamladığımız, sunum ve buluşma etkinlikleri.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                <!-- Past 1 -->
+                <div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; opacity: 0.85;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span class="ctf-badge kolay" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Kulüp İçi</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-circle-check"></i> Tamamlandı</span>
+                    </div>
+                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">MYGK Tanışma Toplantısı</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Kulübümüzün vizyonunu, eğitim hedeflerini, projelerimizi ve dönem planlarını sunduğumuz, yeni katılan üyelerimizle tanıştığımız ilk buluşmamızı başarıyla gerçekleştirdik.</p>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
+                        <span><i class="fa-regular fa-calendar"></i> 12 Kasım 2025, Çarşamba</span>
+                        <span><i class="fa-solid fa-location-dot"></i> Konferans Salonu B</span>
+                    </div>
+                </div>
+
+                <!-- Past 2 -->
+                <div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; opacity: 0.85;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Sektör Sohbeti</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-circle-check"></i> Tamamlandı</span>
+                    </div>
+                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">Mobil Sektöründe Kariyer Sohbetleri</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Sektörde aktif olarak çalışan tecrübeli konuklarımızla mobil geliştirmenin bugünü, geleceği, iş bulma süreçleri ve CV hazırlama tüyolarını konuştuk.</p>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
+                        <span><i class="fa-regular fa-calendar"></i> 05 Aralık 2025, Cuma</span>
+                        <span><i class="fa-solid fa-location-dot"></i> Online Zoom</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WORKSHOPLAR SECTION -->
+    <section id="workshops" style="padding-top: 60px; padding-bottom: 80px;">
+        <div class="container">
+            <div class="section-title text-center" style="margin-bottom: 50px;">
+                <span class="subtitle">Uygulamalı Atölyeler</span>
+                <h2>Workshoplar</h2>
+                <p>Üyelerimizin katılımıyla gerçekleştirdiğimiz kodlama ve pratik proje geliştirme atölyeleri.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                <!-- Workshop 1 -->
+                <div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span class="ctf-badge zor" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Git / Versiyon Kontrol</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-circle-check"></i> Tamamlandı</span>
+                    </div>
+                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">Git ve GitHub Workshop</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Kodlarımızı versiyonlamayı, takım halinde çakışma (conflict) yaşamadan çalışmayı ve projelerimizi GitHub reposuna yüklemeyi uygulamalı işledik.</p>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
+                        <span><i class="fa-regular fa-calendar"></i> 20 Aralık 2025, Cumartesi</span>
+                        <span><i class="fa-solid fa-location-dot"></i> Teknoloji Kampüsü, Lab 404</span>
+                    </div>
+                </div>
+
+                <!-- Workshop 2 -->
+                <div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Rest API</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-circle-check"></i> Tamamlandı</span>
+                    </div>
+                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">Rest API ve JSON Veri Entegrasyonu</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Mobil uygulamaların internet üzerinden veri alışverişi yapmasını sağlayan API entegrasyonu, HTTP istekleri ve JSON verilerini çözme (parse) işlemlerini gerçekleştirdik.</p>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
+                        <span><i class="fa-regular fa-calendar"></i> 10 Ocak 2026, Cumartesi</span>
+                        <span><i class="fa-solid fa-location-dot"></i> Teknoloji Kampüsü, Lab 404</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-info">
+                <a href="index.html" class="logo">
+                    <img src="img/logo.png" alt="MYGK Logo" class="logo-img">
+                </a>
+                <p>Geleceğin mobil geliştiricilerini bir araya getiren bağımsız öğrenci topluluğu.</p>
+                <div class="social-links">
+                    <a href="https://github.com" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Hızlı Menü</h4>
+                <ul>
+                    <li><a href="index.html#hero">Ana Sayfa</a></li>
+                    <li><a href="index.html#about">Biz Kimiz?</a></li>
+                    <li><a href="index.html#tracks">Neler Yapıyoruz?</a></li>
+                    <li><a href="index.html#sponsors">Sponsorlar</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Sistem</h4>
+                <ul>
+                    <li><a href="index.html" onclick="alert('Yönetici Paneline erişmek için ana sayfadaki giriş panelini kullanınız.'); return false;">Yönetici Paneli</a></li>
+                    <li><a href="#">Gizlilik Politikası</a></li>
+                    <li><a href="#">Kullanım Şartları</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-contact">
+                <h4>İletişim</h4>
+                <p><i class="fa-solid fa-location-dot"></i> Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul</p>
+                <p><i class="fa-solid fa-envelope"></i> <span class="contact-email">gedikmobilyazilimkulubu@gmail.com</span></p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom text-center">
+            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with ❤️ by Antigravity.</p>
+        </div>
+    </footer>
+
+    <!-- Custom Page Script to handle light/dark mode and session headers -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme setup
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.body.classList.remove('dark-theme');
+                document.getElementById('theme-toggle').innerHTML = `<i class="fa-solid fa-moon"></i>`;
+            } else {
+                document.body.classList.add('dark-theme');
+                document.getElementById('theme-toggle').innerHTML = `<i class="fa-solid fa-sun"></i>`;
+            }
+
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    document.body.classList.toggle('dark-theme');
+                    if (document.body.classList.contains('dark-theme')) {
+                        themeToggle.innerHTML = `<i class="fa-solid fa-sun"></i>`;
+                        localStorage.setItem('theme', 'dark');
+                    } else {
+                        themeToggle.innerHTML = `<i class="fa-solid fa-moon"></i>`;
+                        localStorage.setItem('theme', 'light');
+                    }
+                });
+            }
+
+            // Sync user profile state from sessionStorage
+            const loggedInEmail = sessionStorage.getItem('member_logged_in_email');
+            if (loggedInEmail) {
+                const loginTrigger = document.getElementById('login-trigger');
+                const registerTrigger = document.getElementById('register-trigger-nav');
+                const profileTrigger = document.getElementById('user-profile-trigger');
+                const navUserName = document.getElementById('nav-user-name');
+
+                if (loginTrigger) loginTrigger.classList.add('hidden');
+                if (registerTrigger) registerTrigger.classList.add('hidden');
+                if (profileTrigger) {
+                    profileTrigger.classList.remove('hidden');
+                    profileTrigger.href = "index.html"; // Go to homepage dashboard
+                }
+                
+                // Fetch name from local cache if possible
+                const localData = localStorage.getItem('db_members');
+                if (localData) {
+                    const members = JSON.parse(localData);
+                    const found = members.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
+                    if (found && navUserName) {
+                        navUserName.innerText = found.username || found.name;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
