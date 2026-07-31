@@ -348,13 +348,13 @@ body.dark-theme #main-header.scrolled {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 88px; /* Increased by 25% for a grander look */
+    height: 96px; /* Static height to keep it constant across pages */
     transition: var(--transition-normal);
     max-width: 1400px;
     width: 100%;
 }
 #main-header.scrolled .navbar-container {
-    height: 76px; /* Increased scrolled height */
+    height: 96px; /* Keeps same static height on scroll */
 }
 
 .logo {
@@ -363,15 +363,16 @@ body.dark-theme #main-header.scrolled {
     gap: 12px;
     text-decoration: none;
     margin-right: 30px;
+    margin-left: 25px; /* Shifts logo slightly to the right */
 }
 .logo-img {
-    height: 62px; /* Restored and enlarged logo */
+    height: 78px; /* Increased by 25% and made static */
     object-fit: contain;
     border-radius: 8px;
     transition: var(--transition-fast);
 }
 #main-header.scrolled .logo-img {
-    height: 52px;
+    height: 78px; /* Keeps same static height on scroll */
 }
 .logo:hover .logo-img {
     transform: scale(1.05);
