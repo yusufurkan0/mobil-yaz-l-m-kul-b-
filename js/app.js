@@ -1358,12 +1358,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-        });
-    }
-
     // --- Admin Dashboard Tabs Switching & CRUD Operations ---
     const tabBtns = document.querySelectorAll('.dash-tab-btn');
-    const sections = document.querySelectorAll('.dash-tab-section');
+    const tabSections = document.querySelectorAll('.dash-tab-section');
 
     if (tabBtns.length > 0) {
         tabBtns.forEach(btn => {
@@ -1382,7 +1379,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.style.color = 'var(--headings-color)';
 
                 // Toggle visibility
-                sections.forEach(sec => sec.classList.add('hidden'));
+                tabSections.forEach(sec => sec.classList.add('hidden'));
                 const activeSection = document.getElementById(`section-${tab}`);
                 if (activeSection) {
                     activeSection.classList.remove('hidden');
