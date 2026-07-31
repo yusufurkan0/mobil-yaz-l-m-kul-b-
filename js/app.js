@@ -2042,11 +2042,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // 1. Try sending via EmailJS if enabled
             if (useEmailJS) {
                 const templateParams = {
-                    from_name: name,
-                    from_email: email,
-                    subject: subject,
-                    message: message,
-                    to_email: "gedikmobilyazilimkulubu@gmail.com"
+                    name: name,
+                    email: email,
+                    title: subject, // Maps to {{title}} in your subject line
+                    message: message, // Maps to {{message}}
+                    time: new Date().toLocaleString('tr-TR') // Maps to {{time}} in your email body
                 };
 
                 const tId = CONFIG.emailjs.contactTemplateId || "template_contact";
