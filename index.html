@@ -37,8 +37,8 @@
                         <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Hakkımızda <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
                         <ul class="dropdown-menu">
                             <li><a href="#about">Biz Kimiz?</a></li>
-                            <li><a href="#" onclick="alert('Yönetim Kurulu Yakında Açıklanacaktır!'); return false;">Yönetim Kurulu</a></li>
-                            <li><a href="#" onclick="alert('Kulüp Tüzüğü:\n1. Topluluk etkinliklerine katılım ücretsizdir.\n2. Mobil yazılım öğrenmek isteyen herkes üye olabilir.\n3. Proje odaklı çalışmalar esastır.'); return false;">Kulüp Tüzüğü</a></li>
+                            <li><a href="#board">Yönetim Kurulu</a></li>
+                            <li><a href="#regulations">Kulüp Tüzüğü</a></li>
                         </ul>
                     </li>
                     <li class="dropdown-item">
@@ -190,6 +190,85 @@
                 <div class="about-tech-badges">
                     <span class="tech-badge"><i class="fa-brands fa-apple"></i> iOS / Swift</span>
                     <span class="tech-badge"><i class="fa-brands fa-android"></i> Android / Kotlin</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Yönetim Kurulu Bölümü -->
+    <section id="board" style="padding-top: 60px; padding-bottom: 60px;">
+        <div class="container">
+            <div class="section-title text-center" style="margin-bottom: 40px;">
+                <span class="subtitle">Yönetim Kurulu</span>
+                <h2>Kulüp Ekibimiz</h2>
+                <p>Gedik Mobil Yazılım Geliştirme Kulübü'nün yönetim ve koordinasyon ekibi.</p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px;">
+                <!-- Member 1 -->
+                <div class="card-glow animate-hover-lift" style="padding: 30px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 15px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color);">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Yusuf Furkan Yılmaz</h4>
+                        <p style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">Kulüp Başkanı / Kurucu</p>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">İstanbul Gedik Üniversitesi Yazılım Mühendisliği Öğrencisi.</p>
+                </div>
+                
+                <!-- Member 2 -->
+                <div class="card-glow animate-hover-lift" style="padding: 30px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 15px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color);">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">
+                        <i class="fa-brands fa-apple"></i>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Ahmet Yılmaz</h4>
+                        <p style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">iOS Geliştirme Lead</p>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Swift ve SwiftUI ile iOS uygulama geliştirme eğitimleri koordinatörü.</p>
+                </div>
+                
+                <!-- Member 3 -->
+                <div class="card-glow animate-hover-lift" style="padding: 30px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 15px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color);">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">
+                        <i class="fa-brands fa-android"></i>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Elif Kaya</h4>
+                        <p style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">Android Geliştirme Lead</p>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Kotlin ve Jetpack Compose ile Android uygulama eğitimleri koordinatörü.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kulüp Tüzüğü Bölümü -->
+    <section id="regulations" style="padding-top: 60px; padding-bottom: 60px;">
+        <div class="container">
+            <div class="section-title text-center" style="margin-bottom: 40px;">
+                <span class="subtitle">Kulüp Tüzüğü</span>
+                <h2>Temel Kurallar ve İlkeler</h2>
+                <p>Gedik Mobil Yazılım Geliştirme Kulübü (MYGK) üyelik şartları ve çalışma esasları.</p>
+            </div>
+            
+            <div class="about-card-large card-glow" style="display: flex; flex-direction: column; gap: 20px; padding: 40px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color);">
+                <div style="border-left: 3px solid var(--primary); padding-left: 20px;">
+                    <h4 style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">Madde 1: Kuruluş ve Amaç</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Topluluğun amacı, İstanbul Gedik Üniversitesi öğrencilerine mobil yazılım (iOS/Android) alanlarında teorik eğitimler vermek, pratik projeler geliştirmek ve öğrencileri teknoloji ekosistemine hazırlamaktır.</p>
+                </div>
+                <div style="border-left: 3px solid var(--primary); padding-left: 20px;">
+                    <h4 style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">Madde 2: Üyelik ve Katılım Şartları</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Topluluğa üye olmak tamamen ücretsizdir. Mobil uygulama geliştirmeye ve tasarıma ilgi duyan, kendini geliştirmek isteyen tüm Gedik Üniversitesi öğrencileri üye olabilir.</p>
+                </div>
+                <div style="border-left: 3px solid var(--primary); padding-left: 20px;">
+                    <h4 style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">Madde 3: Proje ve Eğitim Esasları</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Eğitimler açık kaynaklı ve paylaşımcı kültür esasına göre yürütülür. Çalışma grupları kurularak App Store ve Google Play platformlarına uygulama yüklenmesi hedeflenir.</p>
+                </div>
+                <div style="border-left: 3px solid var(--primary); padding-left: 20px;">
+                    <h4 style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">Madde 4: Yönetim ve Temsil</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Yönetim kurulu, kulüp başkanı ve odak koordinatörlerinden oluşur. Üniversite içindeki etkinlik planlamaları ve hackathon katılım organizasyonları yönetim kurulu tarafından kararlaştırılır.</p>
                 </div>
             </div>
         </div>
