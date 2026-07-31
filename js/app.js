@@ -2028,8 +2028,44 @@ document.addEventListener('DOMContentLoaded', () => {
     if (contactForm) {
         contactForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            alert("Mesajınız başarıyla iletildi! En kısa sürede geri dönüş yapacağız.");
-            contactForm.reset();
+            
+            const submitBtn = contactForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gönderiliyor...`;
+            
+            const name = document.getElementById('contact-name').value.trim();
+            const email = document.getElementById('contact-email').value.trim();
+            const subject = document.getElementById('contact-subject').value;
+            const message = document.getElementById('contact-message').value.trim();
+            
+            fetch("https://formsubmit.co/ajax/gedikmobilyazilimkulubu@gmail.com", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    _subject: `📩 Yeni İletişim Formu Mesajı (${subject.toUpperCase()})`,
+                    Ad_Soyad: name,
+                    Gonderen_Email: email,
+                    Konu: subject,
+                    Mesaj: message
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Mesajınız başarıyla iletildi! (Not: FormSubmit servisini ilk kez kullanıyorsanız, gelen kutunuza düşen aktivasyon onay mailini onaylayın!)");
+                contactForm.reset();
+            })
+            .catch(error => {
+                console.error("FormSubmit contact message failed:", error);
+                alert("Mesajınız gönderilirken bir hata oluştu. Lütfen doğrudan gedikmobilyazilimkulubu@gmail.com adresine mail atınız.");
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
         });
     }
 });
