@@ -2039,7 +2039,46 @@ document.addEventListener('DOMContentLoaded', () => {
             const subject = document.getElementById('contact-subject').value;
             const message = document.getElementById('contact-message').value.trim();
             
-            // 1. Try sending via EmailJS if enabled
+            // 1. Rate limiting / Flood prevention (60 seconds cooldown)
+            const lastSubmit = localStorage.getItem('last_contact_submit_time');
+            const now = Date.now();
+            if (lastSubmit && (now - lastSubmit < 60000)) {
+                const remaining = Math.round((60000 - (now - lastSubmit)) / 1000);
+                alert(`Lütfen ardı ardına mesaj göndermeyiniz. Yeni bir mesaj göndermek için ${remaining} saniye beklemelisiniz.`);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                return;
+            }
+
+            // 2. Spam Bot Honeypot check
+            const honeyPotEl = document.getElementById('contact-hp');
+            if (honeyPotEl && honeyPotEl.value) {
+                console.warn("Spam bot submission blocked.");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                return;
+            }
+
+            // 3. Strict Email Validation Regex
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                alert("Lütfen geçerli bir e-posta adresi giriniz! (Örn: isim@domain.com)");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                return;
+            }
+
+            // 4. Block temporary/disposable email domains
+            const tempEmailDomains = ['tempmail.com', '10minutemail.com', 'yopmail.com', 'mailinator.com', 'temp-mail.org', 'guerrillamail.com', 'sharklasers.com', 'dispostable.com', 'getairmail.com', 'boun.cr', 'tempmail.net', 'tempmailaddress.com'];
+            const emailDomain = email.split('@')[1].toLowerCase();
+            if (tempEmailDomains.includes(emailDomain)) {
+                alert("Geçici veya tek kullanımlık e-posta adresleri kabul edilmemektedir. Lütfen gerçek bir e-posta adresi giriniz.");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                return;
+            }
+
+            // 5. Try sending via EmailJS if enabled
             if (useEmailJS) {
                 const templateParams = {
                     name: name,
@@ -2054,6 +2093,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 emailjs.send(CONFIG.emailjs.serviceId, tId, templateParams)
                     .then((response) => {
                         console.log('Contact Message sent successfully via EmailJS!', response.status, response.text);
+                        localStorage.setItem('last_contact_submit_time', Date.now());
                         alert("Mesajınız EmailJS üzerinden başarıyla kulüp mail adresinize iletildi!");
                         contactForm.reset();
                         submitBtn.disabled = false;
@@ -2064,7 +2104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         sendViaFormSubmit(name, email, subject, message, submitBtn, originalText);
                     });
             } else {
-                // 2. Fallback directly to FormSubmit
+                // 6. Fallback directly to FormSubmit
                 sendViaFormSubmit(name, email, subject, message, submitBtn, originalText);
             }
         });
@@ -2088,6 +2128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(response => response.json())
         .then(data => {
+            localStorage.setItem('last_contact_submit_time', Date.now());
             alert("Mesajınız başarıyla iletildi! (Not: FormSubmit servisini ilk kez kullanıyorsanız, gelen kutunuza düşen aktivasyon onay mailini onaylayın!)");
             contactForm.reset();
         })
