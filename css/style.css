@@ -349,6 +349,8 @@ body.dark-theme #main-header.scrolled {
     justify-content: space-between;
     height: 80px;
     transition: var(--transition-normal);
+    max-width: 1400px; /* Increased from 1200px to give header menu more room */
+    width: 100%;
 }
 #main-header.scrolled .navbar-container {
     height: 70px;
@@ -359,7 +361,7 @@ body.dark-theme #main-header.scrolled {
     align-items: center;
     gap: 12px;
     text-decoration: none;
-    margin-right: 25px; /* Added spacing to push items left */
+    margin-right: 35px; /* Increased spacing to push items left */
 }
 .logo-img {
     height: 60px;
@@ -389,14 +391,14 @@ body.dark-theme #main-header.scrolled {
 #nav-menu ul {
     display: flex;
     list-style: none;
-    gap: 14px; /* Reduced from 30px to prevent overlapping */
+    gap: 20px; /* Increased from 14px to make it perfectly symmetric and readable */
 }
 .nav-link {
     text-decoration: none;
     color: var(--text-muted);
     font-family: var(--font-heading);
     font-weight: 600;
-    font-size: 0.85rem; /* Reduced from 0.95rem to prevent overflowing */
+    font-size: 0.92rem; /* Increased from 0.85rem for a better layout style */
     transition: var(--transition-fast);
     position: relative;
     padding: 8px 0;
