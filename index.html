@@ -33,9 +33,50 @@
             <nav id="nav-menu">
                 <ul>
                     <li><a href="#hero" class="nav-link active">Ana Sayfa</a></li>
-                    <li><a href="#about" class="nav-link">Biz Kimiz?</a></li>
-                    <li><a href="#tracks" class="nav-link">Neler Yapıyoruz?</a></li>
-                    <li><a href="#sponsors" class="nav-link">Sponsorlar</a></li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Hakkımızda <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#about">Biz Kimiz?</a></li>
+                            <li><a href="#" onclick="alert('Yönetim Kurulu Yakında Açıklanacaktır!'); return false;">Yönetim Kurulu</a></li>
+                            <li><a href="#" onclick="alert('Kulüp Tüzüğü:\n1. Topluluk etkinliklerine katılım ücretsizdir.\n2. Mobil yazılım öğrenmek isteyen herkes üye olabilir.\n3. Proje odaklı çalışmalar esastır.'); return false;">Kulüp Tüzüğü</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Etkinlikler <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" onclick="alert('Yaklaşan Etkinlikler:\n1. SwiftUI ile Mobil Tasarım Kampı - Cumartesi 14:00\n2. Kotlin Temelleri Workshop - Gelecek Hafta'); return false;">Gelecek Etkinlikler</a></li>
+                            <li><a href="#" onclick="alert('Geçmiş Etkinlikler:\n1. MYGK Tanışma Toplantısı (Ekim 2025)\n2. Mobil Sektör Sohbetleri (Kasım 2025)'); return false;">Geçmiş Etkinlikler</a></li>
+                            <li><a href="#" onclick="alert('Workshoplar:\n1. Git ve GitHub Eğitimi\n2. Rest API Entegrasyonu'); return false;">Workshoplar</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Blog <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" onclick="alert('Gezinti:\nBu bölümdeki blog yazıları kulüp üyeleri tarafından yakında paylaşılacaktır!'); return false;">Mobil Yazılım Yazıları</a></li>
+                            <li><a href="#" onclick="alert('Gezinti:\nSektör haberleri ve son güncellemeler yakında burada!'); return false;">Sektörden Haberler</a></li>
+                            <li><a href="#" onclick="alert('Gezinti:\nSwift ve Kotlin için resmi dökümantasyonları okumanızı tavsiye ederiz.'); return false;">Kaynak Tavsiyeleri</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#" onclick="alert('Duyurular:\nGedik MYGK üyelik başvuruları son hız devam ediyor! Kayıt olup siz de katılabilirsiniz.'); return false;" class="nav-link">Duyurular</a></li>
+                    <li><a href="#tracks" class="nav-link">Vitrin</a></li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Ek Özellikler <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" class="tool-link" data-tool="cv">CV Hazırlayıcı</a></li>
+                            <li><a href="#" class="tool-link" data-tool="skills">Yetenek Skoru</a></li>
+                            <li><a href="#" class="tool-link" data-tool="leaderboard">Liderlik Tablosu</a></li>
+                            <li><a href="#" class="tool-link" data-tool="quiz">Quiz Modülü</a></li>
+                            <li><a href="#" class="tool-link" data-tool="ctf">CTF Alanı</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">İletişim <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#footer">İletişim Bilgileri</a></li>
+                            <li><a href="#" onclick="alert('SSS:\nS: Kulübe katılmak için kodlama bilmek gerekir mi?\nC: Hayır, sıfırdan eğitimlerimiz mevcuttur.\n\nS: Üyelik ücretli mi?\nC: Üyelik tamamen ücretsizdir.'); return false;">Sıkça Sorulan Sorular</a></li>
+                            <li><a href="#footer-contact">Bize Ulaşın</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </nav>
             
@@ -47,7 +88,7 @@
                 <a href="#" id="user-profile-trigger" class="btn btn-secondary nav-btn-profile hidden">
                     <i class="fa-solid fa-user"></i> <span id="nav-user-name">Profilim</span>
                 </a>
-                <a href="#" id="register-trigger-nav" class="btn btn-primary nav-btn-register">Bize Katıl</a>
+                <a href="#" id="register-trigger-nav" class="btn btn-primary nav-btn-register">Kayıt Ol</a>
             </div>
 
             <!-- Mobile Menu Toggle -->
@@ -278,51 +319,118 @@
     <div id="register-modal" class="modal hidden">
         <div class="modal-content card-glow animate-zoom-in">
             <button class="modal-close" id="close-register">&times;</button>
-            <h3>Topluluğa Katıl</h3>
-            <p class="modal-desc">Üyelik başvurusu yapmak ve etkinlik duyurularından anında haberdar olmak için formu doldurun.</p>
+            <h3>Gedik MYGK Üyelik</h3>
+            <p class="modal-desc">Güvenli kayıt sistemi ile hesap oluşturun</p>
             
             <form id="membership-form">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="first-name">Adınız</label>
-                        <input type="text" id="first-name" placeholder="Furkan" required>
+                        <label for="first-name">Ad *</label>
+                        <input type="text" id="first-name" placeholder="Adınız" required>
                     </div>
                     <div class="form-group">
-                        <label for="last-name">Soyadınız</label>
-                        <input type="text" id="last-name" placeholder="Yılmaz" required>
+                        <label for="last-name">Soyad *</label>
+                        <input type="text" id="last-name" placeholder="Soyadınız" required>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="user-email">E-posta Adresiniz</label>
-                    <input type="email" id="user-email" placeholder="example@domain.com" required>
+                    <label for="user-email">E-posta *</label>
+                    <input type="email" id="user-email" placeholder="ornek@stu.gedik.edu.tr" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="user-password">Şifreniz</label>
-                    <input type="password" id="user-password" placeholder="••••••••" required>
+                    <label for="user-username">Kullanıcı Adı *</label>
+                    <input type="text" id="user-username" placeholder="kullaniciadi123" required>
+                    <span class="input-help-text">Profilinizin adresi /profil/kullaniciadi şeklinde olacak</span>
                 </div>
                 
-                <div class="form-group">
-                    <label for="user-department">Bölümünüz</label>
-                    <input type="text" id="user-department" placeholder="Örn: Yazılım Mühendisliği" required>
-                </div>
-                
-                <div class="form-group">
-                    <label style="margin-bottom: 8px; display: block;">İlgi Alanınız (En az birini seçin)</label>
-                    <div class="interest-checkboxes-grid">
-                        <label class="interest-chip">
-                            <input type="checkbox" name="user-track" value="ios">
-                            <span><i class="fa-brands fa-apple"></i> iOS (Swift)</span>
-                        </label>
-                        <label class="interest-chip">
-                            <input type="checkbox" name="user-track" value="android">
-                            <span><i class="fa-brands fa-android"></i> Android (Kotlin)</span>
-                        </label>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="user-student-id">Öğrenci Numarası *</label>
+                        <input type="text" id="user-student-id" placeholder="2020170001" required>
+                        <span class="input-help-text">9 haneli olmalıdır</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-phone">Telefon Numarası *</label>
+                        <input type="tel" id="user-phone" placeholder="05550000555" required>
+                        <span class="input-help-text">11 haneli olmalıdır (0 ile başlar)</span>
                     </div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary btn-full glow-btn">Başvuruyu Gönder</button>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="user-faculty">Fakülte *</label>
+                        <select id="user-faculty" required>
+                            <option value="" disabled selected>Fakülte Seçiniz</option>
+                            <option value="Mühendislik Fakültesi">Mühendislik Fakültesi</option>
+                            <option value="İktisadi, İdari ve Sosyal Bilimler Fakültesi">İktisadi, İdari ve Sosyal Bilimler Fakültesi</option>
+                            <option value="Güzel Sanatlar ve Mimarlık Fakültesi">Güzel Sanatlar ve Mimarlık Fakültesi</option>
+                            <option value="Sağlık Bilimleri Fakültesi">Sağlık Bilimleri Fakültesi</option>
+                            <option value="Spor Bilimleri Fakültesi">Spor Bilimleri Fakültesi</option>
+                            <option value="Meslek Yüksekokulu (MYO)">Meslek Yüksekokulu (MYO)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-department">Bölüm *</label>
+                        <select id="user-department" required disabled>
+                            <option value="" disabled selected>Önce Fakülte Seçiniz</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-grade">Sınıf *</label>
+                    <select id="user-grade" required>
+                        <option value="" disabled selected>Sınıf Seçiniz</option>
+                        <option value="Hazırlık">Hazırlık</option>
+                        <option value="1. Sınıf">1. Sınıf</option>
+                        <option value="2. Sınıf">2. Sınıf</option>
+                        <option value="3. Sınıf">3. Sınıf</option>
+                        <option value="4. Sınıf">4. Sınıf</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-birthdate">Doğum Tarihi *</label>
+                    <input type="date" id="user-birthdate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-password">Şifre *</label>
+                    <input type="password" id="user-password" placeholder="En az 6 karakter" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-password-confirm">Şifre Tekrar *</label>
+                    <input type="password" id="user-password-confirm" placeholder="Şifrenizi tekrar giriniz" required>
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="user-terms" required>
+                        <span>Kullanım şartları ve gizlilik politikasını kabul ediyorum. *</span>
+                    </label>
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="user-notifications" checked>
+                        <span>Etkinlik ve duyurulardan anlık bildirimlerle haberdar olmak istiyorum (isteğe bağlı, daha sonra değiştirilebilir)</span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full glow-btn">Hesap Oluştur</button>
+                
+                <div class="form-info-badge success">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Güvenlik sistemi aktif. Kayıt işleminiz güvenli şekilde gerçekleştirilecektir.</span>
+                </div>
+                
+                <div class="form-info-badge info">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Bu site gelişmiş güvenlik özellikleri kullanır. Cihaz güvenliği denetlenmektedir.</span>
+                </div>
             </form>
             
             <!-- Verification Step (Within Modal) -->
@@ -417,58 +525,240 @@
 
     <!-- MODAL: Member Profile Dashboard Modal -->
     <div id="member-dashboard-modal" class="modal hidden">
-        <div class="modal-content card-glow animate-zoom-in" style="max-width: 500px;">
+        <div class="modal-content card-glow animate-zoom-in" style="max-width: 540px;">
             <button class="modal-close" id="close-member-dash">&times;</button>
+            
+            <!-- 1. VIEW PROFILE MODE -->
+            <div id="member-view-area">
+                <div class="member-profile-header">
+                    <div class="member-avatar">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <div>
+                        <h3 id="member-dash-name">Burak Kaya</h3>
+                        <p id="member-dash-email">burak@gmail.com</p>
+                    </div>
+                </div>
+                <div class="member-profile-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Kullanıcı Adı:</span>
+                        <span class="detail-val" id="member-dash-username">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Öğrenci No:</span>
+                        <span class="detail-val" id="member-dash-student-id">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Telefon:</span>
+                        <span class="detail-val" id="member-dash-phone">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Fakülte:</span>
+                        <span class="detail-val" id="member-dash-faculty">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Bölüm:</span>
+                        <span class="detail-val" id="member-dash-dept">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Sınıf:</span>
+                        <span class="detail-val" id="member-dash-grade">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Doğum Tarihi:</span>
+                        <span class="detail-val" id="member-dash-birthdate">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Başvuru Durumu:</span>
+                        <span class="status-badge" id="member-dash-status">-</span>
+                    </div>
+                </div>
+                
+                <!-- Pending state message -->
+                <div id="member-status-pending-card" class="member-info-card info hidden">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <div>
+                        <h4>Başvurunuz İncelemede ⏳</h4>
+                        <p>Üyelik başvurunuz kulüp yöneticilerimiz tarafından değerlendiriliyor. Onaylandığında burası güncellenecektir.</p>
+                    </div>
+                </div>
+                
+                <!-- Approved state message -->
+                <div id="member-status-approved-card" class="member-info-card success hidden">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <div>
+                        <h4>Kulübe Kabul Edildiniz! 🎉</h4>
+                        <p>Tebrikler! Üyelik başvurunuz onaylanmıştır. Artık Mobil Yazılım Kulübü resmi üyesisiniz.</p>
+                        <div class="member-exclusive-links">
+                            <h5>Üyelere Özel Ayrıcalıklar:</h5>
+                            <a href="https://chat.whatsapp.com/L123abc456" target="_blank" class="exclusive-btn"><i class="fa-brands fa-whatsapp"></i> Kulüp WhatsApp Grubu</a>
+                            <a href="#" class="exclusive-btn" onclick="alert('Kulüp buluşması her Cumartesi saat 14:00\'da Mühendislik Fakültesi D-204 sınıfında yapılmaktadır.'); return false;"><i class="fa-solid fa-calendar-days"></i> Haftalık Toplantı Bilgisi</a>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-full" id="member-edit-btn" style="margin-top: 20px;"><i class="fa-solid fa-user-pen"></i> Bilgilerimi Düzenle</button>
+                <button class="btn btn-outline btn-full" id="member-logout-btn" style="margin-top: 12px;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Çıkış Yap</button>
+            </div>
+
+            <!-- 2. EDIT PROFILE MODE (Hidden by default) -->
+            <div id="member-edit-area" class="hidden">
+                <h3>Bilgilerimi Düzenle</h3>
+                <p class="modal-desc">Profil bilgilerinizi güncelleyin ve kaydedin.</p>
+                
+                <form id="member-profile-edit-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-first-name">Ad *</label>
+                            <input type="text" id="edit-first-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-last-name">Soyad *</label>
+                            <input type="text" id="edit-last-name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-email">E-posta (Değiştirilemez)</label>
+                        <input type="email" id="edit-email" disabled style="opacity: 0.6; cursor: not-allowed;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-username">Kullanıcı Adı *</label>
+                        <input type="text" id="edit-username" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-student-id">Öğrenci Numarası *</label>
+                            <input type="text" id="edit-student-id" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-phone">Telefon Numarası *</label>
+                            <input type="tel" id="edit-phone" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-faculty">Fakülte *</label>
+                            <select id="edit-faculty" required>
+                                <option value="" disabled selected>Fakülte Seçiniz</option>
+                                <option value="Mühendislik Fakültesi">Mühendislik Fakültesi</option>
+                                <option value="İktisadi, İdari ve Sosyal Bilimler Fakültesi">İktisadi, İdari ve Sosyal Bilimler Fakültesi</option>
+                                <option value="Güzel Sanatlar ve Mimarlık Fakültesi">Güzel Sanatlar ve Mimarlık Fakültesi</option>
+                                <option value="Sağlık Bilimleri Fakültesi">Sağlık Bilimleri Fakültesi</option>
+                                <option value="Spor Bilimleri Fakültesi">Spor Bilimleri Fakültesi</option>
+                                <option value="Meslek Yüksekokulu (MYO)">Meslek Yüksekokulu (MYO)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-department">Bölüm *</label>
+                            <select id="edit-department" required>
+                                <option value="" disabled selected>Bölüm Seçiniz</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-grade">Sınıf *</label>
+                        <select id="edit-grade" required>
+                            <option value="" disabled selected>Sınıf Seçiniz</option>
+                            <option value="Hazırlık">Hazırlık</option>
+                            <option value="1. Sınıf">1. Sınıf</option>
+                            <option value="2. Sınıf">2. Sınıf</option>
+                            <option value="3. Sınıf">3. Sınıf</option>
+                            <option value="4. Sınıf">4. Sınıf</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-birthdate">Doğum Tarihi *</label>
+                        <input type="date" id="edit-birthdate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-password">Şifre (Değiştirmek istemiyorsanız aynı bırakın) *</label>
+                        <input type="password" id="edit-password" required>
+                    </div>
+
+                    <div id="edit-profile-success-message" class="hidden alert-success" style="margin-bottom: 16px;">
+                        <i class="fa-solid fa-circle-check"></i> Profiliniz başarıyla güncellendi!
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full glow-btn"><i class="fa-solid fa-floppy-disk"></i> Kaydet</button>
+                    <button type="button" class="btn btn-outline btn-full" id="member-edit-cancel-btn" style="margin-top: 10px;">Vazgeç</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Admin View Member Detail Modal -->
+    <div id="admin-member-detail-modal" class="modal hidden">
+        <div class="modal-content card-glow animate-zoom-in" style="max-width: 500px;">
+            <button class="modal-close" id="close-admin-member-detail">&times;</button>
             <div class="member-profile-header">
-                <div class="member-avatar">
-                    <i class="fa-solid fa-user-graduate"></i>
+                <div class="member-avatar" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary);">
+                    <i class="fa-solid fa-address-card"></i>
                 </div>
                 <div>
-                    <h3 id="member-dash-name">Burak Kaya</h3>
-                    <p id="member-dash-email">burak@gmail.com</p>
+                    <h3 id="admin-detail-name">Ahmet Yılmaz</h3>
+                    <p id="admin-detail-email">ahmet@gmail.com</p>
                 </div>
             </div>
             <div class="member-profile-details">
                 <div class="detail-row">
-                    <span class="detail-label">Bölüm:</span>
-                    <span class="detail-val" id="member-dash-dept">-</span>
+                    <span class="detail-label">Kullanıcı Adı:</span>
+                    <span class="detail-val" id="admin-detail-username">-</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">İlgi Alanları:</span>
-                    <div class="detail-val" id="member-dash-tracks">
-                        <!-- badges added dynamically -->
-                    </div>
+                    <span class="detail-label">Öğrenci No:</span>
+                    <span class="detail-val" id="admin-detail-student-id">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Telefon:</span>
+                    <span class="detail-val" id="admin-detail-phone">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Fakülte:</span>
+                    <span class="detail-val" id="admin-detail-faculty">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Bölüm:</span>
+                    <span class="detail-val" id="admin-detail-dept">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Sınıf:</span>
+                    <span class="detail-val" id="admin-detail-grade">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Doğum Tarihi:</span>
+                    <span class="detail-val" id="admin-detail-birthdate">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Şifre:</span>
+                    <span class="detail-val" id="admin-detail-password">-</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Başvuru Durumu:</span>
-                    <span class="status-badge" id="member-dash-status">-</span>
+                    <span class="status-badge" id="admin-detail-status">-</span>
                 </div>
             </div>
             
-            <!-- Pending state message -->
-            <div id="member-status-pending-card" class="member-info-card info hidden">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-                <div>
-                    <h4>Başvurunuz İncelemede ⏳</h4>
-                    <p>Üyelik başvurunuz kulüp yöneticilerimiz tarafından değerlendiriliyor. Onaylandığında burası güncellenecektir.</p>
-                </div>
+            <div class="admin-detail-actions" style="margin-top: 24px; display: flex; gap: 12px;">
+                <button class="btn btn-primary btn-full" id="admin-detail-approve-btn"><i class="fa-solid fa-circle-check"></i> Onayla</button>
+                <button class="btn btn-outline btn-full" id="admin-detail-delete-btn" style="color: var(--accent-pink); border-color: rgba(255, 77, 148, 0.3);"><i class="fa-solid fa-trash-can"></i> Sil</button>
             </div>
-            
-            <!-- Approved state message -->
-            <div id="member-status-approved-card" class="member-info-card success hidden">
-                <i class="fa-solid fa-circle-check"></i>
-                <div>
-                    <h4>Kulübe Kabul Edildiniz! 🎉</h4>
-                    <p>Tebrikler! Üyelik başvurunuz onaylanmıştır. Artık Mobil Yazılım Kulübü resmi üyesisiniz.</p>
-                    <div class="member-exclusive-links">
-                        <h5>Üyelere Özel Ayrıcalıklar:</h5>
-                        <a href="https://chat.whatsapp.com/L123abc456" target="_blank" class="exclusive-btn"><i class="fa-brands fa-whatsapp"></i> Kulüp WhatsApp Grubu</a>
-                        <a href="#" class="exclusive-btn" onclick="alert('Kulüp buluşması her Cumartesi saat 14:00\'da Mühendislik Fakültesi D-204 sınıfında yapılmaktadır.'); return false;"><i class="fa-solid fa-calendar-days"></i> Haftalık Toplantı Bilgisi</a>
-                    </div>
-                </div>
-            </div>
+        </div>
+    </div>
 
-            <button class="btn btn-outline btn-full" id="member-logout-btn" style="margin-top: 20px;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Çıkış Yap</button>
+    <!-- MODAL: Club Tools Modal -->
+    <div id="tool-modal" class="modal hidden">
+        <div class="modal-content card-glow animate-zoom-in" style="max-width: 800px; width: 95%;">
+            <button class="modal-close" id="close-tool-modal">&times;</button>
+            <div id="tool-modal-body">
+                <!-- Dynamic Content Injected via JS -->
+            </div>
         </div>
     </div>
 
