@@ -1142,24 +1142,23 @@ document.addEventListener('DOMContentLoaded', () => {
             local = local.map(m => m.id === member.id ? updatedMember : m);
             saveLocalStorageMembers(local);
 
-            // Sync with Firebase Firestore
+            // Sync with Firebase Firestore (fire-and-forget in background)
             if (useFirebase) {
-                try {
-                    await db.collection('applicants').doc(member.id.toString()).update({
-                        name: updatedMember.name,
-                        username: updatedMember.username,
-                        studentId: updatedMember.studentId,
-                        phone: updatedMember.phone,
-                        faculty: updatedMember.faculty,
-                        department: updatedMember.department,
-                        grade: updatedMember.grade,
-                        birthdate: updatedMember.birthdate,
-                        password: updatedMember.password
-                    });
+                db.collection('applicants').doc(member.id.toString()).update({
+                    name: updatedMember.name,
+                    username: updatedMember.username,
+                    studentId: updatedMember.studentId,
+                    phone: updatedMember.phone,
+                    faculty: updatedMember.faculty,
+                    department: updatedMember.department,
+                    grade: updatedMember.grade,
+                    birthdate: updatedMember.birthdate,
+                    password: updatedMember.password
+                }).then(() => {
                     console.log("Background Firestore update profile succeeded!");
-                } catch (err) {
+                }).catch(err => {
                     console.error("Firestore update profile failed:", err);
-                }
+                });
             }
 
             // Show success message

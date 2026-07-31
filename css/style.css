@@ -359,6 +359,7 @@ body.dark-theme #main-header.scrolled {
     align-items: center;
     gap: 12px;
     text-decoration: none;
+    margin-right: 25px; /* Added spacing to push items left */
 }
 .logo-img {
     height: 60px;
@@ -388,14 +389,14 @@ body.dark-theme #main-header.scrolled {
 #nav-menu ul {
     display: flex;
     list-style: none;
-    gap: 30px;
+    gap: 14px; /* Reduced from 30px to prevent overlapping */
 }
 .nav-link {
     text-decoration: none;
     color: var(--text-muted);
     font-family: var(--font-heading);
-    font-weight: 500;
-    font-size: 0.95rem;
+    font-weight: 600;
+    font-size: 0.85rem; /* Reduced from 0.95rem to prevent overflowing */
     transition: var(--transition-fast);
     position: relative;
     padding: 8px 0;
@@ -1914,15 +1915,15 @@ body.dark-theme .track-badge-mini.cross { color: #22d3ee; border-color: rgba(34,
 .dropdown-menu {
     position: absolute;
     top: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(10px);
+    left: 0; /* Changed from 50% for better space alignment */
+    transform: translateY(10px);
     background: var(--bg-card);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 10px 0;
-    min-width: 180px;
+    min-width: 190px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     list-style: none;
     opacity: 0;
@@ -1933,7 +1934,7 @@ body.dark-theme .track-badge-mini.cross { color: #22d3ee; border-color: rgba(34,
 .dropdown-item:hover .dropdown-menu {
     opacity: 1;
     visibility: visible;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
 }
 .dropdown-menu li a {
     display: block;
