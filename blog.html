@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Etkinlikler - Gedik Mobil Yazılım Kulübü</title>
+    <title>Blog - Gedik Mobil Yazılım Kulübü</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,17 +37,17 @@
                     <li class="dropdown-item">
                         <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Etkinlikler <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#upcoming">Gelecek Etkinlikler</a></li>
-                            <li><a href="#past">Geçmiş Etkinlikler</a></li>
-                            <li><a href="#workshops">Workshoplar</a></li>
+                            <li><a href="etkinlikler.html#upcoming">Gelecek Etkinlikler</a></li>
+                            <li><a href="etkinlikler.html#past">Geçmiş Etkinlikler</a></li>
+                            <li><a href="etkinlikler.html#workshops">Workshoplar</a></li>
                         </ul>
                     </li>
                     <li class="dropdown-item">
-                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Blog <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <a href="#" class="nav-link dropdown-toggle active" onclick="return false;">Blog <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
                         <ul class="dropdown-menu">
-                            <li><a href="blog.html#mobile-posts">Mobil Yazılım Yazıları</a></li>
-                            <li><a href="blog.html#sector-news">Sektörden Haberler</a></li>
-                            <li><a href="blog.html#resources">Kaynak Tavsiyeleri</a></li>
+                            <li><a href="#mobile-posts">Mobil Yazılım Yazıları</a></li>
+                            <li><a href="#sector-news">Sektörden Haberler</a></li>
+                            <li><a href="#resources">Kaynak Tavsiyeleri</a></li>
                         </ul>
                     </li>
                     <li><a href="duyurular.html" class="nav-link">Duyurular</a></li>
@@ -79,126 +79,116 @@
         </div>
     </header>
 
-    <!-- GELECEK ETKİNLİKLER SECTION -->
-    <section id="upcoming" style="padding-top: 140px; padding-bottom: 80px;">
+    <!-- MOBİL YAZILIM YAZILARI SECTION -->
+    <section id="mobile-posts" style="padding-top: 140px; padding-bottom: 80px;">
         <div class="container">
             <div class="section-title text-center" style="margin-bottom: 50px;">
-                <span class="subtitle">Yaklaşan Buluşmalar</span>
-                <h2>Gelecek Etkinlikler</h2>
-                <p>Yakın tarihte düzenleyeceğimiz eğitim kampları, buluşmalar ve sunumlar.</p>
+                <span class="subtitle">Teknik Makaleler</span>
+                <h2>Mobil Yazılım Yazıları</h2>
+                <p>Kulüp üyelerimiz ve geliştiricilerimiz tarafından kaleme alınmış teknik makaleler.</p>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-                <!-- Event 1 -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                <!-- Post 1 -->
                 <div class="card-glow animate-hover-lift" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="ctf-badge kolay" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">iOS / Swift</span>
-                        <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;"><i class="fa-solid fa-circle-play"></i> Aktif Kayıt</span>
+                        <span class="ctf-badge kolay" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">SwiftUI</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-user-edit"></i> Yusuf Furkan Gelişin</span>
                     </div>
-                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">SwiftUI ile Arayüz Tasarım Kampı</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">iOS uygulama dünyasının modern arayüz framework'ü SwiftUI temellerini, bildirimsel kod yazımını ve hazır animasyon bileşenlerini uygulamalı olarak işliyoruz.</p>
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
-                        <span><i class="fa-regular fa-calendar"></i> 15 Şubat 2026, Cumartesi</span>
-                        <span><i class="fa-regular fa-clock"></i> 14:00 - 17:00</span>
-                        <span><i class="fa-solid fa-location-dot"></i> Teknoloji Kampüsü, Lab 404</span>
+                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0; line-height: 1.4;">SwiftUI ile Deklaratif Kodlama Neden Gelecek?</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Imperative (emirsel) kodlama yaklaşımından declarative (bildirimsel) kodlamaya geçişin getirdiği hız, okunabilirlik ve arayüz animasyonlarındaki üstün performans avantajlarını derinlemesine inceliyoruz.</p>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+                        <span><i class="fa-regular fa-calendar"></i> 20 Ocak 2026</span>
+                        <span><i class="fa-regular fa-clock"></i> 5 dk okuma</span>
                     </div>
                 </div>
 
-                <!-- Event 2 -->
+                <!-- Post 2 -->
                 <div class="card-glow animate-hover-lift" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Android / Kotlin</span>
-                        <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;"><i class="fa-solid fa-circle-play"></i> Aktif Kayıt</span>
+                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Kotlin Multiplatform</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-user-edit"></i> Ahmet Yılmaz</span>
                     </div>
-                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">Kotlin ile Android Geliştirmeye Giriş</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Android geliştirmede kullanılan resmi dil Kotlin'in temellerini, OOP prensiplerini ve temel emülatör yapılandırmalarını sıfırdan ele alıyoruz.</p>
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
-                        <span><i class="fa-regular fa-calendar"></i> 22 Şubat 2026, Cumartesi</span>
-                        <span><i class="fa-regular fa-clock"></i> 14:00 - 17:00</span>
-                        <span><i class="fa-solid fa-location-dot"></i> Teknoloji Kampüsü, Lab 404</span>
+                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0; line-height: 1.4;">Kotlin Multiplatform (KMP) ile Tek Kod, İki Platform</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Hem iOS hem de Android için tek bir iş mantığı (business logic) kodu yazarak native uygulamalar geliştirmenin yollarını ve KMP ekosistemini mercek altına alıyoruz.</p>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+                        <span><i class="fa-regular fa-calendar"></i> 18 Ocak 2026</span>
+                        <span><i class="fa-regular fa-clock"></i> 7 dk okuma</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- GEÇMİŞ ETKİNLİKLER SECTION -->
-    <section id="past" style="padding-top: 80px; padding-bottom: 80px;">
+    <!-- SEKTÖRDEN HABERLER SECTION -->
+    <section id="sector-news" style="padding-top: 80px; padding-bottom: 80px;">
         <div class="container">
             <div class="section-title text-center" style="margin-bottom: 50px;">
-                <span class="subtitle">Neler Yaptık?</span>
-                <h2>Geçmiş Etkinlikler</h2>
-                <p>Daha önce kulüp olarak başarıyla tamamladığımız, sunum ve buluşma etkinlikleri.</p>
+                <span class="subtitle">Dünyadaki Yenilikler</span>
+                <h2>Sektörden Haberler</h2>
+                <p>Mobil teknoloji dünyasındaki son gelişmeler, lansmanlar ve güncelleme haberleri.</p>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-                <!-- Past 1 -->
-                <div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; opacity: 0.85;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                <!-- News 1 -->
+                <div class="card-glow animate-hover-lift" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="ctf-badge kolay" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Kulüp İçi</span>
-                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-circle-check"></i> Tamamlandı</span>
+                        <span class="ctf-badge zor" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Apple Lansman</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-user-edit"></i> MYGK Editör</span>
                     </div>
-                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">MYGK Tanışma Toplantısı</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Kulübümüzün vizyonunu, eğitim hedeflerini, projelerimizi ve dönem planlarını sunduğumuz, yeni katılan üyelerimizle tanıştığımız ilk buluşmamızı başarıyla gerçekleştirdik.</p>
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
-                        <span><i class="fa-regular fa-calendar"></i> 12 Kasım 2025, Çarşamba</span>
-                        <span><i class="fa-solid fa-location-dot"></i> Konferans Salonu B</span>
+                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0; line-height: 1.4;">Apple WWDC26 Tarihleri ve Beklentiler</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Apple'ın haziran ayında gerçekleştireceği geliştirici konferansı WWDC26 için sunulması beklenen iOS 20, Swift 7 ve yeni yapay zeka entegrasyonu vizyonları hakkında öngörülerimiz.</p>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+                        <span><i class="fa-regular fa-calendar"></i> 15 Ocak 2026</span>
+                        <span><i class="fa-regular fa-clock"></i> 4 dk okuma</span>
                     </div>
                 </div>
 
-                <!-- Past 2 -->
-                <div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; opacity: 0.85;">
+                <!-- News 2 -->
+                <div class="card-glow animate-hover-lift" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Sektör Sohbeti</span>
-                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-circle-check"></i> Tamamlandı</span>
+                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Google Android</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-user-edit"></i> MYGK Editör</span>
                     </div>
-                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">Mobil Sektöründe Kariyer Sohbetleri</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Sektörde aktif olarak çalışan tecrübeli konuklarımızla mobil geliştirmenin bugünü, geleceği, iş bulma süreçleri ve CV hazırlama tüyolarını konuştuk.</p>
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
-                        <span><i class="fa-regular fa-calendar"></i> 05 Aralık 2025, Cuma</span>
-                        <span><i class="fa-solid fa-location-dot"></i> Online Zoom</span>
+                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0; line-height: 1.4;">Google Android 17 (Vanilla Ice Cream) Sürümü</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Google'ın Android 17 için sunduğu yeni gelişmiş veri şifreleme özellikleri, optimize edilmiş arka plan servisleri ve Kotlin Coroutines entegrasyonu yenilikleri.</p>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+                        <span><i class="fa-regular fa-calendar"></i> 12 Ocak 2026</span>
+                        <span><i class="fa-regular fa-clock"></i> 3 dk okuma</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- WORKSHOPLAR SECTION -->
-    <section id="workshops" style="padding-top: 80px; padding-bottom: 80px;">
+    <!-- KAYNAK TAVSİYELERİ SECTION -->
+    <section id="resources" style="padding-top: 80px; padding-bottom: 80px;">
         <div class="container">
             <div class="section-title text-center" style="margin-bottom: 50px;">
-                <span class="subtitle">Uygulamalı Atölyeler</span>
-                <h2>Workshoplar</h2>
-                <p>Üyelerimizin katılımıyla gerçekleştirdiğimiz kodlama ve pratik proje geliştirme atölyeleri.</p>
+                <span class="subtitle">Kütüphanemiz</span>
+                <h2>Kaynak Tavsiyeleri</h2>
+                <p>Mobil yazılım geliştirmeyi öğrenirken başvurabileceğiniz en nitelikli kaynak ve platformlar.</p>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-                <!-- Workshop 1 -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                <!-- Resource 1 -->
                 <div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="ctf-badge zor" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Git / Versiyon Kontrol</span>
-                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-circle-check"></i> Tamamlandı</span>
+                        <span class="ctf-badge kolay" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Resmi Belgeler</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-bookmark"></i> Kitaplık</span>
                     </div>
-                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">Git ve GitHub Workshop</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Kodlarımızı versiyonlamayı, takım halinde çakışma (conflict) yaşamadan çalışmayı ve projelerimizi GitHub reposuna yüklemeyi uygulamalı işledik.</p>
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
-                        <span><i class="fa-regular fa-calendar"></i> 20 Aralık 2025, Cumartesi</span>
-                        <span><i class="fa-solid fa-location-dot"></i> Teknoloji Kampüsü, Lab 404</span>
-                    </div>
+                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0; line-height: 1.4;">Resmi Dökümantasyonlar ve Eğitim Serileri</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Swift için resmi Apple Developer Documentation ve Swift.org; Kotlin için Kotlinlang.org ve Android Developers portalı, her seviyeden yazılımcı için en güncel ve en güvenilir ana kaynaklardır.</p>
                 </div>
 
-                <!-- Workshop 2 -->
+                <!-- Resource 2 -->
                 <div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Rest API</span>
-                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-circle-check"></i> Tamamlandı</span>
+                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Kanallar & Kitaplar</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-bookmark"></i> Kitaplık</span>
                     </div>
-                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">Rest API ve JSON Veri Entegrasyonu</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Mobil uygulamaların internet üzerinden veri alışverişi yapmasını sağlayan API entegrasyonu, HTTP istekleri ve JSON verilerini çözme (parse) işlemlerini gerçekleştirdik.</p>
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
-                        <span><i class="fa-regular fa-calendar"></i> 10 Ocak 2026, Cumartesi</span>
-                        <span><i class="fa-solid fa-location-dot"></i> Teknoloji Kampüsü, Lab 404</span>
-                    </div>
+                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0; line-height: 1.4;">Öncü Eğitim Kanalları ve Kaynaklar</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Paul Hudson (Hacking with Swift), Philipp Lackner (Android/Kotlin), Kodeco (Ray Wenderlich) eğitim platformları ile Uncle Bob'un Clean Code ve Clean Architecture kitapları kendinizi ileri seviyeye taşımak için harika rehberlerdir.</p>
                 </div>
             </div>
         </div>
