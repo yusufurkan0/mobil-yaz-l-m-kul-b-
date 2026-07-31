@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İletişim - Gedik Mobil Yazılım Kulübü</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-theme">
+
+    <!-- Header Navigation -->
+    <header id="main-header">
+        <div class="container navbar-container">
+            <a href="index.html" class="logo">
+                <img src="img/logo.png" alt="MYGK Logo" class="logo-img">
+            </a>
+            
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="index.html#hero" class="nav-link">Ana Sayfa</a></li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Hakkımızda <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.html#about">Biz Kimiz?</a></li>
+                            <li><a href="index.html#board">Yönetim Kurulu</a></li>
+                            <li><a href="index.html#regulations">Kulüp Tüzüğü</a></li>
+                            <li><a href="index.html#sponsors">Sponsorlarımız</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Etkinlikler <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="etkinlikler.html#upcoming">Gelecek Etkinlikler</a></li>
+                            <li><a href="etkinlikler.html#past">Geçmiş Etkinlikler</a></li>
+                            <li><a href="etkinlikler.html#workshops">Workshoplar</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Blog <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" onclick="alert('Gezinti:\nBu bölümdeki blog yazıları kulüp üyeleri tarafından yakında paylaşılacaktır!'); return false;">Mobil Yazılım Yazıları</a></li>
+                            <li><a href="#" onclick="alert('Gezinti:\nSektör haberleri ve son güncellemeler yakında burada!'); return false;">Sektörden Haberler</a></li>
+                            <li><a href="#" onclick="alert('Gezinti:\nSwift ve Kotlin için resmi dökümantasyonları okumanızı tavsiye ederiz.'); return false;">Kaynak Tavsiyeleri</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="duyurular.html" class="nav-link">Duyurular</a></li>
+                    <li><a href="index.html#tracks" class="nav-link">Vitrin</a></li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Ek Özellikler <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.html" class="tool-link">CV Hazırlayıcı</a></li>
+                            <li><a href="index.html" class="tool-link">Yetenek Skoru</a></li>
+                            <li><a href="index.html" class="tool-link">Liderlik Tablosu</a></li>
+                            <li><a href="index.html" class="tool-link">Quiz Modülü</a></li>
+                            <li><a href="index.html" class="tool-link">CTF Alanı</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle active" onclick="return false;">İletişim <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="iletisim.html">İletişim Bilgileri</a></li>
+                            <li><a href="iletisim.html">Bize Ulaşın</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="nav-buttons">
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Temayı Değiştir">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <a href="index.html" id="login-trigger" class="btn btn-secondary nav-btn-login">Giriş Yap</a>
+                <a href="index.html" id="user-profile-trigger" class="btn btn-secondary nav-btn-profile hidden">
+                    <i class="fa-solid fa-user"></i> <span id="nav-user-name">Profilim</span>
+                </a>
+                <a href="index.html" id="register-trigger-nav" class="btn btn-primary nav-btn-register">Kayıt Ol</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main İletişim Body -->
+    <main style="padding-top: 140px; padding-bottom: 80px;">
+        <div class="container">
+            <div class="section-title text-center" style="margin-bottom: 50px;">
+                <span class="subtitle">Bize Ulaşın</span>
+                <h2>İletişim Kanalları</h2>
+                <p>Kulübümüze dair merak ettiklerinizi sormak, önerilerde bulunmak veya sponsorluk için bizimle iletişime geçebilirsiniz.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; align-items: start; max-width: 1100px; margin: 0 auto;">
+                
+                <!-- Bize Ulaşın Formu (Left Column) -->
+                <div class="card-glow" style="padding: 40px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.6rem; color: var(--headings-color); font-weight: 700; margin-bottom: 25px;">Bize Ulaşın</h3>
+                    
+                    <form id="contact-form" style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="form-row">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="contact-name">Adınız Soyadınız</label>
+                                <input type="text" id="contact-name" placeholder="Adınız Soyadınız" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="contact-email">E-posta Adresiniz</label>
+                                <input type="email" id="contact-email" placeholder="ornek@email.com" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="contact-subject">Konu</label>
+                            <select id="contact-subject" required>
+                                <option value="" disabled selected>Konu Seçiniz</option>
+                                <option value="genel">Genel Soru / Öneri</option>
+                                <option value="uyelik">Üyelik İşlemleri</option>
+                                <option value="sponsorluk">Sponsorluk & Ortaklık</option>
+                                <option value="hata">Hata Bildirimi</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="contact-message">Mesajınız</label>
+                            <textarea id="contact-message" rows="5" placeholder="Mesajınızı buraya yazınız..." required></textarea>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                            <input type="checkbox" id="contact-consent" required style="width: auto;">
+                            <label for="contact-consent" style="font-size: 0.8rem; color: var(--text-muted); cursor: pointer; margin-bottom: 0;">Kişisel verilerimin işlenmesine izin veriyorum.</label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-full glow-btn" style="background: var(--primary); margin-top: 10px;">Mesaj Gönder</button>
+                    </form>
+                </div>
+                
+                <!-- İletişim Bilgileri & Harita (Right Column) -->
+                <div style="display: flex; flex-direction: column; gap: 24px;">
+                    
+                    <!-- İletişim Bilgileri Card -->
+                    <div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
+                        <h4 style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 5px;">İletişim Bilgileri</h4>
+                        
+                        <div style="display: flex; align-items: flex-start; gap: 12px; font-size: 0.9rem;">
+                            <span style="color: var(--primary); margin-top: 3px;"><i class="fa-solid fa-envelope"></i></span>
+                            <div>
+                                <strong style="color: var(--headings-color); display: block;">E-posta</strong>
+                                <span style="color: var(--text-muted);">gedikmobilyazilimkulubu@gmail.com</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: flex-start; gap: 12px; font-size: 0.9rem;">
+                            <span style="color: var(--primary); margin-top: 3px;"><i class="fa-solid fa-location-dot"></i></span>
+                            <div>
+                                <strong style="color: var(--headings-color); display: block;">Adres</strong>
+                                <span style="color: var(--text-muted);">Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: flex-start; gap: 12px; font-size: 0.9rem;">
+                            <span style="color: var(--primary); margin-top: 3px;"><i class="fa-solid fa-clock"></i></span>
+                            <div>
+                                <strong style="color: var(--headings-color); display: block;">Çalışma Saatleri</strong>
+                                <span style="color: var(--text-muted);">Pazartesi - Cuma: 10:00 - 17:00<br>Hafta sonu: Kapalı</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sosyal Medya Card -->
+                    <div class="card-glow" style="padding: 24px 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color);">
+                        <h4 style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;">Sosyal Medya</h4>
+                        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">
+                            <a href="https://instagram.com" target="_blank" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition-fast);" class="contact-social-link">
+                                <i class="fa-brands fa-instagram" style="font-size: 1.1rem; color: var(--primary);"></i> Instagram
+                            </a>
+                            <a href="https://linkedin.com" target="_blank" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition-fast);" class="contact-social-link">
+                                <i class="fa-brands fa-linkedin" style="font-size: 1.1rem; color: var(--primary);"></i> LinkedIn
+                            </a>
+                            <a href="https://youtube.com" target="_blank" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition-fast);" class="contact-social-link">
+                                <i class="fa-brands fa-youtube" style="font-size: 1.1rem; color: var(--primary);"></i> YouTube
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Google Map Embed Card -->
+                    <div class="card-glow" style="border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); overflow: hidden; height: 220px;">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3015.6534241618335!2d29.222384676450505!3d40.90140282531398!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cac473e659b857%3A0xe54e63dfb12e1be1!2zSXN0YW5idWwgR2VkaWsgw5xuaXZlcnNpdGVzaQ!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str" 
+                                width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                    
+                </div>
+                
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-info">
+                <a href="index.html" class="logo">
+                    <img src="img/logo.png" alt="MYGK Logo" class="logo-img">
+                </a>
+                <p>Geleceğin mobil geliştiricilerini bir araya getiren bağımsız öğrenci topluluğu.</p>
+                <div class="social-links">
+                    <a href="https://github.com" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Hızlı Menü</h4>
+                <ul>
+                    <li><a href="index.html#hero">Ana Sayfa</a></li>
+                    <li><a href="index.html#about">Biz Kimiz?</a></li>
+                    <li><a href="index.html#tracks">Neler Yapıyoruz?</a></li>
+                    <li><a href="index.html#sponsors">Sponsorlar</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Sistem</h4>
+                <ul>
+                    <li><a href="index.html" onclick="alert('Yönetici Paneline erişmek için ana sayfadaki giriş panelini kullanınız.'); return false;">Yönetici Paneli</a></li>
+                    <li><a href="#">Gizlilik Politikası</a></li>
+                    <li><a href="#">Kullanım Şartları</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-contact">
+                <h4>İletişim</h4>
+                <p><i class="fa-solid fa-location-dot"></i> Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul</p>
+                <p><i class="fa-solid fa-envelope"></i> <span class="contact-email">gedikmobilyazilimkulubu@gmail.com</span></p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom text-center">
+            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with ❤️ by Antigravity.</p>
+        </div>
+    </footer>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="js/config.js"></script>
+
+    <!-- Custom Page Script to handle light/dark mode, session headers and Form Submission -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme setup
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.body.classList.remove('dark-theme');
+                document.getElementById('theme-toggle').innerHTML = `<i class="fa-solid fa-moon"></i>`;
+            } else {
+                document.body.classList.add('dark-theme');
+                document.getElementById('theme-toggle').innerHTML = `<i class="fa-solid fa-sun"></i>`;
+            }
+
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    document.body.classList.toggle('dark-theme');
+                    if (document.body.classList.contains('dark-theme')) {
+                        themeToggle.innerHTML = `<i class="fa-solid fa-sun"></i>`;
+                        localStorage.setItem('theme', 'dark');
+                    } else {
+                        themeToggle.innerHTML = `<i class="fa-solid fa-moon"></i>`;
+                        localStorage.setItem('theme', 'light');
+                    }
+                });
+            }
+
+            // Sync user profile state from sessionStorage
+            const loggedInEmail = sessionStorage.getItem('member_logged_in_email');
+            if (loggedInEmail) {
+                const loginTrigger = document.getElementById('login-trigger');
+                const registerTrigger = document.getElementById('register-trigger-nav');
+                const profileTrigger = document.getElementById('user-profile-trigger');
+                const navUserName = document.getElementById('nav-user-name');
+
+                if (loginTrigger) loginTrigger.classList.add('hidden');
+                if (registerTrigger) registerTrigger.classList.add('hidden');
+                if (profileTrigger) {
+                    profileTrigger.classList.remove('hidden');
+                    profileTrigger.href = "index.html"; // Go to homepage dashboard
+                }
+                
+                // Fetch name from local cache if possible
+                const localData = localStorage.getItem('db_members');
+                if (localData) {
+                    const members = JSON.parse(localData);
+                    const found = members.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
+                    if (found && navUserName) {
+                        navUserName.innerText = found.username || found.name;
+                    }
+                }
+            }
+
+            // EmailJS Initialization for contact page
+            let useEmailJS = false;
+            if (typeof emailjs !== 'undefined' && typeof CONFIG !== 'undefined' && CONFIG.emailjs && CONFIG.emailjs.publicKey) {
+                try {
+                    emailjs.init(CONFIG.emailjs.publicKey);
+                    useEmailJS = true;
+                } catch (err) {
+                    console.error("EmailJS initialization failed:", err);
+                }
+            }
+
+            // Contact Form Submit Handler
+            const contactForm = document.getElementById('contact-form');
+            if (contactForm) {
+                contactForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const submitBtn = contactForm.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gönderiliyor...`;
+                    
+                    const name = document.getElementById('contact-name').value.trim();
+                    const email = document.getElementById('contact-email').value.trim();
+                    const subject = document.getElementById('contact-subject').value;
+                    const message = document.getElementById('contact-message').value.trim();
+                    
+                    if (useEmailJS) {
+                        const templateParams = {
+                            name: name,
+                            email: email,
+                            title: subject,
+                            message: message,
+                            time: new Date().toLocaleString('tr-TR')
+                        };
+
+                        const tId = CONFIG.emailjs.contactTemplateId || "template_contact";
+
+                        emailjs.send(CONFIG.emailjs.serviceId, tId, templateParams)
+                            .then((response) => {
+                                console.log('Contact Message sent successfully via EmailJS!', response.status, response.text);
+                                alert("Mesajınız EmailJS üzerinden başarıyla kulüp mail adresinize iletildi!");
+                                contactForm.reset();
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalText;
+                            })
+                            .catch((error) => {
+                                console.error('EmailJS contact failed. Falling back to FormSubmit...', error);
+                                sendViaFormSubmit(name, email, subject, message, submitBtn, originalText);
+                            });
+                    } else {
+                        sendViaFormSubmit(name, email, subject, message, submitBtn, originalText);
+                    }
+                });
+            }
+
+            function sendViaFormSubmit(name, email, subject, message, submitBtn, originalText) {
+                fetch("https://formsubmit.co/ajax/gedikmobilyazilimkulubu@gmail.com", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({
+                        _subject: `📩 Yeni İletişim Formu Mesajı (${subject.toUpperCase()})`,
+                        Ad_Soyad: name,
+                        Gonderen_Email: email,
+                        Konu: subject,
+                        Mesaj: message
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert("Mesajınız başarıyla iletildi! (Not: FormSubmit servisini ilk kez kullanıyorsanız, gelen kutunuza düşen aktivasyon onay mailini onaylayın!)");
+                    contactForm.reset();
+                })
+                .catch(error => {
+                    console.error("FormSubmit contact message failed:", error);
+                    alert("Mesajınız gönderilirken bir hata oluştu. Lütfen doğrudan gedikmobilyazilimkulubu@gmail.com adresine mail atınız.");
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
