@@ -22,7 +22,7 @@ const CONFIG = {
     emailjs: {
         serviceId: "service_xfwh375",
         templateId: "template_dy45d4h", // Kayıt için onay kodu şablonu
-        contactTemplateId: "template_contact", // İletişim formu şablonu (EmailJS panelinizde oluşturabilirsiniz)
+        contactTemplateId: "template_o3gytpr", // İletişim formu şablonu (EmailJS panelinizdeki ID ile güncellendi)
         publicKey: "jbdFINOTgwnVSZNOQ"
     }
 };
