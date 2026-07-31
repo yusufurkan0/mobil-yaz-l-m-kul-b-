@@ -2022,4 +2022,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         renderCTFList();
     }
+
+    // --- 11. Contact Form Handler ---
+    const contactForm = document.getElementById('contact-form');
+    if (contactForm) {
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert("Mesajınız başarıyla iletildi! En kısa sürede geri dönüş yapacağız.");
+            contactForm.reset();
+        });
+    }
 });
