@@ -78,38 +78,8 @@
             </div>
 
             <!-- Announcements Grid -->
-            <div style="display: flex; flex-direction: column; gap: 24px; max-width: 900px; margin: 0 auto;">
-                
-                <!-- Announcement Card 1 -->
-                <div class="card-glow animate-hover-lift" style="padding: 35px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; position: relative;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                        <span class="ctf-badge kolay" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Eğitim Atölyesi</span>
-                        <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-regular fa-calendar"></i> 15 Ocak 2026</span>
-                    </div>
-                    <h3 style="font-size: 1.3rem; color: var(--headings-color); font-weight: 700; margin: 0;">Sıfırdan Mobil Geliştirme Atölyeleri Kayıtları Açıldı!</h3>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">Swift ve Kotlin dilleri ile sıfırdan mobil uygulama geliştirme atölyelerimizin kayıtları başlamıştır. Eğitimlerimiz ücretsiz olup, uygulamalı projeler üzerinden yürütülecektir. Katılmak için ana sayfadaki "Kayıt Ol" butonu ile üyelik başvurusu yapmanız yeterlidir.</p>
-                </div>
-
-                <!-- Announcement Card 2 -->
-                <div class="card-glow animate-hover-lift" style="padding: 35px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; position: relative;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                        <span class="ctf-badge zor" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Önemli Duyuru</span>
-                        <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-regular fa-calendar"></i> 10 Ocak 2026</span>
-                    </div>
-                    <h3 style="font-size: 1.3rem; color: var(--headings-color); font-weight: 700; margin: 0;">WhatsApp Duyuru Grubumuza Katılın!</h3>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">Kulüp içindeki eğitim sınıfları, hackathon grupları ve buluşma zamanı güncellemelerinden anlık haberdar olabilmek için üye olduktan sonra sağ üstteki profil panelinizde açılan "Kulüp WhatsApp Grubu" linkine tıklayarak grubumuza katılabilirsiniz.</p>
-                </div>
-
-                <!-- Announcement Card 3 -->
-                <div class="card-glow animate-hover-lift" style="padding: 35px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; position: relative;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Genel Haber</span>
-                        <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-regular fa-calendar"></i> 05 Ocak 2026</span>
-                    </div>
-                    <h3 style="font-size: 1.3rem; color: var(--headings-color); font-weight: 700; margin: 0;">Sponsorluk ve Partnerlik Görüşmeleri Başladı</h3>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">İstanbul Gedik Üniversitesi Mobil Yazılım Geliştirme Kulübü olarak bu dönem yapacağımız proje yarışmaları ve hackathonlar için sektör temsilcisi teknoloji firmaları ile sponsorluk görüşmelerine başlanmıştır. Detaylar netleştikçe buradan duyurulacaktır.</p>
-                </div>
-
+            <div id="dynamic-announcements-list" style="display: flex; flex-direction: column; gap: 24px; max-width: 900px; margin: 0 auto;">
+                <!-- Loaded dynamically -->
             </div>
         </div>
     </main>
@@ -212,6 +182,83 @@
                     }
                 }
             }
+
+            // --- Dynamic Announcements Rendering ---
+            const initialMockAnnouncements = [
+                {
+                    id: "ann_1",
+                    title: "Sıfırdan Mobil Geliştirme Atölyeleri Kayıtları Açıldı!",
+                    category: "Eğitim Atölyesi",
+                    badgeClass: "kolay",
+                    date: "15 Ocak 2026",
+                    description: "Swift ve Kotlin dilleri ile sıfırdan mobil uygulama geliştirme atölyelerimizin kayıtları başlamıştır. Eğitimlerimiz ücretsiz olup, uygulamalı projeler üzerinden yürütülecektir. Katılmak için ana sayfadaki 'Kayıt Ol' butonu ile üyelik başvurusu yapmanız yeterlidir."
+                },
+                {
+                    id: "ann_2",
+                    title: "WhatsApp Duyuru Grubumuza Katılın!",
+                    category: "Önemli Duyuru",
+                    badgeClass: "zor",
+                    date: "10 Ocak 2026",
+                    description: "Kulüp içindeki eğitim sınıfları, hackathon grupları ve buluşma zamanı güncellemelerinden anlık haberdar olabilmek için üye olduktan sonra sağ üstteki profil panelinizde açılan 'Kulüp WhatsApp Grubu' linkine tıklayarak grubumuza katılabilirsiniz."
+                },
+                {
+                    id: "ann_3",
+                    title: "Sponsorluk ve Partnerlik Görüşmeleri Başladı",
+                    category: "Genel Haber",
+                    badgeClass: "orta",
+                    date: "05 Ocak 2026",
+                    description: "İstanbul Gedik Üniversitesi Mobil Yazılım Geliştirme Kulübü olarak bu dönem yapacağımız proje yarışmaları ve hackathonlar için sektör temsilcisi teknoloji firmaları ile sponsorluk görüşmelerine başlanmıştır. Detaylar netleştikçe buradan duyurulacaktır."
+                }
+            ];
+
+            function getLocalStorageAnnouncements() {
+                const stored = localStorage.getItem('myk_announcements');
+                if (!stored) {
+                    localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
+                    return initialMockAnnouncements;
+                }
+                return JSON.parse(stored);
+            }
+
+            function renderAnnouncements() {
+                const list = document.getElementById('dynamic-announcements-list');
+                if (!list) return;
+                list.innerHTML = '';
+                
+                const announcements = getLocalStorageAnnouncements();
+                if (announcements.length === 0) {
+                    list.innerHTML = `<div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); text-align: center;"><p style="color: var(--text-muted); margin: 0;">Henüz yayınlanmış bir duyuru bulunmamaktadır.</p></div>`;
+                    return;
+                }
+
+                announcements.forEach(ann => {
+                    const card = document.createElement('div');
+                    card.className = 'card-glow animate-hover-lift';
+                    card.style.cssText = 'padding: 35px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; position: relative;';
+                    
+                    card.innerHTML = `
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                            <span class="ctf-badge ${escapeHtml(ann.badgeClass)}">${escapeHtml(ann.category)}</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-regular fa-calendar"></i> ${escapeHtml(ann.date)}</span>
+                        </div>
+                        <h3 style="font-size: 1.3rem; color: var(--headings-color); font-weight: 700; margin: 0;">${escapeHtml(ann.title)}</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">${escapeHtml(ann.description)}</p>
+                    `;
+                    list.appendChild(card);
+                });
+            }
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                return str.replace(/&/g, "&amp;")
+                          .replace(/</g, "&lt;")
+                          .replace(/>/g, "&gt;")
+                          .replace(/"/g, "&quot;")
+                          .replace(/'/g, "&#039;");
+            }
+
+            // Run render
+            renderAnnouncements();
         });
     </script>
 </body>

@@ -799,70 +799,247 @@
 
     <!-- PANEL: Admin Dashboard Panel -->
     <div id="admin-dashboard" class="dashboard-panel hidden">
-        <div class="dashboard-container container">
+        <div class="dashboard-container container" style="max-height: 90vh; overflow-y: auto; padding-bottom: 40px;">
             <header class="dashboard-header">
                 <div class="dashboard-title-area">
                     <i class="fa-solid fa-user-shield dashboard-icon"></i>
                     <div>
                         <h2>Yönetici Paneli (Admin)</h2>
-                        <p>Mobil Yazılım Kulübü Üye Başvuruları</p>
+                        <p>Mobil Yazılım Kulübü Yönetim Platformu</p>
                     </div>
                 </div>
                 <button id="logout-btn" class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap</button>
             </header>
 
-            <div class="dashboard-stats-grid">
-                <div class="dash-stat-card card-glow">
-                    <span class="stat-icon-wrap purple"><i class="fa-solid fa-users"></i></span>
-                    <div>
-                        <h4 id="dash-total-members">0</h4>
-                        <p>Toplam Başvuru</p>
+            <!-- Navigation Tabs -->
+            <div class="dashboard-tabs" style="display: flex; gap: 15px; margin-top: 25px; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                <button class="dash-tab-btn active" data-tab="members" style="background: none; border: none; color: var(--headings-color); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid var(--primary); transition: var(--transition-fast);">Üye Başvuruları</button>
+                <button class="dash-tab-btn" data-tab="events" style="background: none; border: none; color: var(--text-muted); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid transparent; transition: var(--transition-fast);">Etkinlik Yönetimi</button>
+                <button class="dash-tab-btn" data-tab="announcements" style="background: none; border: none; color: var(--text-muted); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid transparent; transition: var(--transition-fast);">Duyuru Yönetimi</button>
+            </div>
+
+            <!-- Tab 1: Member Applications -->
+            <div id="section-members" class="dash-tab-section">
+                <div class="dashboard-stats-grid">
+                    <div class="dash-stat-card card-glow">
+                        <span class="stat-icon-wrap purple"><i class="fa-solid fa-users"></i></span>
+                        <div>
+                            <h4 id="dash-total-members">0</h4>
+                            <p>Toplam Başvuru</p>
+                        </div>
+                    </div>
+                    <div class="dash-stat-card card-glow">
+                        <span class="stat-icon-wrap ios-bg-color"><i class="fa-brands fa-apple"></i></span>
+                        <div>
+                            <h4 id="dash-ios-count">0</h4>
+                            <p>iOS Başvurusu</p>
+                        </div>
+                    </div>
+                    <div class="dash-stat-card card-glow">
+                        <span class="stat-icon-wrap android-bg-color"><i class="fa-brands fa-android"></i></span>
+                        <div>
+                            <h4 id="dash-android-count">0</h4>
+                            <p>Android Başvurusu</p>
+                        </div>
                     </div>
                 </div>
-                <div class="dash-stat-card card-glow">
-                    <span class="stat-icon-wrap ios-bg-color"><i class="fa-brands fa-apple"></i></span>
-                    <div>
-                        <h4 id="dash-ios-count">0</h4>
-                        <p>iOS Başvurusu</p>
+
+                <div class="dashboard-table-card card-glow" style="margin-top: 25px;">
+                    <div class="table-header">
+                        <h3>Başvuru Listesi</h3>
+                        <div class="table-actions">
+                            <input type="text" id="member-search" placeholder="İsim veya e-posta ile ara...">
+                            <button id="clear-data-btn" class="btn btn-outline btn-sm"><i class="fa-solid fa-trash-can"></i> Sıfırla</button>
+                        </div>
                     </div>
-                </div>
-                <div class="dash-stat-card card-glow">
-                    <span class="stat-icon-wrap android-bg-color"><i class="fa-brands fa-android"></i></span>
-                    <div>
-                        <h4 id="dash-android-count">0</h4>
-                        <p>Android Başvurusu</p>
+                    <div class="table-responsive">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Ad Soyad</th>
+                                    <th>E-posta</th>
+                                    <th>Şifre</th>
+                                    <th>Bölüm</th>
+                                    <th>İlgi Alanı</th>
+                                    <th>Durum</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-member-list">
+                                <!-- Members loaded dynamically -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Dashboard Table Section -->
-            <div class="dashboard-table-card card-glow">
-                <div class="table-header">
-                    <h3>Başvuru Listesi</h3>
-                    <div class="table-actions">
-                        <input type="text" id="member-search" placeholder="İsim veya e-posta ile ara...">
-                        <button id="clear-data-btn" class="btn btn-outline btn-sm"><i class="fa-solid fa-trash-can"></i> Sıfırla</button>
+            <!-- Tab 2: Events Management -->
+            <div id="section-events" class="dash-tab-section hidden">
+                <div class="dashboard-table-card card-glow">
+                    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <h3>Kulüp Etkinlikleri</h3>
+                        <button id="btn-add-event" class="btn btn-primary btn-sm"><i class="fa-solid fa-calendar-plus"></i> Yeni Etkinlik Ekle</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Başlık</th>
+                                    <th>Kategori</th>
+                                    <th>Etiket</th>
+                                    <th>Bölüm (Statü)</th>
+                                    <th>Tarih</th>
+                                    <th>Konum</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-events-list">
+                                <!-- Events loaded dynamically -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="table-responsive">
-                    <table class="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>Ad Soyad</th>
-                                <th>E-posta</th>
-                                <th>Şifre</th>
-                                <th>Bölüm</th>
-                                <th>İlgi Alanı</th>
-                                <th>Durum</th>
-                                <th>İşlem</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-member-list">
-                            <!-- Members loaded dynamically -->
-                        </tbody>
-                    </table>
+            </div>
+
+            <!-- Tab 3: Announcements Management -->
+            <div id="section-announcements" class="dash-tab-section hidden">
+                <div class="dashboard-table-card card-glow">
+                    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <h3>Kulüp Duyuruları</h3>
+                        <button id="btn-add-announcement" class="btn btn-primary btn-sm"><i class="fa-solid fa-bullhorn"></i> Yeni Duyuru Ekle</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Başlık</th>
+                                    <th>Kategori (Tür)</th>
+                                    <th>Etiket Rengi</th>
+                                    <th>Duyuru Tarihi</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-announcements-list">
+                                <!-- Announcements loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Add/Edit Event Modal -->
+    <div id="admin-event-modal" class="modal hidden">
+        <div class="modal-content card-glow animate-zoom-in" style="max-width: 550px; width: 95%;">
+            <button class="modal-close" id="close-event-modal">&times;</button>
+            <h3 id="event-modal-title" style="font-size: 1.4rem; color: var(--headings-color); font-weight: 700; margin-bottom: 20px;">Yeni Etkinlik Ekle</h3>
+            
+            <form id="admin-event-form" style="display: flex; flex-direction: column; gap: 15px;">
+                <input type="hidden" id="event-edit-id">
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="event-title">Etkinlik Başlığı</label>
+                    <input type="text" id="event-title" required placeholder="Örn: Kotlin ile Mobil Tasarım">
+                </div>
+                
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="event-category">Kategori</label>
+                        <input type="text" id="event-category" required placeholder="Örn: iOS / Swift">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="event-badge">Etiket Zorluk Rengi</label>
+                        <select id="event-badge" required>
+                            <option value="kolay">Yeşil (Kolay)</option>
+                            <option value="orta" selected>Mor (Orta)</option>
+                            <option value="zor">Kırmızı (Zor)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="event-status">Kategori Alanı (Statü)</label>
+                        <select id="event-status" required>
+                            <option value="upcoming" selected>Gelecek Etkinlik</option>
+                            <option value="past">Geçmiş Etkinlik</option>
+                            <option value="workshop">Workshop</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="event-statustext">Durum Yazısı</label>
+                        <input type="text" id="event-statustext" required placeholder="Örn: Aktif Kayıt veya Tamamlandı">
+                    </div>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="event-date">Tarih</label>
+                        <input type="text" id="event-date" required placeholder="Örn: 15 Şubat 2026, Cumartesi">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="event-time">Saat Sınırı</label>
+                        <input type="text" id="event-time" placeholder="Örn: 14:00 - 17:00 (Boş kalabilir)">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="event-location">Etkinlik Yeri / Konum</label>
+                    <input type="text" id="event-location" required placeholder="Örn: Teknoloji Kampüsü, Lab 404 Veya Zoom">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="event-description">Etkinlik Açıklaması</label>
+                    <textarea id="event-description" rows="3" required placeholder="Etkinlik detayları ve hedefleri..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full glow-btn" style="margin-top: 10px;">Etkinliği Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Add/Edit Announcement Modal -->
+    <div id="admin-announcement-modal" class="modal hidden">
+        <div class="modal-content card-glow animate-zoom-in" style="max-width: 500px; width: 95%;">
+            <button class="modal-close" id="close-announcement-modal">&times;</button>
+            <h3 id="announcement-modal-title" style="font-size: 1.4rem; color: var(--headings-color); font-weight: 700; margin-bottom: 20px;">Yeni Duyuru Ekle</h3>
+            
+            <form id="admin-announcement-form" style="display: flex; flex-direction: column; gap: 15px;">
+                <input type="hidden" id="announcement-edit-id">
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="announcement-title">Duyuru Başlığı</label>
+                    <input type="text" id="announcement-title" required placeholder="Örn: WhatsApp Grubumuz Açıldı!">
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="announcement-category">Kategori (Tür)</label>
+                        <input type="text" id="announcement-category" required placeholder="Örn: Önemli Duyuru Veya Genel Haber">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="announcement-badge">Zorluk/Etiket Rengi</label>
+                        <select id="announcement-badge" required>
+                            <option value="kolay">Yeşil (Eğitim)</option>
+                            <option value="orta" selected>Mor (Genel)</option>
+                            <option value="zor">Kırmızı (Kritik)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="announcement-date">Duyuru Tarihi</label>
+                    <input type="text" id="announcement-date" required placeholder="Örn: 15 Ocak 2026">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="announcement-description">Duyuru Açıklaması</label>
+                    <textarea id="announcement-description" rows="4" required placeholder="Duyuru içeriğini buraya yazın..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full glow-btn" style="margin-top: 10px;">Duyuruyu Kaydet</button>
+            </form>
         </div>
     </div>
 

@@ -77,36 +77,8 @@
                 <p>Yakın tarihte düzenleyeceğimiz eğitim kampları, buluşmalar ve sunumlar.</p>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-                <!-- Event 1 -->
-                <div class="card-glow animate-hover-lift" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="ctf-badge kolay" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">iOS / Swift</span>
-                        <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;"><i class="fa-solid fa-circle-play"></i> Aktif Kayıt</span>
-                    </div>
-                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">SwiftUI ile Arayüz Tasarım Kampı</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">iOS uygulama dünyasının modern arayüz framework'ü SwiftUI temellerini, bildirimsel kod yazımını ve hazır animasyon bileşenlerini uygulamalı olarak işliyoruz.</p>
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
-                        <span><i class="fa-regular fa-calendar"></i> 15 Şubat 2026, Cumartesi</span>
-                        <span><i class="fa-regular fa-clock"></i> 14:00 - 17:00</span>
-                        <span><i class="fa-solid fa-location-dot"></i> Teknoloji Kampüsü, Lab 404</span>
-                    </div>
-                </div>
-
-                <!-- Event 2 -->
-                <div class="card-glow animate-hover-lift" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Android / Kotlin</span>
-                        <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;"><i class="fa-solid fa-circle-play"></i> Aktif Kayıt</span>
-                    </div>
-                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">Kotlin ile Android Geliştirmeye Giriş</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Android geliştirmede kullanılan resmi dil Kotlin'in temellerini, OOP prensiplerini ve temel emülatör yapılandırmalarını sıfırdan ele alıyoruz.</p>
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
-                        <span><i class="fa-regular fa-calendar"></i> 22 Şubat 2026, Cumartesi</span>
-                        <span><i class="fa-regular fa-clock"></i> 14:00 - 17:00</span>
-                        <span><i class="fa-solid fa-location-dot"></i> Teknoloji Kampüsü, Lab 404</span>
-                    </div>
-                </div>
+            <div id="upcoming-events-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                <!-- Loaded dynamically -->
             </div>
         </div>
     </section>
@@ -120,34 +92,8 @@
                 <p>Daha önce kulüp olarak başarıyla tamamladığımız, sunum ve buluşma etkinlikleri.</p>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-                <!-- Past 1 -->
-                <div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; opacity: 0.85;">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="ctf-badge kolay" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Kulüp İçi</span>
-                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-circle-check"></i> Tamamlandı</span>
-                    </div>
-                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">MYGK Tanışma Toplantısı</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Kulübümüzün vizyonunu, eğitim hedeflerini, projelerimizi ve dönem planlarını sunduğumuz, yeni katılan üyelerimizle tanıştığımız ilk buluşmamızı başarıyla gerçekleştirdik.</p>
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
-                        <span><i class="fa-regular fa-calendar"></i> 12 Kasım 2025, Çarşamba</span>
-                        <span><i class="fa-solid fa-location-dot"></i> Konferans Salonu B</span>
-                    </div>
-                </div>
-
-                <!-- Past 2 -->
-                <div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; opacity: 0.85;">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Sektör Sohbeti</span>
-                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-circle-check"></i> Tamamlandı</span>
-                    </div>
-                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">Mobil Sektöründe Kariyer Sohbetleri</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Sektörde aktif olarak çalışan tecrübeli konuklarımızla mobil geliştirmenin bugünü, geleceği, iş bulma süreçleri ve CV hazırlama tüyolarını konuştuk.</p>
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
-                        <span><i class="fa-regular fa-calendar"></i> 05 Aralık 2025, Cuma</span>
-                        <span><i class="fa-solid fa-location-dot"></i> Online Zoom</span>
-                    </div>
-                </div>
+            <div id="past-events-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                <!-- Loaded dynamically -->
             </div>
         </div>
     </section>
@@ -161,34 +107,8 @@
                 <p>Üyelerimizin katılımıyla gerçekleştirdiğimiz kodlama ve pratik proje geliştirme atölyeleri.</p>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-                <!-- Workshop 1 -->
-                <div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="ctf-badge zor" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Git / Versiyon Kontrol</span>
-                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-circle-check"></i> Tamamlandı</span>
-                    </div>
-                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">Git ve GitHub Workshop</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Kodlarımızı versiyonlamayı, takım halinde çakışma (conflict) yaşamadan çalışmayı ve projelerimizi GitHub reposuna yüklemeyi uygulamalı işledik.</p>
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
-                        <span><i class="fa-regular fa-calendar"></i> 20 Aralık 2025, Cumartesi</span>
-                        <span><i class="fa-solid fa-location-dot"></i> Teknoloji Kampüsü, Lab 404</span>
-                    </div>
-                </div>
-
-                <!-- Workshop 2 -->
-                <div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Rest API</span>
-                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-circle-check"></i> Tamamlandı</span>
-                    </div>
-                    <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">Rest API ve JSON Veri Entegrasyonu</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Mobil uygulamaların internet üzerinden veri alışverişi yapmasını sağlayan API entegrasyonu, HTTP istekleri ve JSON verilerini çözme (parse) işlemlerini gerçekleştirdik.</p>
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
-                        <span><i class="fa-regular fa-calendar"></i> 10 Ocak 2026, Cumartesi</span>
-                        <span><i class="fa-solid fa-location-dot"></i> Teknoloji Kampüsü, Lab 404</span>
-                    </div>
-                </div>
+            <div id="workshops-events-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                <!-- Loaded dynamically -->
             </div>
         </div>
     </section>
@@ -291,6 +211,166 @@
                     }
                 }
             }
+
+            // --- Dynamic Events Rendering ---
+            const initialMockEvents = [
+                {
+                    id: "ev_1",
+                    title: "SwiftUI ile Arayüz Tasarım Kampı",
+                    category: "iOS / Swift",
+                    badgeClass: "kolay",
+                    status: "upcoming",
+                    statusText: "Aktif Kayıt",
+                    statusIcon: "fa-solid fa-circle-play",
+                    description: "iOS uygulama dünyasının modern arayüz framework'ü SwiftUI temellerini, bildirimsel kod yazımını ve hazır animasyon bileşenlerini uygulamalı olarak işliyoruz.",
+                    date: "15 Şubat 2026, Cumartesi",
+                    time: "14:00 - 17:00",
+                    location: "Teknoloji Kampüsü, Lab 404"
+                },
+                {
+                    id: "ev_2",
+                    title: "Kotlin ile Android Geliştirmeye Giriş",
+                    category: "Android / Kotlin",
+                    badgeClass: "orta",
+                    status: "upcoming",
+                    statusText: "Aktif Kayıt",
+                    statusIcon: "fa-solid fa-circle-play",
+                    description: "Android geliştirmede kullanılan resmi dil Kotlin'in temellerini, OOP prensiplerini ve temel emülatör yapılandırmalarını sıfırdan ele alıyoruz.",
+                    date: "22 Şubat 2026, Cumartesi",
+                    time: "14:00 - 17:00",
+                    location: "Teknoloji Kampüsü, Lab 404"
+                },
+                {
+                    id: "ev_3",
+                    title: "MYGK Tanışma Toplantısı",
+                    category: "Kulüp İçi",
+                    badgeClass: "kolay",
+                    status: "past",
+                    statusText: "Tamamlandı",
+                    statusIcon: "fa-solid fa-circle-check",
+                    description: "Kulübümüzün vizyonunu, eğitim hedeflerini, projelerimizi ve dönem planlarını sunduğumuz, yeni katılan üyelerimizle tanıştığımız ilk buluşmamızı başarıyla gerçekleştirdik.",
+                    date: "12 Kasım 2025, Çarşamba",
+                    time: "",
+                    location: "Konferans Salonu B"
+                },
+                {
+                    id: "ev_4",
+                    title: "Mobil Sektöründe Kariyer Sohbetleri",
+                    category: "Sektör Sohbeti",
+                    badgeClass: "orta",
+                    status: "past",
+                    statusText: "Tamamlandı",
+                    statusIcon: "fa-solid fa-circle-check",
+                    description: "Sektörde aktif olarak çalışan tecrübeli konuklarımızla mobil geliştirmenin bugünü, geleceği, iş bulma süreçleri ve CV hazırlama tüyolarını konuştuk.",
+                    date: "05 Aralık 2025, Cuma",
+                    time: "",
+                    location: "Online Zoom"
+                },
+                {
+                    id: "ev_5",
+                    title: "Git ve GitHub Workshop",
+                    category: "Git / Versiyon Kontrol",
+                    badgeClass: "zor",
+                    status: "workshop",
+                    statusText: "Tamamlandı",
+                    statusIcon: "fa-solid fa-circle-check",
+                    description: "Kodlarimizi versiyonlamayi, takim halinde cakisma (conflict) yasamadan calismayi ve projelerimizi GitHub reposuna yuklemeyi uygulamali isledik.",
+                    date: "20 Aralık 2025, Cumartesi",
+                    time: "",
+                    location: "Teknoloji Kampüsü, Lab 404"
+                },
+                {
+                    id: "ev_6",
+                    title: "Figma ile Mobil UI/UX Tasarım Atölyesi",
+                    category: "Tasarım / UI-UX",
+                    badgeClass: "kolay",
+                    status: "workshop",
+                    statusText: "Tamamlandı",
+                    statusIcon: "fa-solid fa-circle-check",
+                    description: "Kullanıcı deneyimi (UX) prensiplerini, mobil arayüz (UI) standartlarını ve Figma'da prototipleme araçlarını sıfırdan uygulamalı olarak öğrendik.",
+                    date: "10 Ocak 2026, Cumartesi",
+                    time: "",
+                    location: "Online Zoom"
+                }
+            ];
+
+            function getLocalStorageEvents() {
+                const stored = localStorage.getItem('myk_events');
+                if (!stored) {
+                    localStorage.setItem('myk_events', JSON.stringify(initialMockEvents));
+                    return initialMockEvents;
+                }
+                return JSON.parse(stored);
+            }
+
+            function renderEvents() {
+                const upcomingList = document.getElementById('upcoming-events-list');
+                const pastList = document.getElementById('past-events-list');
+                const workshopsList = document.getElementById('workshops-events-list');
+
+                if (upcomingList) upcomingList.innerHTML = '';
+                if (pastList) pastList.innerHTML = '';
+                if (workshopsList) workshopsList.innerHTML = '';
+
+                const events = getLocalStorageEvents();
+
+                let upcomingCount = 0;
+                let pastCount = 0;
+                let workshopCount = 0;
+
+                events.forEach(ev => {
+                    const card = document.createElement('div');
+                    card.className = ev.status === 'past' ? 'card-glow' : 'card-glow animate-hover-lift';
+                    
+                    let opacityStyle = ev.status === 'past' ? 'opacity: 0.85;' : '';
+                    card.style.cssText = `padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; ${opacityStyle}`;
+
+                    card.innerHTML = `
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span class="ctf-badge ${escapeHtml(ev.badgeClass)}">${escapeHtml(ev.category)}</span>
+                            <span style="font-size: 0.8rem; color: ${ev.status === 'past' ? 'var(--text-muted)' : 'var(--primary)'}; font-weight: 600;">
+                                <i class="${escapeHtml(ev.statusIcon)}"></i> ${escapeHtml(ev.statusText)}
+                            </span>
+                        </div>
+                        <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">${escapeHtml(ev.title)}</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">${escapeHtml(ev.description)}</p>
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
+                            <span><i class="fa-regular fa-calendar"></i> ${escapeHtml(ev.date)}</span>
+                            ${ev.time ? `<span><i class="fa-regular fa-clock"></i> ${escapeHtml(ev.time)}</span>` : ''}
+                            <span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(ev.location)}</span>
+                        </div>
+                    `;
+
+                    if (ev.status === 'upcoming' && upcomingList) {
+                        upcomingList.appendChild(card);
+                        upcomingCount++;
+                    } else if (ev.status === 'past' && pastList) {
+                        pastList.appendChild(card);
+                        pastCount++;
+                    } else if (ev.status === 'workshop' && workshopsList) {
+                        workshopsList.appendChild(card);
+                        workshopCount++;
+                    }
+                });
+
+                // Empty checks
+                const emptyCard = (msg) => `<div class="card-glow" style="grid-column: 1/-1; padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); text-align: center;"><p style="color: var(--text-muted); margin: 0;">${msg}</p></div>`;
+                if (upcomingCount === 0 && upcomingList) upcomingList.innerHTML = emptyCard("Yaklaşan bir etkinlik bulunmamaktadır.");
+                if (pastCount === 0 && pastList) pastList.innerHTML = emptyCard("Geçmiş bir etkinlik bulunmamaktadır.");
+                if (workshopCount === 0 && workshopsList) workshopsList.innerHTML = emptyCard("Tamamlanmış bir workshop bulunmamaktadır.");
+            }
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                return str.replace(/&/g, "&amp;")
+                          .replace(/</g, "&lt;")
+                          .replace(/>/g, "&gt;")
+                          .replace(/"/g, "&quot;")
+                          .replace(/'/g, "&#039;");
+            }
+
+            // Run render
+            renderEvents();
         });
     </script>
 </body>

@@ -556,6 +556,141 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('myk_members', JSON.stringify(members));
     }
 
+    // --- Events & Announcements Database Helpers & Mock Data ---
+    const initialMockEvents = [
+        {
+            id: "ev_1",
+            title: "SwiftUI ile Arayüz Tasarım Kampı",
+            category: "iOS / Swift",
+            badgeClass: "kolay",
+            status: "upcoming",
+            statusText: "Aktif Kayıt",
+            statusIcon: "fa-solid fa-circle-play",
+            description: "iOS uygulama dünyasının modern arayüz framework'ü SwiftUI temellerini, bildirimsel kod yazımını ve hazır animasyon bileşenlerini uygulamalı olarak işliyoruz.",
+            date: "15 Şubat 2026, Cumartesi",
+            time: "14:00 - 17:00",
+            location: "Teknoloji Kampüsü, Lab 404"
+        },
+        {
+            id: "ev_2",
+            title: "Kotlin ile Android Geliştirmeye Giriş",
+            category: "Android / Kotlin",
+            badgeClass: "orta",
+            status: "upcoming",
+            statusText: "Aktif Kayıt",
+            statusIcon: "fa-solid fa-circle-play",
+            description: "Android geliştirmede kullanılan resmi dil Kotlin'in temellerini, OOP prensiplerini ve temel emülatör yapılandırmalarını sıfırdan ele alıyoruz.",
+            date: "22 Şubat 2026, Cumartesi",
+            time: "14:00 - 17:00",
+            location: "Teknoloji Kampüsü, Lab 404"
+        },
+        {
+            id: "ev_3",
+            title: "MYGK Tanışma Toplantısı",
+            category: "Kulüp İçi",
+            badgeClass: "kolay",
+            status: "past",
+            statusText: "Tamamlandı",
+            statusIcon: "fa-solid fa-circle-check",
+            description: "Kulübümüzün vizyonunu, eğitim hedeflerini, projelerimizi ve dönem planlarını sunduğumuz, yeni katılan üyelerimizle tanıştığımız ilk buluşmamızı başarıyla gerçekleştirdik.",
+            date: "12 Kasım 2025, Çarşamba",
+            time: "",
+            location: "Konferans Salonu B"
+        },
+        {
+            id: "ev_4",
+            title: "Mobil Sektöründe Kariyer Sohbetleri",
+            category: "Sektör Sohbeti",
+            badgeClass: "orta",
+            status: "past",
+            statusText: "Tamamlandı",
+            statusIcon: "fa-solid fa-circle-check",
+            description: "Sektörde aktif olarak çalışan tecrübeli konuklarımızla mobil geliştirmenin bugünü, geleceği, iş bulma süreçleri ve CV hazırlama tüyolarını konuştuk.",
+            date: "05 Aralık 2025, Cuma",
+            time: "",
+            location: "Online Zoom"
+        },
+        {
+            id: "ev_5",
+            title: "Git ve GitHub Workshop",
+            category: "Git / Versiyon Kontrol",
+            badgeClass: "zor",
+            status: "workshop",
+            statusText: "Tamamlandı",
+            statusIcon: "fa-solid fa-circle-check",
+            description: "Kodlarimizi versiyonlamayi, takim halinde cakisma (conflict) yasamadan calismayi ve projelerimizi GitHub reposuna yuklemeyi uygulamali isledik.",
+            date: "20 Aralık 2025, Cumartesi",
+            time: "",
+            location: "Teknoloji Kampüsü, Lab 404"
+        },
+        {
+            id: "ev_6",
+            title: "Figma ile Mobil UI/UX Tasarım Atölyesi",
+            category: "Tasarım / UI-UX",
+            badgeClass: "kolay",
+            status: "workshop",
+            statusText: "Tamamlandı",
+            statusIcon: "fa-solid fa-circle-check",
+            description: "Kullanıcı deneyimi (UX) prensiplerini, mobil arayüz (UI) standartlarını ve Figma'da prototipleme araçlarını sıfırdan uygulamalı olarak öğrendik.",
+            date: "10 Ocak 2026, Cumartesi",
+            time: "",
+            location: "Online Zoom"
+        }
+    ];
+
+    const initialMockAnnouncements = [
+        {
+            id: "ann_1",
+            title: "Sıfırdan Mobil Geliştirme Atölyeleri Kayıtları Açıldı!",
+            category: "Eğitim Atölyesi",
+            badgeClass: "kolay",
+            date: "15 Ocak 2026",
+            description: "Swift ve Kotlin dilleri ile sıfırdan mobil uygulama geliştirme atölyelerimizin kayıtları başlamıştır. Eğitimlerimiz ücretsiz olup, uygulamalı projeler üzerinden yürütülecektir. Katılmak için ana sayfadaki 'Kayıt Ol' butonu ile üyelik başvurusu yapmanız yeterlidir."
+        },
+        {
+            id: "ann_2",
+            title: "WhatsApp Duyuru Grubumuza Katılın!",
+            category: "Önemli Duyuru",
+            badgeClass: "zor",
+            date: "10 Ocak 2026",
+            description: "Kulüp içindeki eğitim sınıfları, hackathon grupları ve buluşma zamanı güncellemelerinden anlık haberdar olabilmek için üye olduktan sonra sağ üstteki profil panelinizde açılan 'Kulüp WhatsApp Grubu' linkine tıklayarak grubumuza katılabilirsiniz."
+        },
+        {
+            id: "ann_3",
+            title: "Sponsorluk ve Partnerlik Görüşmeleri Başladı",
+            category: "Genel Haber",
+            badgeClass: "orta",
+            date: "05 Ocak 2026",
+            description: "İstanbul Gedik Üniversitesi Mobil Yazılım Geliştirme Kulübü olarak bu dönem yapacağımız proje yarışmaları ve hackathonlar için sektör temsilcisi teknoloji firmaları ile sponsorluk görüşmelerine başlanmıştır. Detaylar netleştikçe buradan duyurulacaktır."
+        }
+    ];
+
+    function getLocalStorageEvents() {
+        const stored = localStorage.getItem('myk_events');
+        if (!stored) {
+            localStorage.setItem('myk_events', JSON.stringify(initialMockEvents));
+            return initialMockEvents;
+        }
+        return JSON.parse(stored);
+    }
+
+    function saveLocalStorageEvents(events) {
+        localStorage.setItem('myk_events', JSON.stringify(events));
+    }
+
+    function getLocalStorageAnnouncements() {
+        const stored = localStorage.getItem('myk_announcements');
+        if (!stored) {
+            localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
+            return initialMockAnnouncements;
+        }
+        return JSON.parse(stored);
+    }
+
+    function saveLocalStorageAnnouncements(announcements) {
+        localStorage.setItem('myk_announcements', JSON.stringify(announcements));
+    }
+
     // Dynamic homepage stats update (combines local + cloud count)
     async function updateHomepageStats() {
         const memberSpan = document.getElementById('homepage-member-count');
@@ -1223,6 +1358,320 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+        });
+    }
+
+    // --- Admin Dashboard Tabs Switching & CRUD Operations ---
+    const tabBtns = document.querySelectorAll('.dash-tab-btn');
+    const sections = document.querySelectorAll('.dash-tab-section');
+
+    if (tabBtns.length > 0) {
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.getAttribute('data-tab');
+                
+                // Reset active styles
+                tabBtns.forEach(b => {
+                    b.classList.remove('active');
+                    b.style.borderBottomColor = 'transparent';
+                    b.style.color = 'var(--text-muted)';
+                });
+                
+                btn.classList.add('active');
+                btn.style.borderBottomColor = 'var(--primary)';
+                btn.style.color = 'var(--headings-color)';
+
+                // Toggle visibility
+                sections.forEach(sec => sec.classList.add('hidden'));
+                const activeSection = document.getElementById(`section-${tab}`);
+                if (activeSection) {
+                    activeSection.classList.remove('hidden');
+                }
+
+                // Render corresponding data
+                if (tab === 'members') {
+                    renderDashboardTable(memberSearch.value, false);
+                } else if (tab === 'events') {
+                    renderDashboardEvents();
+                } else if (tab === 'announcements') {
+                    renderDashboardAnnouncements();
+                }
+            });
+        });
+    }
+
+    // Render Events in admin dashboard
+    function renderDashboardEvents() {
+        const listContainer = document.getElementById('admin-events-list');
+        if (!listContainer) return;
+
+        listContainer.innerHTML = '';
+        const events = getLocalStorageEvents();
+
+        if (events.length === 0) {
+            listContainer.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px;">Kayıtlı etkinlik bulunamadı.</td></tr>`;
+            return;
+        }
+
+        events.forEach(ev => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${escapeHtml(ev.title)}</strong></td>
+                <td>${escapeHtml(ev.category)}</td>
+                <td><span class="ctf-badge ${escapeHtml(ev.badgeClass)}">${escapeHtml(ev.badgeClass.toUpperCase())}</span></td>
+                <td><span class="status-badge ${ev.status === 'upcoming' ? 'approved' : 'pending'}">${escapeHtml(ev.status.toUpperCase())}</span></td>
+                <td>${escapeHtml(ev.date)} ${ev.time ? `(${escapeHtml(ev.time)})` : ''}</td>
+                <td>${escapeHtml(ev.location)}</td>
+                <td>
+                    <button class="table-btn btn-edit-event" data-id="${ev.id}" title="Düzenle"><i class="fa-solid fa-pen-to-square" style="color: #00b4d8;"></i></button>
+                    <button class="table-btn btn-delete-event" data-id="${ev.id}" title="Sil"><i class="fa-solid fa-trash-can"></i></button>
+                </td>
+            `;
+            listContainer.appendChild(tr);
+        });
+
+        // Edit listeners
+        listContainer.querySelectorAll('.btn-edit-event').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                openEditEventModal(id);
+            });
+        });
+
+        // Delete listeners
+        listContainer.querySelectorAll('.btn-delete-event').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                deleteEvent(id);
+            });
+        });
+    }
+
+    // Render Announcements in admin dashboard
+    function renderDashboardAnnouncements() {
+        const listContainer = document.getElementById('admin-announcements-list');
+        if (!listContainer) return;
+
+        listContainer.innerHTML = '';
+        const announcements = getLocalStorageAnnouncements();
+
+        if (announcements.length === 0) {
+            listContainer.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px;">Kayıtlı duyuru bulunamadı.</td></tr>`;
+            return;
+        }
+
+        announcements.forEach(ann => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${escapeHtml(ann.title)}</strong></td>
+                <td>${escapeHtml(ann.category)}</td>
+                <td><span class="ctf-badge ${escapeHtml(ann.badgeClass)}">${escapeHtml(ann.badgeClass.toUpperCase())}</span></td>
+                <td>${escapeHtml(ann.date)}</td>
+                <td>
+                    <button class="table-btn btn-edit-ann" data-id="${ann.id}" title="Düzenle"><i class="fa-solid fa-pen-to-square" style="color: #00b4d8;"></i></button>
+                    <button class="table-btn btn-delete-ann" data-id="${ann.id}" title="Sil"><i class="fa-solid fa-trash-can"></i></button>
+                </td>
+            `;
+            listContainer.appendChild(tr);
+        });
+
+        // Edit listeners
+        listContainer.querySelectorAll('.btn-edit-ann').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                openEditAnnouncementModal(id);
+            });
+        });
+
+        // Delete listeners
+        listContainer.querySelectorAll('.btn-delete-ann').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                deleteAnnouncement(id);
+            });
+        });
+    }
+
+    // --- Modal opening, saving, deleting handlers ---
+    const eventModal = document.getElementById('admin-event-modal');
+    const closeEventModalBtn = document.getElementById('close-event-modal');
+    const eventForm = document.getElementById('admin-event-form');
+    const btnAddEvent = document.getElementById('btn-add-event');
+
+    const announcementModal = document.getElementById('admin-announcement-modal');
+    const closeAnnouncementModalBtn = document.getElementById('close-announcement-modal');
+    const announcementForm = document.getElementById('admin-announcement-form');
+    const btnAddAnnouncement = document.getElementById('btn-add-announcement');
+
+    // Event Modal Actions
+    if (btnAddEvent) {
+        btnAddEvent.addEventListener('click', () => {
+            if (eventForm) eventForm.reset();
+            document.getElementById('event-edit-id').value = '';
+            document.getElementById('event-modal-title').innerText = 'Yeni Etkinlik Ekle';
+            if (eventModal) eventModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeEventModalBtn && eventModal) {
+        closeEventModalBtn.addEventListener('click', () => {
+            eventModal.classList.add('hidden');
+        });
+    }
+
+    if (eventForm) {
+        eventForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('event-edit-id').value;
+            const title = document.getElementById('event-title').value.trim();
+            const category = document.getElementById('event-category').value.trim();
+            const badgeClass = document.getElementById('event-badge').value;
+            const status = document.getElementById('event-status').value;
+            const statusText = document.getElementById('event-statustext').value.trim();
+            const date = document.getElementById('event-date').value.trim();
+            const time = document.getElementById('event-time').value.trim();
+            const location = document.getElementById('event-location').value.trim();
+            const description = document.getElementById('event-description').value.trim();
+
+            let events = getLocalStorageEvents();
+
+            const statusIcon = status === 'upcoming' ? 'fa-solid fa-circle-play' : 'fa-solid fa-circle-check';
+
+            const eventData = {
+                id: editId || 'ev_' + Date.now(),
+                title,
+                category,
+                badgeClass,
+                status,
+                statusText,
+                statusIcon,
+                description,
+                date,
+                time,
+                location
+            };
+
+            if (editId) {
+                events = events.map(ev => ev.id === editId ? eventData : ev);
+                showStatusToast("Güncellendi!", "Etkinlik başarıyla güncellendi.", true);
+            } else {
+                events.push(eventData);
+                showStatusToast("Eklendi!", "Yeni etkinlik başarıyla eklendi.", true);
+            }
+
+            saveLocalStorageEvents(events);
+            renderDashboardEvents();
+            if (eventModal) eventModal.classList.add('hidden');
+        });
+    }
+
+    function openEditEventModal(id) {
+        const events = getLocalStorageEvents();
+        const found = events.find(ev => ev.id === id);
+        if (!found) return;
+
+        document.getElementById('event-edit-id').value = found.id;
+        document.getElementById('event-title').value = found.title;
+        document.getElementById('event-category').value = found.category;
+        document.getElementById('event-badge').value = found.badgeClass;
+        document.getElementById('event-status').value = found.status;
+        document.getElementById('event-statustext').value = found.statusText;
+        document.getElementById('event-date').value = found.date;
+        document.getElementById('event-time').value = found.time || '';
+        document.getElementById('event-location').value = found.location;
+        document.getElementById('event-description').value = found.description;
+
+        document.getElementById('event-modal-title').innerText = 'Etkinliği Düzenle';
+        if (eventModal) eventModal.classList.remove('hidden');
+    }
+
+    function deleteEvent(id) {
+        if (confirm("Bu etkinliği silmek istediğinizden emin misiniz?")) {
+            let events = getLocalStorageEvents();
+            events = events.filter(ev => ev.id !== id);
+            saveLocalStorageEvents(events);
+            renderDashboardEvents();
+            showStatusToast("Silindi", "Etkinlik başarıyla silindi.", true);
+        }
+    }
+
+    // Announcement Modal Actions
+    if (btnAddAnnouncement) {
+        btnAddAnnouncement.addEventListener('click', () => {
+            if (announcementForm) announcementForm.reset();
+            document.getElementById('announcement-edit-id').value = '';
+            document.getElementById('announcement-modal-title').innerText = 'Yeni Duyuru Ekle';
+            if (announcementModal) announcementModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeAnnouncementModalBtn && announcementModal) {
+        closeAnnouncementModalBtn.addEventListener('click', () => {
+            announcementModal.classList.add('hidden');
+        });
+    }
+
+    if (announcementForm) {
+        announcementForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('announcement-edit-id').value;
+            const title = document.getElementById('announcement-title').value.trim();
+            const category = document.getElementById('announcement-category').value.trim();
+            const badgeClass = document.getElementById('announcement-badge').value;
+            const date = document.getElementById('announcement-date').value.trim();
+            const description = document.getElementById('announcement-description').value.trim();
+
+            let announcements = getLocalStorageAnnouncements();
+
+            const announcementData = {
+                id: editId || 'ann_' + Date.now(),
+                title,
+                category,
+                badgeClass,
+                date,
+                description
+            };
+
+            if (editId) {
+                announcements = announcements.map(ann => ann.id === editId ? announcementData : ann);
+                showStatusToast("Güncellendi!", "Duyuru başarıyla güncellendi.", true);
+            } else {
+                announcements.push(announcementData);
+                showStatusToast("Eklendi!", "Yeni duyuru başarıyla eklendi.", true);
+            }
+
+            saveLocalStorageAnnouncements(announcements);
+            renderDashboardAnnouncements();
+            if (announcementModal) announcementModal.classList.add('hidden');
+        });
+    }
+
+    function openEditAnnouncementModal(id) {
+        const announcements = getLocalStorageAnnouncements();
+        const found = announcements.find(ann => ann.id === id);
+        if (!found) return;
+
+        document.getElementById('announcement-edit-id').value = found.id;
+        document.getElementById('announcement-title').value = found.title;
+        document.getElementById('announcement-category').value = found.category;
+        document.getElementById('announcement-badge').value = found.badgeClass;
+        document.getElementById('announcement-date').value = found.date;
+        document.getElementById('announcement-description').value = found.description;
+
+        document.getElementById('announcement-modal-title').innerText = 'Duyuruyu Düzenle';
+        if (announcementModal) announcementModal.classList.remove('hidden');
+    }
+
+    function deleteAnnouncement(id) {
+        if (confirm("Bu duyuruyu silmek istediğinizden emin misiniz?")) {
+            let announcements = getLocalStorageAnnouncements();
+            announcements = announcements.filter(ann => ann.id !== id);
+            saveLocalStorageAnnouncements(announcements);
+            renderDashboardAnnouncements();
+            showStatusToast("Silindi", "Duyuru başarıyla silindi.", true);
+        }
+    }
+
     // Logout Action
     if (logoutBtn && adminDashboard) {
         logoutBtn.addEventListener('click', () => {
@@ -1258,6 +1707,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } else {
                     localStorage.removeItem('myk_members');
+                    localStorage.removeItem('myk_events');
+                    localStorage.removeItem('myk_announcements');
                 }
                 dbMembers = []; // Reset local cache
                 await renderDashboardTable(memberSearch.value, true); // Force refetch empty/default list
