@@ -195,6 +195,33 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingMemberData = null;
     let countdownInterval = null;
 
+    // Custom Status Toast Notification
+    function showStatusToast(title, message, isSuccess = true) {
+        const existing = document.querySelector('.status-toast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification status-toast';
+        toast.style.borderLeft = isSuccess ? '4px solid #10b981' : '4px solid #ef4444';
+        
+        const iconClass = isSuccess ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark';
+        const iconColor = isSuccess ? '#10b981' : '#ef4444';
+        
+        toast.innerHTML = `
+            <div class="toast-icon" style="color: ${iconColor}; font-size: 1.4rem;"><i class="${iconClass}"></i></div>
+            <div class="toast-content">
+                <h5 style="margin: 0 0 4px 0; font-size: 0.95rem; font-weight: 700; color: #ffffff !important;">${title}</h5>
+                <p style="margin: 0; font-size: 0.8rem; color: #cbd5e1 !important; line-height: 1.4;">${message}</p>
+            </div>
+        `;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('hide');
+            setTimeout(() => toast.remove(), 400);
+        }, 5000);
+    }
+
     // Custom Toast Notification Simulator
     function showToastNotification(code, targetEmail) {
         const existing = document.querySelector('.toast-notification');
@@ -2044,7 +2071,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const now = Date.now();
             if (lastSubmit && (now - lastSubmit < 60000)) {
                 const remaining = Math.round((60000 - (now - lastSubmit)) / 1000);
-                alert(`Lütfen ardı ardına mesaj göndermeyiniz. Yeni bir mesaj göndermek için ${remaining} saniye beklemelisiniz.`);
+                showStatusToast("Yavaş Olun!", `Yeni bir mesaj göndermek için ${remaining} saniye beklemelisiniz.`, false);
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
                 return;
@@ -2062,7 +2089,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 3. Strict Email Validation Regex
             const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             if (!emailRegex.test(email)) {
-                alert("Lütfen geçerli bir e-posta adresi giriniz! (Örn: isim@domain.com)");
+                showStatusToast("Geçersiz E-posta", "Lütfen geçerli bir e-posta adresi giriniz! (Örn: isim@domain.com)", false);
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
                 return;
@@ -2072,7 +2099,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tempEmailDomains = ['tempmail.com', '10minutemail.com', 'yopmail.com', 'mailinator.com', 'temp-mail.org', 'guerrillamail.com', 'sharklasers.com', 'dispostable.com', 'getairmail.com', 'boun.cr', 'tempmail.net', 'tempmailaddress.com'];
             const emailDomain = email.split('@')[1].toLowerCase();
             if (tempEmailDomains.includes(emailDomain)) {
-                alert("Geçici veya tek kullanımlık e-posta adresleri kabul edilmemektedir. Lütfen gerçek bir e-posta adresi giriniz.");
+                showStatusToast("Geçersiz E-posta", "Geçici veya tek kullanımlık e-posta adresleri kabul edilmemektedir.", false);
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
                 return;
@@ -2094,7 +2121,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .then((response) => {
                         console.log('Contact Message sent successfully via EmailJS!', response.status, response.text);
                         localStorage.setItem('last_contact_submit_time', Date.now());
-                        alert("Mesajınız EmailJS üzerinden başarıyla kulüp mail adresinize iletildi!");
+                        showStatusToast("Gönderildi!", "Mesajınız başarıyla kulüp mail adresine iletildi.", true);
                         contactForm.reset();
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalText;
@@ -2129,12 +2156,12 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             localStorage.setItem('last_contact_submit_time', Date.now());
-            alert("Mesajınız başarıyla iletildi! (Not: FormSubmit servisini ilk kez kullanıyorsanız, gelen kutunuza düşen aktivasyon onay mailini onaylayın!)");
+            showStatusToast("Gönderildi!", "Mesajınız başarıyla iletildi! Gelen kutunuza düşen onay mailini doğrulamayı unutmayın.", true);
             contactForm.reset();
         })
         .catch(error => {
             console.error("FormSubmit contact message failed:", error);
-            alert("Mesajınız gönderilirken bir hata oluştu. Lütfen doğrudan gedikmobilyazilimkulubu@gmail.com adresine mail atınız.");
+            showStatusToast("Gönderilemedi", "Mesajınız gönderilirken hata oluştu. Lütfen doğrudan gedikmobilyazilimkulubu@gmail.com adresine mail atınız.", false);
         })
         .finally(() => {
             submitBtn.disabled = false;
