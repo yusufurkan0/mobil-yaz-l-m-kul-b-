@@ -2039,33 +2039,65 @@ document.addEventListener('DOMContentLoaded', () => {
             const subject = document.getElementById('contact-subject').value;
             const message = document.getElementById('contact-message').value.trim();
             
-            fetch("https://formsubmit.co/ajax/gedikmobilyazilimkulubu@gmail.com", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
-                body: JSON.stringify({
-                    _subject: `📩 Yeni İletişim Formu Mesajı (${subject.toUpperCase()})`,
-                    Ad_Soyad: name,
-                    Gonderen_Email: email,
-                    Konu: subject,
-                    Mesaj: message
-                })
+            // 1. Try sending via EmailJS if enabled
+            if (useEmailJS) {
+                const templateParams = {
+                    from_name: name,
+                    from_email: email,
+                    subject: subject,
+                    message: message,
+                    to_email: "gedikmobilyazilimkulubu@gmail.com"
+                };
+
+                const tId = CONFIG.emailjs.contactTemplateId || "template_contact";
+
+                emailjs.send(CONFIG.emailjs.serviceId, tId, templateParams)
+                    .then((response) => {
+                        console.log('Contact Message sent successfully via EmailJS!', response.status, response.text);
+                        alert("Mesajınız EmailJS üzerinden başarıyla kulüp mail adresinize iletildi!");
+                        contactForm.reset();
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    })
+                    .catch((error) => {
+                        console.error('EmailJS contact failed. Falling back to FormSubmit...', error);
+                        sendViaFormSubmit(name, email, subject, message, submitBtn, originalText);
+                    });
+            } else {
+                // 2. Fallback directly to FormSubmit
+                sendViaFormSubmit(name, email, subject, message, submitBtn, originalText);
+            }
+        });
+    }
+
+    // FormSubmit sender helper function
+    function sendViaFormSubmit(name, email, subject, message, submitBtn, originalText) {
+        fetch("https://formsubmit.co/ajax/gedikmobilyazilimkulubu@gmail.com", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                _subject: `📩 Yeni İletişim Formu Mesajı (${subject.toUpperCase()})`,
+                Ad_Soyad: name,
+                Gonderen_Email: email,
+                Konu: subject,
+                Mesaj: message
             })
-            .then(response => response.json())
-            .then(data => {
-                alert("Mesajınız başarıyla iletildi! (Not: FormSubmit servisini ilk kez kullanıyorsanız, gelen kutunuza düşen aktivasyon onay mailini onaylayın!)");
-                contactForm.reset();
-            })
-            .catch(error => {
-                console.error("FormSubmit contact message failed:", error);
-                alert("Mesajınız gönderilirken bir hata oluştu. Lütfen doğrudan gedikmobilyazilimkulubu@gmail.com adresine mail atınız.");
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-            });
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Mesajınız başarıyla iletildi! (Not: FormSubmit servisini ilk kez kullanıyorsanız, gelen kutunuza düşen aktivasyon onay mailini onaylayın!)");
+            contactForm.reset();
+        })
+        .catch(error => {
+            console.error("FormSubmit contact message failed:", error);
+            alert("Mesajınız gönderilirken bir hata oluştu. Lütfen doğrudan gedikmobilyazilimkulubu@gmail.com adresine mail atınız.");
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
         });
     }
 });

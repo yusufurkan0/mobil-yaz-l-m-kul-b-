@@ -21,7 +21,8 @@ const CONFIG = {
     // EmailJS (Gerçek E-posta Gönderim Servisi) Yapılandırması
     emailjs: {
         serviceId: "service_xfwh375",
-        templateId: "template_dy45d4h",
+        templateId: "template_dy45d4h", // Kayıt için onay kodu şablonu
+        contactTemplateId: "template_contact", // İletişim formu şablonu (EmailJS panelinizde oluşturabilirsiniz)
         publicKey: "jbdFINOTgwnVSZNOQ"
     }
 };
