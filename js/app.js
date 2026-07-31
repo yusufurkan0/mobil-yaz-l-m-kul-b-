@@ -39,14 +39,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. Header Scroll Effect ---
     const header = document.getElementById('main-header');
-    
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-    });
+    if (header) {
+        const isHomePage = document.getElementById('hero') !== null;
+        const updateHeaderClass = () => {
+            if (window.scrollY > 50 || !isHomePage) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        };
+        window.addEventListener('scroll', updateHeaderClass);
+        updateHeaderClass(); // Run once on startup
+    }
 
     // --- 2. Hamburger Mobile Menu ---
     const menuToggle = document.getElementById('menu-toggle');
