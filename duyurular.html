@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duyurular - Gedik Mobil Yazılım Kulübü</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-theme">
+
+    <!-- Header Navigation -->
+    <header id="main-header">
+        <div class="container navbar-container">
+            <a href="index.html" class="logo">
+                <img src="img/logo.png" alt="MYGK Logo" class="logo-img">
+            </a>
+            
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="index.html#hero" class="nav-link">Ana Sayfa</a></li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Hakkımızda <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.html#about">Biz Kimiz?</a></li>
+                            <li><a href="index.html#board">Yönetim Kurulu</a></li>
+                            <li><a href="index.html#regulations">Kulüp Tüzüğü</a></li>
+                            <li><a href="index.html#sponsors">Sponsorlarımız</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Etkinlikler <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" onclick="alert('Yaklaşan Etkinlikler:\n1. SwiftUI ile Mobil Tasarım Kampı - Cumartesi 14:00\n2. Kotlin Temelleri Workshop - Gelecek Hafta'); return false;">Gelecek Etkinlikler</a></li>
+                            <li><a href="#" onclick="alert('Geçmiş Etkinlikler:\n1. MYGK Tanışma Toplantısı (Ekim 2025)\n2. Mobil Sektör Sohbetleri (Kasım 2025)'); return false;">Geçmiş Etkinlikler</a></li>
+                            <li><a href="#" onclick="alert('Workshoplar:\n1. Git ve GitHub Eğitimi\n2. Rest API Entegrasyonu'); return false;">Workshoplar</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Blog <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" onclick="alert('Gezinti:\nBu bölümdeki blog yazıları kulüp üyeleri tarafından yakında paylaşılacaktır!'); return false;">Mobil Yazılım Yazıları</a></li>
+                            <li><a href="#" onclick="alert('Gezinti:\nSektör haberleri ve son güncellemeler yakında burada!'); return false;">Sektörden Haberler</a></li>
+                            <li><a href="#" onclick="alert('Gezinti:\nSwift ve Kotlin için resmi dökümantasyonları okumanızı tavsiye ederiz.'); return false;">Kaynak Tavsiyeleri</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="duyurular.html" class="nav-link active">Duyurular</a></li>
+                    <li><a href="index.html#tracks" class="nav-link">Vitrin</a></li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">Ek Özellikler <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.html" class="tool-link">CV Hazırlayıcı</a></li>
+                            <li><a href="index.html" class="tool-link">Yetenek Skoru</a></li>
+                            <li><a href="index.html" class="tool-link">Liderlik Tablosu</a></li>
+                            <li><a href="index.html" class="tool-link">Quiz Modülü</a></li>
+                            <li><a href="index.html" class="tool-link">CTF Alanı</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="#" class="nav-link dropdown-toggle" onclick="return false;">İletişim <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.html#contact-section">İletişim Bilgileri</a></li>
+                            <li><a href="index.html#contact-section">Bize Ulaşın</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="nav-buttons">
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Temayı Değiştir">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <a href="index.html" id="login-trigger" class="btn btn-secondary nav-btn-login">Giriş Yap</a>
+                <a href="index.html" id="user-profile-trigger" class="btn btn-secondary nav-btn-profile hidden">
+                    <i class="fa-solid fa-user"></i> <span id="nav-user-name">Profilim</span>
+                </a>
+                <a href="index.html" id="register-trigger-nav" class="btn btn-primary nav-btn-register">Kayıt Ol</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Announcements Body -->
+    <main style="padding-top: 140px; padding-bottom: 80px;">
+        <div class="container">
+            <div class="section-title text-center" style="margin-bottom: 50px;">
+                <span class="subtitle">Haberler & Duyurular</span>
+                <h2>Kulüp Duyuruları</h2>
+                <p>Mobil Yazılım Geliştirme Kulübü (MYGK) hakkındaki en son gelişmeler, etkinlik duyuruları ve haberler.</p>
+            </div>
+
+            <!-- Announcements Grid -->
+            <div style="display: flex; flex-direction: column; gap: 24px; max-width: 900px; margin: 0 auto;">
+                
+                <!-- Announcement Card 1 -->
+                <div class="card-glow animate-hover-lift" style="padding: 35px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; position: relative;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <span class="ctf-badge kolay" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Eğitim Atölyesi</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-regular fa-calendar"></i> 15 Ocak 2026</span>
+                    </div>
+                    <h3 style="font-size: 1.3rem; color: var(--headings-color); font-weight: 700; margin: 0;">Sıfırdan Mobil Geliştirme Atölyeleri Kayıtları Açıldı!</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">Swift ve Kotlin dilleri ile sıfırdan mobil uygulama geliştirme atölyelerimizin kayıtları başlamıştır. Eğitimlerimiz ücretsiz olup, uygulamalı projeler üzerinden yürütülecektir. Katılmak için ana sayfadaki "Kayıt Ol" butonu ile üyelik başvurusu yapmanız yeterlidir.</p>
+                </div>
+
+                <!-- Announcement Card 2 -->
+                <div class="card-glow animate-hover-lift" style="padding: 35px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; position: relative;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <span class="ctf-badge zor" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Önemli Duyuru</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-regular fa-calendar"></i> 10 Ocak 2026</span>
+                    </div>
+                    <h3 style="font-size: 1.3rem; color: var(--headings-color); font-weight: 700; margin: 0;">WhatsApp Duyuru Grubumuza Katılın!</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">Kulüp içindeki eğitim sınıfları, hackathon grupları ve buluşma zamanı güncellemelerinden anlık haberdar olabilmek için üye olduktan sonra sağ üstteki profil panelinizde açılan "Kulüp WhatsApp Grubu" linkine tıklayarak grubumuza katılabilirsiniz.</p>
+                </div>
+
+                <!-- Announcement Card 3 -->
+                <div class="card-glow animate-hover-lift" style="padding: 35px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; position: relative;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <span class="ctf-badge orta" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Genel Haber</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-regular fa-calendar"></i> 05 Ocak 2026</span>
+                    </div>
+                    <h3 style="font-size: 1.3rem; color: var(--headings-color); font-weight: 700; margin: 0;">Sponsorluk ve Partnerlik Görüşmeleri Başladı</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">İstanbul Gedik Üniversitesi Mobil Yazılım Geliştirme Kulübü olarak bu dönem yapacağımız proje yarışmaları ve hackathonlar için sektör temsilcisi teknoloji firmaları ile sponsorluk görüşmelerine başlanmıştır. Detaylar netleştikçe buradan duyurulacaktır.</p>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-info">
+                <a href="index.html" class="logo">
+                    <img src="img/logo.png" alt="MYGK Logo" class="logo-img">
+                </a>
+                <p>Geleceğin mobil geliştiricilerini bir araya getiren bağımsız öğrenci topluluğu.</p>
+                <div class="social-links">
+                    <a href="https://github.com" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Hızlı Menü</h4>
+                <ul>
+                    <li><a href="index.html#hero">Ana Sayfa</a></li>
+                    <li><a href="index.html#about">Biz Kimiz?</a></li>
+                    <li><a href="index.html#tracks">Neler Yapıyoruz?</a></li>
+                    <li><a href="index.html#sponsors">Sponsorlar</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Sistem</h4>
+                <ul>
+                    <li><a href="index.html" onclick="alert('Yönetici Paneline erişmek için ana sayfadaki giriş panelini kullanınız.'); return false;">Yönetici Paneli</a></li>
+                    <li><a href="#">Gizlilik Politikası</a></li>
+                    <li><a href="#">Kullanım Şartları</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-contact">
+                <h4>İletişim</h4>
+                <p><i class="fa-solid fa-location-dot"></i> Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul</p>
+                <p><i class="fa-solid fa-envelope"></i> <span class="contact-email">gedikmobilyazilimkulubu@gmail.com</span></p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom text-center">
+            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with ❤️ by Antigravity.</p>
+        </div>
+    </footer>
+
+    <!-- Custom Page Script to handle light/dark mode and session headers -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme setup
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.body.classList.remove('dark-theme');
+                document.getElementById('theme-toggle').innerHTML = `<i class="fa-solid fa-moon"></i>`;
+            } else {
+                document.body.classList.add('dark-theme');
+                document.getElementById('theme-toggle').innerHTML = `<i class="fa-solid fa-sun"></i>`;
+            }
+
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    document.body.classList.toggle('dark-theme');
+                    if (document.body.classList.contains('dark-theme')) {
+                        themeToggle.innerHTML = `<i class="fa-solid fa-sun"></i>`;
+                        localStorage.setItem('theme', 'dark');
+                    } else {
+                        themeToggle.innerHTML = `<i class="fa-solid fa-moon"></i>`;
+                        localStorage.setItem('theme', 'light');
+                    }
+                });
+            }
+
+            // Sync user profile state from sessionStorage
+            const loggedInEmail = sessionStorage.getItem('member_logged_in_email');
+            if (loggedInEmail) {
+                const loginTrigger = document.getElementById('login-trigger');
+                const registerTrigger = document.getElementById('register-trigger-nav');
+                const profileTrigger = document.getElementById('user-profile-trigger');
+                const navUserName = document.getElementById('nav-user-name');
+
+                if (loginTrigger) loginTrigger.classList.add('hidden');
+                if (registerTrigger) registerTrigger.classList.add('hidden');
+                if (profileTrigger) {
+                    profileTrigger.classList.remove('hidden');
+                    profileTrigger.href = "index.html"; // Go to homepage dashboard
+                }
+                
+                // Fetch name from local cache if possible
+                const localData = localStorage.getItem('db_members');
+                if (localData) {
+                    const members = JSON.parse(localData);
+                    const found = members.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
+                    if (found && navUserName) {
+                        navUserName.innerText = found.username || found.name;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
