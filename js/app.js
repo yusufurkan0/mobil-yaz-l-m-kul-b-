@@ -695,6 +695,95 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('myk_announcements', JSON.stringify(announcements));
     }
 
+    // --- Blog Database Helpers & Mock Data ---
+    const initialMockBlog = [
+        {
+            id: "post_1",
+            title: "SwiftUI ile Deklaratif Kodlama Neden Gelecek?",
+            category: "SwiftUI",
+            badgeClass: "kolay",
+            status: "mobile-posts",
+            author: "Yusuf Furkan Gelişin",
+            authorIcon: "fa-solid fa-user-edit",
+            date: "20 Ocak 2026",
+            readTime: "5 dk okuma",
+            description: "Imperative (emirsel) kodlama yaklaşımından declarative (bildirimsel) kodlamaya geçişin getirdiği hız, okunabilirlik ve arayüz animasyonlarındaki üstün performans avantajlarını derinlemesine inceliyoruz."
+        },
+        {
+            id: "post_2",
+            title: "Kotlin Multiplatform (KMP) ile Tek Kod, İki Platform",
+            category: "Kotlin Multiplatform",
+            badgeClass: "orta",
+            status: "mobile-posts",
+            author: "Ahmet Yılmaz",
+            authorIcon: "fa-solid fa-user-edit",
+            date: "18 Ocak 2026",
+            readTime: "7 dk okuma",
+            description: "Hem iOS hem de Android için tek bir iş mantığı (business logic) kodu yazarak native uygulamalar geliştirmenin yollarını ve KMP ekosistemini mercek altına alıyoruz."
+        },
+        {
+            id: "post_3",
+            title: "Apple WWDC26 Tarihleri ve Beklentiler",
+            category: "Apple Lansman",
+            badgeClass: "zor",
+            status: "sector-news",
+            author: "MYGK Editör",
+            authorIcon: "fa-solid fa-user-edit",
+            date: "15 Ocak 2026",
+            readTime: "4 dk okuma",
+            description: "Apple'ın haziran ayında gerçekleştireceği geliştirici konferansı WWDC26 için sunulması beklenen iOS 20, Swift 7 ve yeni yapay zeka entegrasyonu vizyonları hakkında öngörülerimiz."
+        },
+        {
+            id: "post_4",
+            title: "Google Android 17 (Vanilla Ice Cream) Sürümü",
+            category: "Google Android",
+            badgeClass: "orta",
+            status: "sector-news",
+            author: "MYGK Editör",
+            authorIcon: "fa-solid fa-user-edit",
+            date: "12 Ocak 2026",
+            readTime: "3 dk okuma",
+            description: "Google'ın Android 17 için sunduğu yeni gelişmiş veri şifreleme özellikleri, optimize edilmiş arka plan servisleri ve Kotlin Coroutines entegrasyonu yenilikleri."
+        },
+        {
+            id: "post_5",
+            title: "Resmi Dökümantasyonlar ve Eğitim Serileri",
+            category: "Resmi Belgeler",
+            badgeClass: "kolay",
+            status: "resources",
+            author: "Kitaplık",
+            authorIcon: "fa-solid fa-bookmark",
+            date: "10 Ocak 2026",
+            readTime: "",
+            description: "Swift için resmi Apple Developer Documentation ve Swift.org; Kotlin için Kotlinlang.org ve Android Developers portalı, her seviyeden yazılımcı için en güncel ve en güvenilir ana kaynaklardır."
+        },
+        {
+            id: "post_6",
+            title: "Öncü Eğitim Kanalları ve Kaynaklar",
+            category: "Kanallar & Kitaplar",
+            badgeClass: "orta",
+            status: "resources",
+            author: "Kitaplık",
+            authorIcon: "fa-solid fa-bookmark",
+            date: "08 Ocak 2026",
+            readTime: "",
+            description: "Paul Hudson (Hacking with Swift), Philipp Lackner (Android/Kotlin), Kodeco (Ray Wenderlich) eğitim platformları ile Uncle Bob'un Clean Code ve Clean Architecture kitapları kendinizi ileri seviyeye taşımak için harika rehberlerdir."
+        }
+    ];
+
+    function getLocalStorageBlog() {
+        const stored = localStorage.getItem('myk_blog');
+        if (!stored) {
+            localStorage.setItem('myk_blog', JSON.stringify(initialMockBlog));
+            return initialMockBlog;
+        }
+        return JSON.parse(stored);
+    }
+
+    function saveLocalStorageBlog(blog) {
+        localStorage.setItem('myk_blog', JSON.stringify(blog));
+    }
+
     // Dynamic homepage stats update (combines local + cloud count)
     async function updateHomepageStats() {
         const memberSpan = document.getElementById('homepage-member-count');
@@ -1396,6 +1485,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderDashboardEvents();
                 } else if (tab === 'announcements') {
                     renderDashboardAnnouncements();
+                } else if (tab === 'blog') {
+                    renderDashboardBlog();
                 }
             });
         });
@@ -1673,6 +1764,148 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Render Blog posts in admin dashboard
+    function renderDashboardBlog() {
+        const listContainer = document.getElementById('admin-blog-list');
+        if (!listContainer) return;
+
+        listContainer.innerHTML = '';
+        const blogPosts = getLocalStorageBlog();
+
+        if (blogPosts.length === 0) {
+            listContainer.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 30px;">Kayıtlı blog yazısı bulunamadı.</td></tr>`;
+            return;
+        }
+
+        blogPosts.forEach(post => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${escapeHtml(post.title)}</strong></td>
+                <td>${escapeHtml(post.category)}</td>
+                <td><span class="ctf-badge ${escapeHtml(post.badgeClass)}">${escapeHtml(post.badgeClass.toUpperCase())}</span></td>
+                <td>${escapeHtml(post.author)}</td>
+                <td><span class="status-badge approved">${escapeHtml(post.status.toUpperCase())}</span></td>
+                <td>${escapeHtml(post.readTime || '-')}</td>
+                <td>${escapeHtml(post.date)}</td>
+                <td>
+                    <button class="table-btn btn-edit-blog" data-id="${post.id}" title="Düzenle"><i class="fa-solid fa-pen-to-square" style="color: #00b4d8;"></i></button>
+                    <button class="table-btn btn-delete-blog" data-id="${post.id}" title="Sil"><i class="fa-solid fa-trash-can"></i></button>
+                </td>
+            `;
+            listContainer.appendChild(tr);
+        });
+
+        // Edit listeners
+        listContainer.querySelectorAll('.btn-edit-blog').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                openEditBlogModal(id);
+            });
+        });
+
+        // Delete listeners
+        listContainer.querySelectorAll('.btn-delete-blog').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                deleteBlog(id);
+            });
+        });
+    }
+
+    // Modal Add/Edit Blog Handlers
+    const blogModal = document.getElementById('admin-blog-modal');
+    const closeBlogModalBtn = document.getElementById('close-blog-modal');
+    const blogForm = document.getElementById('admin-blog-form');
+    const btnAddBlog = document.getElementById('btn-add-blog');
+
+    if (btnAddBlog) {
+        btnAddBlog.addEventListener('click', () => {
+            if (blogForm) blogForm.reset();
+            document.getElementById('blog-edit-id').value = '';
+            document.getElementById('blog-modal-title').innerText = 'Yeni Blog Ekle';
+            if (blogModal) blogModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeBlogModalBtn && blogModal) {
+        closeBlogModalBtn.addEventListener('click', () => {
+            blogModal.classList.add('hidden');
+        });
+    }
+
+    if (blogForm) {
+        blogForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('blog-edit-id').value;
+            const title = document.getElementById('blog-title').value.trim();
+            const category = document.getElementById('blog-category').value.trim();
+            const badgeClass = document.getElementById('blog-badge').value;
+            const status = document.getElementById('blog-status').value;
+            const readTime = document.getElementById('blog-readtime').value.trim();
+            const author = document.getElementById('blog-author').value.trim();
+            const authorIcon = document.getElementById('blog-author-icon').value;
+            const date = document.getElementById('blog-date').value.trim();
+            const description = document.getElementById('blog-description').value.trim();
+
+            let blog = getLocalStorageBlog();
+
+            const blogData = {
+                id: editId || 'post_' + Date.now(),
+                title,
+                category,
+                badgeClass,
+                status,
+                readTime,
+                author,
+                authorIcon,
+                date,
+                description
+            };
+
+            if (editId) {
+                blog = blog.map(post => post.id === editId ? blogData : post);
+                showStatusToast("Güncellendi!", "Blog yazısı başarıyla güncellendi.", true);
+            } else {
+                blog.push(blogData);
+                showStatusToast("Eklendi!", "Yeni blog yazısı başarıyla eklendi.", true);
+            }
+
+            saveLocalStorageBlog(blog);
+            renderDashboardBlog();
+            if (blogModal) blogModal.classList.add('hidden');
+        });
+    }
+
+    function openEditBlogModal(id) {
+        const blog = getLocalStorageBlog();
+        const found = blog.find(post => post.id === id);
+        if (!found) return;
+
+        document.getElementById('blog-edit-id').value = found.id;
+        document.getElementById('blog-title').value = found.title;
+        document.getElementById('blog-category').value = found.category;
+        document.getElementById('blog-badge').value = found.badgeClass;
+        document.getElementById('blog-status').value = found.status;
+        document.getElementById('blog-readtime').value = found.readTime || '';
+        document.getElementById('blog-author').value = found.author;
+        document.getElementById('blog-author-icon').value = found.authorIcon || 'fa-solid fa-user-edit';
+        document.getElementById('blog-date').value = found.date;
+        document.getElementById('blog-description').value = found.description;
+
+        document.getElementById('blog-modal-title').innerText = 'Blog Yazısını Düzenle';
+        if (blogModal) blogModal.classList.remove('hidden');
+    }
+
+    function deleteBlog(id) {
+        if (confirm("Bu blog yazısını silmek istediğinizden emin misiniz?")) {
+            let blog = getLocalStorageBlog();
+            blog = blog.filter(post => post.id !== id);
+            saveLocalStorageBlog(blog);
+            renderDashboardBlog();
+            showStatusToast("Silindi", "Blog yazısı başarıyla silindi.", true);
+        }
+    }
+
     // Logout Action
     if (logoutBtn && adminDashboard) {
         logoutBtn.addEventListener('click', () => {
@@ -1710,6 +1943,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.removeItem('myk_members');
                     localStorage.removeItem('myk_events');
                     localStorage.removeItem('myk_announcements');
+                    localStorage.removeItem('myk_blog');
                 }
                 dbMembers = []; // Reset local cache
                 await renderDashboardTable(memberSearch.value, true); // Force refetch empty/default list

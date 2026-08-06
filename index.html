@@ -816,6 +816,7 @@
                 <button class="dash-tab-btn active" data-tab="members" style="background: none; border: none; color: var(--headings-color); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid var(--primary); transition: var(--transition-fast);">Üye Başvuruları</button>
                 <button class="dash-tab-btn" data-tab="events" style="background: none; border: none; color: var(--text-muted); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid transparent; transition: var(--transition-fast);">Etkinlik Yönetimi</button>
                 <button class="dash-tab-btn" data-tab="announcements" style="background: none; border: none; color: var(--text-muted); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid transparent; transition: var(--transition-fast);">Duyuru Yönetimi</button>
+                <button class="dash-tab-btn" data-tab="blog" style="background: none; border: none; color: var(--text-muted); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid transparent; transition: var(--transition-fast);">Blog Yönetimi</button>
             </div>
 
             <!-- Tab 1: Member Applications -->
@@ -921,6 +922,35 @@
                             </thead>
                             <tbody id="admin-announcements-list">
                                 <!-- Announcements loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Blog Management -->
+            <div id="section-blog" class="dash-tab-section hidden">
+                <div class="dashboard-table-card card-glow">
+                    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <h3>Kulüp Blog Yazıları</h3>
+                        <button id="btn-add-blog" class="btn btn-primary btn-sm"><i class="fa-solid fa-feather"></i> Yeni Blog Ekle</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Başlık</th>
+                                    <th>Kategori</th>
+                                    <th>Zorluk/Etiket</th>
+                                    <th>Yazar</th>
+                                    <th>Bölüm (Statü)</th>
+                                    <th>Okuma Süresi</th>
+                                    <th>Tarih</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-blog-list">
+                                <!-- Blog posts loaded dynamically -->
                             </tbody>
                         </table>
                     </div>
@@ -1039,6 +1069,79 @@
                 </div>
                 
                 <button type="submit" class="btn btn-primary btn-full glow-btn" style="margin-top: 10px;">Duyuruyu Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Add/Edit Blog Modal -->
+    <div id="admin-blog-modal" class="modal hidden">
+        <div class="modal-content card-glow animate-zoom-in" style="max-width: 550px; width: 95%;">
+            <button class="modal-close" id="close-blog-modal">&times;</button>
+            <h3 id="blog-modal-title" style="font-size: 1.4rem; color: var(--headings-color); font-weight: 700; margin-bottom: 20px;">Yeni Blog Ekle</h3>
+            
+            <form id="admin-blog-form" style="display: flex; flex-direction: column; gap: 15px;">
+                <input type="hidden" id="blog-edit-id">
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="blog-title">Blog Başlığı</label>
+                    <input type="text" id="blog-title" required placeholder="Örn: SwiftUI ile Deklaratif Kodlama">
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="blog-category">Kategori (Tür)</label>
+                        <input type="text" id="blog-category" required placeholder="Örn: SwiftUI Veya Kotlin Multiplatform">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="blog-badge">Zorluk/Etiket Rengi</label>
+                        <select id="blog-badge" required>
+                            <option value="kolay" selected>Yeşil (Kolay)</option>
+                            <option value="orta">Mor (Orta)</option>
+                            <option value="zor">Kırmızı (Zor)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="blog-status">Bölüm (Statü)</label>
+                        <select id="blog-status" required>
+                            <option value="mobile-posts" selected>Mobil Yazılım Yazıları</option>
+                            <option value="sector-news">Sektörden Haberler</option>
+                            <option value="resources">Kaynak Tavsiyeleri</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="blog-readtime">Okuma Süresi</label>
+                        <input type="text" id="blog-readtime" placeholder="Örn: 5 dk okuma (Boş kalabilir)">
+                    </div>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="blog-author">Yazar Adı</label>
+                        <input type="text" id="blog-author" required value="Yusuf Furkan Gelişin" placeholder="Örn: Yusuf Furkan Gelişin Veya MYGK Editör">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="blog-author-icon">Yazar Simgesi</label>
+                        <select id="blog-author-icon" required>
+                            <option value="fa-solid fa-user-edit" selected>Kullanıcı Düzenleme (Makale)</option>
+                            <option value="fa-solid fa-bookmark">Kitap Ayracı (Kaynak)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="blog-date">Yayınlanma Tarihi</label>
+                    <input type="text" id="blog-date" required placeholder="Örn: 20 Ocak 2026">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="blog-description">İçerik Açıklaması</label>
+                    <textarea id="blog-description" rows="4" required placeholder="Yazı detayları ve içeriği..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full glow-btn" style="margin-top: 10px;">Blogu Kaydet</button>
             </form>
         </div>
     </div>
