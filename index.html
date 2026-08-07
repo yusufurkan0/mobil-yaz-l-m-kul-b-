@@ -558,9 +558,10 @@
                         <label for="member-email">Kayıtlı E-posta</label>
                         <input type="email" id="member-email" placeholder="E-postanızı girin" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="margin-bottom: 10px;">
                         <label for="member-password">Şifreniz</label>
                         <input type="password" id="member-password" placeholder="••••••••" required>
+                        <a href="#" id="forgot-password-trigger" style="font-size: 0.8rem; color: var(--primary); text-decoration: none; margin-top: 6px; display: inline-block;">Şifremi Unuttum</a>
                     </div>
                     <div id="member-login-error" class="hidden error-text">
                         <i class="fa-solid fa-triangle-exclamation"></i> Kayıtlı üye bulunamadı veya şifre hatalı!
@@ -585,6 +586,46 @@
                         <i class="fa-solid fa-triangle-exclamation"></i> E-posta veya şifre hatalı!
                     </div>
                     <button type="submit" class="btn btn-primary btn-full glow-btn">Yönetici Girişi Yap</button>
+                </form>
+            </div>
+
+            <!-- FORGOT PASSWORD AREA (Hidden by default) -->
+            <div id="forgot-password-area" class="hidden">
+                <p class="modal-desc">Kayıtlı e-posta adresinizi girin. Şifrenizi sıfırlamanız için size bir onay kodu göndereceğiz.</p>
+                <form id="forgot-password-form">
+                    <div class="form-group">
+                        <label for="forgot-email">E-posta Adresiniz</label>
+                        <input type="email" id="forgot-email" placeholder="ornek@stu.gedik.edu.tr" required>
+                    </div>
+                    <div id="forgot-error-message" class="hidden error-text">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Bu e-posta adresi ile kayıtlı üye bulunamadı!
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full glow-btn">Sıfırlama Kodu Gönder</button>
+                    <a href="#" class="back-to-login" style="font-size: 0.85rem; color: var(--text-muted); display: block; text-align: center; margin-top: 15px; text-decoration: none;"><i class="fa-solid fa-arrow-left"></i> Giriş Ekranına Dön</a>
+                </form>
+            </div>
+
+            <!-- PASSWORD RESET VERIFICATION AREA (Hidden by default) -->
+            <div id="password-reset-verif-area" class="hidden">
+                <p class="modal-desc">E-postanıza gönderilen 6 haneli kodu ve yeni şifrenizi girin.</p>
+                <form id="password-reset-verif-form">
+                    <div class="form-group">
+                        <label for="reset-verif-code">Doğrulama Kodu</label>
+                        <input type="text" id="reset-verif-code" maxlength="6" placeholder="123456" required style="text-align: center; letter-spacing: 4px; font-weight: 700; font-size: 1.1rem;">
+                    </div>
+                    <div class="form-group">
+                        <label for="reset-new-password">Yeni Şifre</label>
+                        <input type="password" id="reset-new-password" placeholder="En az 6 karakter" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reset-new-password-confirm">Yeni Şifre Tekrar</label>
+                        <input type="password" id="reset-new-password-confirm" placeholder="Yeni şifrenizi doğrulayın" required>
+                    </div>
+                    <div id="reset-verif-error" class="hidden error-text">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Kod hatalı veya şifreler uyuşmuyor!
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full glow-btn">Şifremi Güncelle</button>
+                    <a href="#" class="back-to-login" style="font-size: 0.85rem; color: var(--text-muted); display: block; text-align: center; margin-top: 15px; text-decoration: none;"><i class="fa-solid fa-arrow-left"></i> Giriş Ekranına Dön</a>
                 </form>
             </div>
         </div>

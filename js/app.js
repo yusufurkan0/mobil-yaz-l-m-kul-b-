@@ -321,6 +321,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    let resetVerificationCode = '';
+    let resetVerificationEmail = '';
+
+    function sendResetVerificationEmail(code, email, name) {
+        if (useEmailJS) {
+            const templateParams = {
+                to_email: email,
+                to_name: name,
+                verification_code: code
+            };
+            // Send email
+            emailjs.send(CONFIG.emailjs.serviceId, CONFIG.emailjs.templateId, templateParams)
+                .then((response) => {
+                    console.log('Reset Password Verification Email sent via EmailJS!', response.status, response.text);
+                }, (error) => {
+                    console.error('EmailJS failed. Falling back to FormSubmit...', error);
+                    sendResetFormSubmitEmail(code, email, name);
+                });
+        } else {
+            sendResetFormSubmitEmail(code, email, name);
+        }
+    }
+
+    function sendResetFormSubmitEmail(code, email, name) {
+        console.log("Sending real reset code email via FormSubmit to:", email);
+        showToastNotification(code, `${email} (Şifre Sıfırlama Kodu)`);
+        
+        fetch(`https://formsubmit.co/ajax/${email}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                _subject: "🔑 Mobil Yazılım Kulübü - Şifre Sıfırlama Kodu",
+                Ad_Soyad: name,
+                Sifre_Sifirlama_Kodu: code,
+                Mesaj: `Merhaba ${name},\n\nMobil Yazılım Kulübü şifrenizi sıfırlamak için 6 haneli kodunuz: ${code}\n\nLütfen bu kodu şifre sıfırlama ekranına girerek şifrenizi güncelleyin.`
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("FormSubmit reset email sent:", data);
+        })
+        .catch(err => {
+            console.error("FormSubmit reset email request failed:", err);
+        });
+    }
+
     // Timer Countdown resend code
     function startResendTimer() {
         let seconds = 60;
@@ -1398,6 +1447,150 @@ document.addEventListener('DOMContentLoaded', () => {
                 memberLoginForm.reset();
             } else {
                 if (memberLoginError) memberLoginError.classList.remove('hidden');
+            }
+        });
+    }
+
+    // --- Member Password Recovery (Forgot Password) ---
+    const forgotPasswordTrigger = document.getElementById('forgot-password-trigger');
+    const loginTabs = document.querySelector('.login-tabs');
+    const forgotPasswordArea = document.getElementById('forgot-password-area');
+    const passwordResetVerifArea = document.getElementById('password-reset-verif-area');
+
+    if (forgotPasswordTrigger) {
+        forgotPasswordTrigger.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (memberLoginArea) memberLoginArea.classList.add('hidden');
+            if (adminLoginArea) adminLoginArea.classList.add('hidden');
+            if (loginTabs) loginTabs.classList.add('hidden');
+            if (forgotPasswordArea) forgotPasswordArea.classList.remove('hidden');
+            if (passwordResetVerifArea) passwordResetVerifArea.classList.add('hidden');
+        });
+    }
+
+    // Go back to login screen
+    document.querySelectorAll('.back-to-login').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (forgotPasswordArea) forgotPasswordArea.classList.add('hidden');
+            if (passwordResetVerifArea) passwordResetVerifArea.classList.add('hidden');
+            if (memberLoginArea) memberLoginArea.classList.remove('hidden');
+            if (loginTabs) {
+                loginTabs.classList.remove('hidden');
+                // Ensure Member tab is active
+                const tabMemberBtn = document.getElementById('tab-member-btn');
+                if (tabMemberBtn) tabMemberBtn.click();
+            }
+        });
+    });
+
+    // Forgot password form submit
+    const forgotPasswordForm = document.getElementById('forgot-password-form');
+    const forgotEmailError = document.getElementById('forgot-error-message');
+    if (forgotPasswordForm) {
+        forgotPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+
+            // Load members list if empty
+            if (dbMembers.length === 0) {
+                await renderDashboardTable('', true);
+            }
+
+            const found = dbMembers.find(m => m.email.toLowerCase() === email);
+            if (found) {
+                if (forgotEmailError) forgotEmailError.classList.add('hidden');
+                resetVerificationEmail = email;
+                resetVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+                
+                // Send email
+                sendResetVerificationEmail(resetVerificationCode, email, found.name);
+                
+                // Show verification code step
+                if (forgotPasswordArea) forgotPasswordArea.classList.add('hidden');
+                if (passwordResetVerifArea) passwordResetVerifArea.classList.remove('hidden');
+            } else {
+                if (forgotEmailError) forgotEmailError.classList.remove('hidden');
+            }
+        });
+    }
+
+    // Password reset verification & update form submit
+    const passwordResetVerifForm = document.getElementById('password-reset-verif-form');
+    const resetVerifError = document.getElementById('reset-verif-error');
+    if (passwordResetVerifForm) {
+        passwordResetVerifForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const enteredCode = document.getElementById('reset-verif-code').value.trim();
+            const newPassword = document.getElementById('reset-new-password').value;
+            const newPasswordConfirm = document.getElementById('reset-new-password-confirm').value;
+
+            if (enteredCode !== resetVerificationCode) {
+                if (resetVerifError) {
+                    resetVerifError.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Girdiğiniz doğrulama kodu hatalı!`;
+                    resetVerifError.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                if (resetVerifError) {
+                    resetVerifError.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Yeni şifreniz en az 6 karakter olmalıdır!`;
+                    resetVerifError.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (newPassword !== newPasswordConfirm) {
+                if (resetVerifError) {
+                    resetVerifError.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Şifreler uyuşmuyor!`;
+                    resetVerifError.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (resetVerifError) resetVerifError.classList.add('hidden');
+
+            // Success! Let's update the member's password in LocalStorage
+            let localMembers = getLocalStorageMembers();
+            const idx = localMembers.findIndex(m => m.email.toLowerCase() === resetVerificationEmail.toLowerCase());
+            
+            if (idx !== -1) {
+                localMembers[idx].password = newPassword;
+                saveLocalStorageMembers(localMembers);
+                
+                // Update Firestore if active
+                if (useFirebase) {
+                    try {
+                        const targetId = localMembers[idx].id.toString();
+                        await db.collection('applicants').doc(targetId).update({
+                            password: newPassword
+                        });
+                        console.log("Firestore applicant password updated successfully.");
+                    } catch (firebaseErr) {
+                        console.error("Firestore password update failed, fallback to local storage only:", firebaseErr);
+                    }
+                }
+                
+                // Reset cache
+                dbMembers = localMembers;
+                
+                // Reset forms
+                passwordResetVerifForm.reset();
+                if (forgotPasswordForm) forgotPasswordForm.reset();
+                
+                showStatusToast("Şifreniz Güncellendi!", "Yeni şifrenizle hemen giriş yapabilirsiniz.", true);
+                
+                // Switch back to normal login modal view
+                if (passwordResetVerifArea) passwordResetVerifArea.classList.add('hidden');
+                if (memberLoginArea) memberLoginArea.classList.remove('hidden');
+                if (loginTabs) {
+                    loginTabs.classList.remove('hidden');
+                    const tabMemberBtn = document.getElementById('tab-member-btn');
+                    if (tabMemberBtn) tabMemberBtn.click();
+                }
+            } else {
+                alert("Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.");
             }
         });
     }
