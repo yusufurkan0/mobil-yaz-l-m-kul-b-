@@ -1559,17 +1559,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 localMembers[idx].password = newPassword;
                 saveLocalStorageMembers(localMembers);
                 
-                // Update Firestore if active
+                // Update Firestore if active (Non-blocking background update)
                 if (useFirebase) {
-                    try {
-                        const targetId = localMembers[idx].id.toString();
-                        await db.collection('applicants').doc(targetId).update({
-                            password: newPassword
-                        });
+                    const targetId = localMembers[idx].id.toString();
+                    db.collection('applicants').doc(targetId).update({
+                        password: newPassword
+                    })
+                    .then(() => {
                         console.log("Firestore applicant password updated successfully.");
-                    } catch (firebaseErr) {
+                    })
+                    .catch(firebaseErr => {
                         console.error("Firestore password update failed, fallback to local storage only:", firebaseErr);
-                    }
+                    });
                 }
                 
                 // Reset cache
