@@ -93,9 +93,9 @@
                 </a>
                 <p>Geleceğin mobil geliştiricilerini bir araya getiren bağımsız öğrenci topluluğu.</p>
                 <div class="social-links">
-                    <a href="https://github.com" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
-                    <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-                    <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://github.com" id="dyn-footer-github" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://linkedin.com" id="dyn-footer-linkedin" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://instagram.com" id="dyn-footer-instagram" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
                 </div>
             </div>
             
@@ -120,8 +120,8 @@
 
             <div class="footer-contact">
                 <h4>İletişim</h4>
-                <p><i class="fa-solid fa-location-dot"></i> Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul</p>
-                <p><i class="fa-solid fa-envelope"></i> <span class="contact-email">gedikmobilyazilimkulubu@gmail.com</span></p>
+                <p id="dyn-footer-address"><i class="fa-solid fa-location-dot"></i> Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul</p>
+                <p id="dyn-footer-email-row"><i class="fa-solid fa-envelope"></i> <span id="dyn-footer-email" class="contact-email">gedikmobilyazilimkulubu@gmail.com</span></p>
             </div>
         </div>
         
@@ -256,6 +256,26 @@
                           .replace(/"/g, "&quot;")
                           .replace(/'/g, "&#039;");
             }
+
+            // Apply Site Settings
+            const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {
+                contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
+                contactEmail: "gedikmobilyazilimkulubu@gmail.com",
+                socialInstagram: "https://instagram.com",
+                socialLinkedin: "https://linkedin.com",
+                socialGithub: "https://github.com/yusufurkan0"
+            };
+            const contactAddr = document.getElementById('dyn-footer-address');
+            const contactEmail = document.getElementById('dyn-footer-email');
+            if (contactAddr) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
+            if (contactEmail) contactEmail.innerText = settings.contactEmail;
+            
+            const githubLink = document.getElementById('dyn-footer-github');
+            const linkedinLink = document.getElementById('dyn-footer-linkedin');
+            const instagramLink = document.getElementById('dyn-footer-instagram');
+            if (githubLink) githubLink.href = settings.socialGithub;
+            if (linkedinLink) linkedinLink.href = settings.socialLinkedin;
+            if (instagramLink) instagramLink.href = settings.socialInstagram;
 
             // Run render
             renderAnnouncements();

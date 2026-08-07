@@ -784,6 +784,62 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('myk_blog', JSON.stringify(blog));
     }
 
+    // --- Site Settings Helpers & Mock Data (CMS) ---
+    const defaultSiteSettings = {
+        heroTitle: `Geleceğin Mobil <br>\n                    <span class="gradient-text animate-gradient">Geliştiricileri Burada</span>`,
+        heroDesc: "iOS ve Android geliştirmeye odaklanan kulübümüzle mobil yazılım ekosistemine ilk adımını at. Sıvırdan başla, projeler geliştir, sektöre yön ver!",
+        aboutText1: "Mobil Yazılım Kulübü, geleceğin mobil uygulama ekosistemini inşa edecek geliştiricileri ve tasarımcıları bir araya getiren dinamik bir öğrenci topluluğudur. Mobil platformların (iOS, Android, Cross-platform) gücünü keşfederek, teorik bilgiyi pratik projelerle pekiştiriyor ve üyelerimizi sektöre hazır hale getiriyoruz.",
+        aboutText2: "Yeni kurulan kulübümüzle birlikte hedeflerimiz arasında; sıfırdan başlayanlar için atölyeler düzenlemek, ortak çalışma gruplarıyla App Store ve Google Play'e uygulamalar yüklemek ve hackathonlarda kampüsümüzü temsil etmek yer almaktadır.",
+        contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
+        contactEmail: "gedikmobilyazilimkulubu@gmail.com",
+        socialInstagram: "https://instagram.com",
+        socialLinkedin: "https://linkedin.com",
+        socialGithub: "https://github.com/yusufurkan0"
+    };
+
+    function getLocalStorageSettings() {
+        const stored = localStorage.getItem('myk_site_settings');
+        if (!stored) {
+            localStorage.setItem('myk_site_settings', JSON.stringify(defaultSiteSettings));
+            return defaultSiteSettings;
+        }
+        return JSON.parse(stored);
+    }
+
+    function saveLocalStorageSettings(settings) {
+        localStorage.setItem('myk_site_settings', JSON.stringify(settings));
+    }
+
+    function applySiteSettings() {
+        const settings = getLocalStorageSettings();
+        
+        // 1. Hero
+        const heroTitle = document.getElementById('dyn-hero-title');
+        const heroDesc = document.getElementById('dyn-hero-desc');
+        if (heroTitle) heroTitle.innerHTML = settings.heroTitle;
+        if (heroDesc) heroDesc.innerText = settings.heroDesc;
+
+        // 2. About
+        const aboutP1 = document.getElementById('dyn-about-p1');
+        const aboutP2 = document.getElementById('dyn-about-p2');
+        if (aboutP1) aboutP1.innerText = settings.aboutText1;
+        if (aboutP2) aboutP2.innerText = settings.aboutText2;
+
+        // 3. Contacts
+        const contactAddr = document.getElementById('dyn-footer-address');
+        const contactEmail = document.getElementById('dyn-footer-email');
+        if (contactAddr) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
+        if (contactEmail) contactEmail.innerText = settings.contactEmail;
+
+        // 4. Social Links
+        const githubLink = document.getElementById('dyn-footer-github');
+        const linkedinLink = document.getElementById('dyn-footer-linkedin');
+        const instagramLink = document.getElementById('dyn-footer-instagram');
+        if (githubLink) githubLink.href = settings.socialGithub;
+        if (linkedinLink) linkedinLink.href = settings.socialLinkedin;
+        if (instagramLink) instagramLink.href = settings.socialInstagram;
+    }
+
     // Dynamic homepage stats update (combines local + cloud count)
     async function updateHomepageStats() {
         const memberSpan = document.getElementById('homepage-member-count');
@@ -1487,6 +1543,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderDashboardAnnouncements();
                 } else if (tab === 'blog') {
                     renderDashboardBlog();
+                } else if (tab === 'settings') {
+                    initSettingsTab();
                 }
             });
         });
@@ -1906,6 +1964,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Settings (CMS) Form Handlers
+    function initSettingsTab() {
+        const settings = getLocalStorageSettings();
+        const heroTitleInput = document.getElementById('set-hero-title');
+        const heroDescInput = document.getElementById('set-hero-desc');
+        const aboutP1Input = document.getElementById('set-about-p1');
+        const aboutP2Input = document.getElementById('set-about-p2');
+        const contactAddressInput = document.getElementById('set-contact-address');
+        const contactEmailInput = document.getElementById('set-contact-email');
+        const githubInput = document.getElementById('set-social-github');
+        const linkedinInput = document.getElementById('set-social-linkedin');
+        const instagramInput = document.getElementById('set-social-instagram');
+
+        if (heroTitleInput) heroTitleInput.value = settings.heroTitle;
+        if (heroDescInput) heroDescInput.value = settings.heroDesc;
+        if (aboutP1Input) aboutP1Input.value = settings.aboutText1;
+        if (aboutP2Input) aboutP2Input.value = settings.aboutText2;
+        if (contactAddressInput) contactAddressInput.value = settings.contactAddress;
+        if (contactEmailInput) contactEmailInput.value = settings.contactEmail;
+        if (githubInput) githubInput.value = settings.socialGithub;
+        if (linkedinInput) linkedinInput.value = settings.socialLinkedin;
+        if (instagramInput) instagramInput.value = settings.socialInstagram;
+    }
+
+    const settingsForm = document.getElementById('admin-settings-form');
+    if (settingsForm) {
+        settingsForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const heroTitle = document.getElementById('set-hero-title').value.trim();
+            const heroDesc = document.getElementById('set-hero-desc').value.trim();
+            const aboutText1 = document.getElementById('set-about-p1').value.trim();
+            const aboutText2 = document.getElementById('set-about-p2').value.trim();
+            const contactAddress = document.getElementById('set-contact-address').value.trim();
+            const contactEmail = document.getElementById('set-contact-email').value.trim();
+            const socialGithub = document.getElementById('set-social-github').value.trim();
+            const socialLinkedin = document.getElementById('set-social-linkedin').value.trim();
+            const socialInstagram = document.getElementById('set-social-instagram').value.trim();
+
+            const settingsData = {
+                heroTitle,
+                heroDesc,
+                aboutText1,
+                aboutText2,
+                contactAddress,
+                contactEmail,
+                socialGithub,
+                socialLinkedin,
+                socialInstagram
+            };
+
+            saveLocalStorageSettings(settingsData);
+            applySiteSettings();
+            showStatusToast("Kaydedildi!", "Site içerik ayarları başarıyla güncellendi.", true);
+        });
+    }
+
     // Logout Action
     if (logoutBtn && adminDashboard) {
         logoutBtn.addEventListener('click', () => {
@@ -1944,8 +2058,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.removeItem('myk_events');
                     localStorage.removeItem('myk_announcements');
                     localStorage.removeItem('myk_blog');
+                    localStorage.removeItem('myk_site_settings');
                 }
                 dbMembers = []; // Reset local cache
+                applySiteSettings();
                 await renderDashboardTable(memberSearch.value, true); // Force refetch empty/default list
                 updateHomepageStats();
             }
@@ -1984,6 +2100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 9. Initial Load Triggers (Stats & Admin Session Persistence) ---
+    applySiteSettings();
     updateHomepageStats().then(() => {
         // Auto-login member if session exists
         const memberEmail = sessionStorage.getItem('member_logged_in_email');
