@@ -168,6 +168,23 @@ document.addEventListener('DOMContentLoaded', () => {
         verificationContainer.classList.add('hidden');
         successMsg.classList.add('hidden');
         membershipForm.reset();
+
+        // Generate captcha security question
+        generateRegisterCaptcha();
+    }
+
+    let correctCaptchaAnswer = 0;
+
+    function generateRegisterCaptcha() {
+        const num1 = Math.floor(Math.random() * 8) + 2; // 2 to 9
+        const num2 = Math.floor(Math.random() * 8) + 2; // 2 to 9
+        correctCaptchaAnswer = num1 + num2;
+        const label = document.getElementById('captcha-label');
+        if (label) {
+            label.innerHTML = `Güvenlik Doğrulaması: <span style="font-weight: 700; color: var(--accent-pink); font-size: 0.95rem;">${num1} + ${num2} = ?</span> *`;
+        }
+        const captchaInput = document.getElementById('register-captcha');
+        if (captchaInput) captchaInput.value = '';
     }
 
     function closeRegisterModal() {
@@ -179,6 +196,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (regTriggerNav) regTriggerNav.addEventListener('click', openRegisterModal);
     if (regTriggerHero) regTriggerHero.addEventListener('click', openRegisterModal);
     if (closeRegister) closeRegister.addEventListener('click', closeRegisterModal);
+
+    const refreshCaptchaBtn = document.getElementById('refresh-captcha');
+    if (refreshCaptchaBtn) {
+        refreshCaptchaBtn.addEventListener('click', generateRegisterCaptcha);
+    }
 
     // Close when clicking backdrop
     if (registerModal) {
@@ -398,6 +420,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (membershipForm) {
         membershipForm.addEventListener('submit', (e) => {
             e.preventDefault();
+
+            // 1. Honeypot Spam Bot Check
+            const honeypot = document.getElementById('register-honeypot') ? document.getElementById('register-honeypot').value : '';
+            if (honeypot) {
+                console.warn("Spam registration blocked via honeypot.");
+                const submitBtn = membershipForm.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gönderiliyor...`;
+                setTimeout(() => {
+                    membershipForm.reset();
+                    registerModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }, 1000);
+                return;
+            }
+
+            // 2. Math Captcha Check
+            const userCaptcha = document.getElementById('register-captcha') ? document.getElementById('register-captcha').value.trim() : '';
+            if (parseInt(userCaptcha, 10) !== correctCaptchaAnswer) {
+                alert("Güvenlik doğrulaması başarısız! Lütfen işlemi doğru şekilde çözün.");
+                generateRegisterCaptcha();
+                return;
+            }
             
             const submitBtn = membershipForm.querySelector('button[type="submit"]');
             submitBtn.disabled = true;

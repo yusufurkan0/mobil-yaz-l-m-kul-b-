@@ -473,6 +473,19 @@
                         <span>Etkinlik ve duyurulardan anlık bildirimlerle haberdar olmak istiyorum (isteğe bağlı, daha sonra değiştirilebilir)</span>
                     </label>
                 </div>
+
+                <!-- Spam Bot Protection -->
+                <div style="display: none !important; position: absolute; left: -9999px;">
+                    <input type="text" id="register-honeypot" name="register-honeypot" tabindex="-1" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="register-captcha" id="captcha-label" style="font-weight: 600; color: var(--primary);">Güvenlik Doğrulaması *</label>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <input type="text" id="register-captcha" required placeholder="İşlem sonucunu girin" style="flex: 1;">
+                        <button type="button" id="refresh-captcha" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: var(--transition-fast);" title="Soruyu Yenile"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    </div>
+                </div>
                 
                 <button type="submit" class="btn btn-primary btn-full glow-btn">Hesap Oluştur</button>
                 
