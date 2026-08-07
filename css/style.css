@@ -1011,18 +1011,29 @@ body.dark-theme .modal {
 }
 .modal-close {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    background: transparent;
-    border: none;
-    font-size: 1.8rem;
+    top: 16px;
+    right: 16px;
+    background: rgba(var(--primary-rgb), 0.05);
+    border: 1px solid var(--border-color);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1.2rem;
     color: var(--text-muted);
     cursor: pointer;
-    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: var(--transition-fast);
+    padding: 0;
+    line-height: 1;
+    z-index: 1100;
 }
 .modal-close:hover {
-    color: var(--headings-color);
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+    transform: rotate(90deg);
 }
 .modal-desc {
     font-size: 0.9rem;
