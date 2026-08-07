@@ -19,6 +19,24 @@
 </head>
 <body>
 
+    <!-- Admin Toolbar (Only visible when logged in as admin) -->
+    <div id="admin-toolbar" class="admin-toolbar hidden">
+        <div class="toolbar-container">
+            <div class="toolbar-info">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Yönetici Modu Aktif (Canlı Düzenleme)</span>
+            </div>
+            <div class="toolbar-actions">
+                <button class="toolbar-btn" data-target="members"><i class="fa-solid fa-users"></i> Başvurular</button>
+                <button class="toolbar-btn" data-target="events"><i class="fa-solid fa-calendar-days"></i> Etkinlikler</button>
+                <button class="toolbar-btn" data-target="announcements"><i class="fa-solid fa-bullhorn"></i> Duyurular</button>
+                <button class="toolbar-btn" data-target="blog"><i class="fa-solid fa-newspaper"></i> Bloglar</button>
+                <button class="toolbar-btn" data-target="settings"><i class="fa-solid fa-sliders"></i> İçerik (CMS)</button>
+                <button id="admin-toolbar-logout" class="toolbar-btn logout"><i class="fa-solid fa-right-from-bracket"></i> Çıkış</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Subtle Tech Background Orbs -->
     <div class="bg-orb orb-blue"></div>
     <div class="bg-orb orb-cyan"></div>
@@ -98,6 +116,7 @@
                 <p id="dyn-hero-desc" class="hero-desc animate-fade-in-up-delay">
                     iOS ve Android geliştirmeye odaklanan kulübümüzle mobil yazılım ekosistemine ilk adımını at. Sıfırdan başla, projeler geliştir, sektöre yön ver!
                 </p>
+                <button class="admin-edit-trigger hidden" data-section="hero" style="margin-bottom: 25px; margin-left: 0;"><i class="fa-solid fa-pen"></i> Başlığı & Açıklamayı Düzenle</button>
                 <div class="hero-actions animate-fade-in-up-delay-2">
                     <a href="#" id="register-trigger-hero" class="btn btn-primary btn-large glow-btn"><i class="fa-solid fa-user-plus"></i> Topluluğa Katıl</a>
                     <a href="etkinlikler.html" class="btn btn-outline btn-large"><i class="fa-solid fa-calendar-days"></i> Etkinliklerimiz</a>
@@ -163,7 +182,7 @@
         <div class="container">
             <div class="section-title text-center">
                 <span class="subtitle">Biz Kimiz?</span>
-                <h2>Vizyonumuz ve Amacımız</h2>
+                <h2>Vizyonumuz ve Amacımız <button class="admin-edit-trigger hidden" data-section="about" style="font-size: 0.75rem;"><i class="fa-solid fa-pen"></i> Düzenle</button></h2>
             </div>
             <div class="about-card-large card-glow">
                 <div class="about-text-content">
@@ -339,7 +358,7 @@
             </div>
 
             <div class="footer-contact">
-                <h4>İletişim</h4>
+                <h4>İletişim <button class="admin-edit-trigger hidden" data-section="contact" style="font-size: 0.65rem;"><i class="fa-solid fa-pen"></i> Düzenle</button></h4>
                 <p id="dyn-footer-address"><i class="fa-solid fa-location-dot"></i> Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul</p>
                 <p id="dyn-footer-email-row"><i class="fa-solid fa-envelope"></i> <span id="dyn-footer-email" class="contact-email">gedikmobilyazilimkulubu@gmail.com</span></p>
             </div>
@@ -799,7 +818,8 @@
 
     <!-- PANEL: Admin Dashboard Panel -->
     <div id="admin-dashboard" class="dashboard-panel hidden">
-        <div class="dashboard-container container" style="max-height: 90vh; overflow-y: auto; padding-bottom: 40px;">
+        <div class="dashboard-container">
+            <button class="modal-close" id="close-dashboard-btn" style="position: absolute; top: 25px; right: 25px; font-size: 2.2rem; background: none; border: none; color: var(--text-muted); cursor: pointer; transition: var(--transition-fast);">&times;</button>
             <header class="dashboard-header">
                 <div class="dashboard-title-area">
                     <i class="fa-solid fa-user-shield dashboard-icon"></i>

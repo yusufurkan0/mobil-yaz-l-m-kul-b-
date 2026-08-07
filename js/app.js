@@ -1488,6 +1488,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Admin Live Mode Helper functions
+    function enableAdminMode() {
+        document.body.classList.add('admin-mode-active');
+        const adminToolbar = document.getElementById('admin-toolbar');
+        if (adminToolbar) adminToolbar.classList.remove('hidden');
+        
+        // Show in-page edit triggers
+        document.querySelectorAll('.admin-edit-trigger').forEach(btn => {
+            btn.classList.remove('hidden');
+        });
+        
+        // Render dashboard tables
+        renderDashboardTable(memberSearch.value, true);
+    }
+
+    function disableAdminMode() {
+        document.body.classList.remove('admin-mode-active');
+        const adminToolbar = document.getElementById('admin-toolbar');
+        if (adminToolbar) adminToolbar.classList.add('hidden');
+        
+        if (adminDashboard) adminDashboard.classList.add('hidden');
+        document.body.style.overflow = 'auto'; // Unlock scroll
+        
+        // Hide edit triggers
+        document.querySelectorAll('.admin-edit-trigger').forEach(btn => {
+            btn.classList.add('hidden');
+        });
+        
+        sessionStorage.removeItem('admin_logged_in');
+    }
+
     // Admin login form submit
     if (adminLoginForm) {
         adminLoginForm.addEventListener('submit', (e) => {
@@ -1497,10 +1528,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (email === 'admin@kulup.com' && pass === 'admin') {
                 loginModal.classList.add('hidden');
-                adminDashboard.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Lock scroll
                 sessionStorage.setItem('admin_logged_in', 'true'); // Save session state
-                renderDashboardTable(memberSearch.value, true); // Force fetch new entries
+                enableAdminMode();
             } else {
                 loginError.classList.remove('hidden');
             }
@@ -2021,14 +2050,91 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Logout Action
-    if (logoutBtn && adminDashboard) {
+    if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            adminDashboard.classList.add('hidden');
-            document.body.style.overflow = 'auto'; // Unlock scroll
-            sessionStorage.removeItem('admin_logged_in'); // Clear session state
+            disableAdminMode();
             if (adminLoginForm) adminLoginForm.reset();
         });
     }
+
+    // Admin Toolbar Actions
+    const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
+    toolbarBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.getAttribute('data-target');
+            
+            // Trigger tab button click inside dashboard
+            const dashboardTabBtn = document.querySelector(`.dash-tab-btn[data-tab="${targetTab}"]`);
+            if (dashboardTabBtn) {
+                dashboardTabBtn.click();
+            }
+            
+            // Show dashboard popup modal
+            if (adminDashboard) {
+                adminDashboard.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Lock scroll
+            }
+        });
+    });
+
+    // Close dashboard modal popup
+    const closeDashboardBtn = document.getElementById('close-dashboard-btn');
+    if (closeDashboardBtn) {
+        closeDashboardBtn.addEventListener('click', () => {
+            if (adminDashboard) adminDashboard.classList.add('hidden');
+            document.body.style.overflow = 'auto'; // Restore scroll
+        });
+    }
+
+    // Admin Toolbar Logout
+    const adminToolbarLogout = document.getElementById('admin-toolbar-logout');
+    if (adminToolbarLogout) {
+        adminToolbarLogout.addEventListener('click', () => {
+            disableAdminMode();
+            if (adminLoginForm) adminLoginForm.reset();
+        });
+    }
+
+    // In-page Edit Trigger click listeners
+    const editTriggers = document.querySelectorAll('.admin-edit-trigger[data-section]');
+    editTriggers.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const section = btn.getAttribute('data-section');
+            
+            // 1. Switch to settings tab and open dashboard modal
+            const settingsTabBtn = document.querySelector('.dash-tab-btn[data-tab="settings"]');
+            if (settingsTabBtn) {
+                settingsTabBtn.click();
+            }
+            
+            if (adminDashboard) {
+                adminDashboard.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Lock scroll
+            }
+            
+            // 2. Focus and scroll settings form to target input field
+            setTimeout(() => {
+                let targetInput = null;
+                if (section === 'hero') {
+                    targetInput = document.getElementById('set-hero-title');
+                } else if (section === 'about') {
+                    targetInput = document.getElementById('set-about-p1');
+                } else if (section === 'contact') {
+                    targetInput = document.getElementById('set-contact-address');
+                }
+                
+                if (targetInput) {
+                    targetInput.focus();
+                    targetInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Highlight input field visually
+                    targetInput.style.boxShadow = '0 0 15px rgba(217, 38, 122, 0.8)';
+                    setTimeout(() => {
+                        targetInput.style.boxShadow = '';
+                    }, 2000);
+                }
+            }, 150);
+        });
+    });
 
     // Live search filtering
     if (memberSearch) {
@@ -2113,11 +2219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (sessionStorage.getItem('admin_logged_in') === 'true') {
-        if (adminDashboard) {
-            adminDashboard.classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // Lock scroll
-            renderDashboardTable('', true); // Force fetch on page load
-        }
+        enableAdminMode();
     }
 
     // --- 10. Club Tools (CV Builder, Skills Evaluator, Leaderboard, Quiz, CTF) Logic ---
