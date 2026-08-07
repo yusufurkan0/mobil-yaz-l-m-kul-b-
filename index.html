@@ -202,7 +202,7 @@
         <div class="container">
             <div class="section-title text-center" style="margin-bottom: 40px;">
                 <span class="subtitle">Yönetim Kurulu</span>
-                <h2>Kulüp Ekibimiz</h2>
+                <h2>Kulüp Ekibimiz <button class="admin-edit-trigger hidden" data-section="team" style="font-size: 0.75rem;"><i class="fa-solid fa-pen"></i> Düzenle</button></h2>
                 <p>Gedik Mobil Yazılım Geliştirme Kulübü'nün yönetim ve koordinasyon ekibi.</p>
             </div>
             
@@ -213,10 +213,10 @@
                         <i class="fa-solid fa-crown"></i>
                     </div>
                     <div>
-                        <h4 style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Yusuf Furkan Yılmaz</h4>
-                        <p style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">Kulüp Başkanı / Kurucu</p>
+                        <h4 id="dyn-team-m1-name" style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Yusuf Furkan Yılmaz</h4>
+                        <p id="dyn-team-m1-role" style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">Kulüp Başkanı / Kurucu</p>
                     </div>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">İstanbul Gedik Üniversitesi Yazılım Mühendisliği Öğrencisi.</p>
+                    <p id="dyn-team-m1-bio" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">İstanbul Gedik Üniversitesi Yazılım Mühendisliği Öğrencisi.</p>
                 </div>
                 
                 <!-- Member 2 -->
@@ -225,10 +225,10 @@
                         <i class="fa-brands fa-apple"></i>
                     </div>
                     <div>
-                        <h4 style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Ahmet Yılmaz</h4>
-                        <p style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">iOS Geliştirme Lead</p>
+                        <h4 id="dyn-team-m2-name" style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Ahmet Yılmaz</h4>
+                        <p id="dyn-team-m2-role" style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">iOS Geliştirme Lead</p>
                     </div>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Swift ve SwiftUI ile iOS uygulama geliştirme eğitimleri koordinatörü.</p>
+                    <p id="dyn-team-m2-bio" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Swift ve SwiftUI ile iOS uygulama geliştirme eğitimleri koordinatörü.</p>
                 </div>
                 
                 <!-- Member 3 -->
@@ -237,10 +237,10 @@
                         <i class="fa-brands fa-android"></i>
                     </div>
                     <div>
-                        <h4 style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Elif Kaya</h4>
-                        <p style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">Android Geliştirme Lead</p>
+                        <h4 id="dyn-team-m3-name" style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Elif Kaya</h4>
+                        <p id="dyn-team-m3-role" style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">Android Geliştirme Lead</p>
                     </div>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Kotlin ve Jetpack Compose ile Android uygulama eğitimleri koordinatörü.</p>
+                    <p id="dyn-team-m3-bio" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Kotlin ve Jetpack Compose ile Android uygulama eğitimleri koordinatörü.</p>
                 </div>
             </div>
         </div>
@@ -251,26 +251,26 @@
         <div class="container">
             <div class="section-title text-center" style="margin-bottom: 40px;">
                 <span class="subtitle">Kulüp Tüzüğü</span>
-                <h2>Temel Kurallar ve İlkeler</h2>
+                <h2>Temel Kurallar ve İlkeler <button class="admin-edit-trigger hidden" data-section="regulations" style="font-size: 0.75rem;"><i class="fa-solid fa-pen"></i> Düzenle</button></h2>
                 <p>Gedik Mobil Yazılım Geliştirme Kulübü (MYGK) üyelik şartları ve çalışma esasları.</p>
             </div>
             
             <div class="about-card-large card-glow" style="display: flex; flex-direction: column; gap: 20px; padding: 40px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color);">
                 <div style="border-left: 3px solid var(--primary); padding-left: 20px;">
-                    <h4 style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">Madde 1: Kuruluş ve Amaç</h4>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Topluluğun amacı, İstanbul Gedik Üniversitesi öğrencilerine mobil yazılım (iOS/Android) alanlarında teorik eğitimler vermek, pratik projeler geliştirmek ve öğrencileri teknoloji ekosistemine hazırlamaktır.</p>
+                    <h4 id="dyn-reg-t1" style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">Madde 1: Kuruluş ve Amaç</h4>
+                    <p id="dyn-reg-c1" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Topluluğun amacı, İstanbul Gedik Üniversitesi öğrencilerine mobil yazılım (iOS/Android) alanlarında teorik eğitimler vermek, pratik projeler geliştirmek ve öğrencileri teknoloji ekosistemine hazırlamaktır.</p>
                 </div>
                 <div style="border-left: 3px solid var(--primary); padding-left: 20px;">
-                    <h4 style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">Madde 2: Üyelik ve Katılım Şartları</h4>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Topluluğa üye olmak tamamen ücretsizdir. Mobil uygulama geliştirmeye ve tasarıma ilgi duyan, kendini geliştirmek isteyen tüm Gedik Üniversitesi öğrencileri üye olabilir.</p>
+                    <h4 id="dyn-reg-t2" style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">Madde 2: Üyelik ve Katılım Şartları</h4>
+                    <p id="dyn-reg-c2" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Topluluğa üye olmak tamamen ücretsizdir. Mobil uygulama geliştirmeye ve tasarıma ilgi duyan, kendini geliştirmek isteyen tüm Gedik Üniversitesi öğrencileri üye olabilir.</p>
                 </div>
                 <div style="border-left: 3px solid var(--primary); padding-left: 20px;">
-                    <h4 style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">Madde 3: Proje ve Eğitim Esasları</h4>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Eğitimler açık kaynaklı ve paylaşımcı kültür esasına göre yürütülür. Çalışma grupları kurularak App Store ve Google Play platformlarına uygulama yüklenmesi hedeflenir.</p>
+                    <h4 id="dyn-reg-t3" style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">Madde 3: Proje ve Eğitim Esasları</h4>
+                    <p id="dyn-reg-c3" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Eğitimler açık kaynaklı ve paylaşımcı kültür esasına göre yürütülür. Çalışma grupları kurularak App Store ve Google Play platformlarına uygulama yüklenmesi hedeflenir.</p>
                 </div>
                 <div style="border-left: 3px solid var(--primary); padding-left: 20px;">
-                    <h4 style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">Madde 4: Yönetim ve Temsil</h4>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Yönetim kurulu, kulüp başkanı ve odak koordinatörlerinden oluşur. Üniversite içindeki etkinlik planlamaları ve hackathon katılım organizasyonları yönetim kurulu tarafından kararlaştırılır.</p>
+                    <h4 id="dyn-reg-t4" style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">Madde 4: Yönetim ve Temsil</h4>
+                    <p id="dyn-reg-c4" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Yönetim kurulu, kulüp başkanı ve odak koordinatörlerinden oluşur. Üniversite içindeki etkinlik planlamaları ve hackathon katılım organizasyonları yönetim kurulu tarafından kararlaştırılır.</p>
                 </div>
             </div>
         </div>
@@ -1041,7 +1041,116 @@
                                     <input type="url" id="set-social-instagram" required placeholder="https://instagram.com/...">
                                 </div>
                             </div>
+                        <!-- 4. Board Team Section -->
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 15px;">
+                            <h4 style="font-size: 1rem; color: var(--primary); margin-bottom: 12px; font-weight: 700;">Kulüp Ekibi (Yönetim Kurulu)</h4>
+                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                <!-- Member 1 -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px;">
+                                    <div class="form-group" style="margin-bottom: 0; grid-column: 1/-1;"><span style="font-weight:700; color: var(--headings-color); font-size: 0.85rem;">1. Ekip Üyesi (Başkan)</span></div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-team-m1-name">Ad Soyad</label>
+                                        <input type="text" id="set-team-m1-name" required placeholder="Yusuf Furkan Yılmaz">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-team-m1-role">Görev / Rol</label>
+                                        <input type="text" id="set-team-m1-role" required placeholder="Kulüp Başkanı / Kurucu">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0; grid-column: 1/-1;">
+                                        <label for="set-team-m1-bio">Açıklama / Kısa Biyografi</label>
+                                        <input type="text" id="set-team-m1-bio" required placeholder="Örn: İstanbul Gedik Üniversitesi Yazılım Mühendisliği Öğrencisi.">
+                                    </div>
+                                </div>
+
+                                <!-- Member 2 -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px;">
+                                    <div class="form-group" style="margin-bottom: 0; grid-column: 1/-1;"><span style="font-weight:700; color: var(--headings-color); font-size: 0.85rem;">2. Ekip Üyesi (iOS Lead)</span></div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-team-m2-name">Ad Soyad</label>
+                                        <input type="text" id="set-team-m2-name" required placeholder="Ahmet Yılmaz">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-team-m2-role">Görev / Rol</label>
+                                        <input type="text" id="set-team-m2-role" required placeholder="iOS Geliştirme Lead">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0; grid-column: 1/-1;">
+                                        <label for="set-team-m2-bio">Açıklama / Kısa Biyografi</label>
+                                        <input type="text" id="set-team-m2-bio" required placeholder="Örn: Swift ve SwiftUI ile iOS uygulama geliştirme eğitimleri koordinatörü.">
+                                    </div>
+                                </div>
+
+                                <!-- Member 3 -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px;">
+                                    <div class="form-group" style="margin-bottom: 0; grid-column: 1/-1;"><span style="font-weight:700; color: var(--headings-color); font-size: 0.85rem;">3. Ekip Üyesi (Android Lead)</span></div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-team-m3-name">Ad Soyad</label>
+                                        <input type="text" id="set-team-m3-name" required placeholder="Elif Kaya">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-team-m3-role">Görev / Rol</label>
+                                        <input type="text" id="set-team-m3-role" required placeholder="Android Geliştirme Lead">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0; grid-column: 1/-1;">
+                                        <label for="set-team-m3-bio">Açıklama / Kısa Biyografi</label>
+                                        <input type="text" id="set-team-m3-bio" required placeholder="Örn: Kotlin ve Jetpack Compose ile Android uygulama eğitimleri koordinatörü.">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- 5. Regulations (Tüzük) Section -->
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 15px;">
+                            <h4 style="font-size: 1rem; color: var(--primary); margin-bottom: 12px; font-weight: 700;">Kulüp Tüzüğü (Maddeler)</h4>
+                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                <!-- Madde 1 -->
+                                <div style="border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-reg-t1">Madde 1 Başlık</label>
+                                        <input type="text" id="set-reg-t1" required placeholder="Madde 1: Kuruluş ve Amaç">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-reg-c1">Madde 1 Açıklama</label>
+                                        <textarea id="set-reg-c1" rows="2" required placeholder="Açıklama metni..."></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Madde 2 -->
+                                <div style="border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-reg-t2">Madde 2 Başlık</label>
+                                        <input type="text" id="set-reg-t2" required placeholder="Madde 2: Üyelik ve Katılım Şartları">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-reg-c2">Madde 2 Açıklama</label>
+                                        <textarea id="set-reg-c2" rows="2" required placeholder="Açıklama metni..."></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Madde 3 -->
+                                <div style="border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-reg-t3">Madde 3 Başlık</label>
+                                        <input type="text" id="set-reg-t3" required placeholder="Madde 3: Proje ve Eğitim Esasları">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-reg-c3">Madde 3 Açıklama</label>
+                                        <textarea id="set-reg-c3" rows="2" required placeholder="Açıklama metni..."></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Madde 4 -->
+                                <div style="border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-reg-t4">Madde 4 Başlık</label>
+                                        <input type="text" id="set-reg-t4" required placeholder="Madde 4: Yönetim ve Temsil">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="set-reg-c4">Madde 4 Açıklama</label>
+                                        <textarea id="set-reg-c4" rows="2" required placeholder="Açıklama metni..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div></div>
 
                         <button type="submit" class="btn btn-primary glow-btn" style="margin-top: 10px; width: fit-content; align-self: flex-start; padding: 10px 30px;">
                             <i class="fa-solid fa-floppy-disk"></i> Değişiklikleri Kaydet (Tüm Sitede Güncellenir)

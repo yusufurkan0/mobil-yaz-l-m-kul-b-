@@ -794,7 +794,28 @@ document.addEventListener('DOMContentLoaded', () => {
         contactEmail: "gedikmobilyazilimkulubu@gmail.com",
         socialInstagram: "https://instagram.com",
         socialLinkedin: "https://linkedin.com",
-        socialGithub: "https://github.com/yusufurkan0"
+        socialGithub: "https://github.com/yusufurkan0",
+        
+        // Yönetim Kurulu (Ekip)
+        teamM1Name: "Yusuf Furkan Yılmaz",
+        teamM1Role: "Kulüp Başkanı / Kurucu",
+        teamM1Bio: "İstanbul Gedik Üniversitesi Yazılım Mühendisliği Öğrencisi.",
+        teamM2Name: "Ahmet Yılmaz",
+        teamM2Role: "iOS Geliştirme Lead",
+        teamM2Bio: "Swift ve SwiftUI ile iOS uygulama geliştirme eğitimleri koordinatörü.",
+        teamM3Name: "Elif Kaya",
+        teamM3Role: "Android Geliştirme Lead",
+        teamM3Bio: "Kotlin ve Jetpack Compose ile Android uygulama eğitimleri koordinatörü.",
+
+        // Kulüp Tüzüğü
+        regT1: "Madde 1: Kuruluş ve Amaç",
+        regC1: "Topluluğun amacı, İstanbul Gedik Üniversitesi öğrencilerine mobil yazılım (iOS/Android) alanlarında teorik eğitimler vermek, pratik projeler geliştirmek ve öğrencileri teknoloji ekosistemine hazırlamaktır.",
+        regT2: "Madde 2: Üyelik ve Katılım Şartları",
+        regC2: "Topluluğa üye olmak tamamen ücretsizdir. Mobil uygulama geliştirmeye ve tasarıma ilgi duyan, kendini geliştirmek isteyen tüm Gedik Üniversitesi öğrencileri üye olabilir.",
+        regT3: "Madde 3: Proje ve Eğitim Esasları",
+        regC3: "Eğitimler açık kaynaklı ve paylaşımcı kültür esasına göre yürütülür. Çalışma grupları kurularak App Store ve Google Play platformlarına uygulama yüklenmesi hedeflenir.",
+        regT4: "Madde 4: Yönetim ve Temsil",
+        regC4: "Yönetim kurulu, kulüp başkanı ve odak koordinatörlerinden oluşur. Üniversite içindeki etkinlik planlamaları ve hackathon katılım organizasyonları yönetim kurulu tarafından kararlaştırılır."
     };
 
     function getLocalStorageSettings() {
@@ -838,6 +859,46 @@ document.addEventListener('DOMContentLoaded', () => {
         if (githubLink) githubLink.href = settings.socialGithub;
         if (linkedinLink) linkedinLink.href = settings.socialLinkedin;
         if (instagramLink) instagramLink.href = settings.socialInstagram;
+
+        // 5. Team Board
+        const m1Name = document.getElementById('dyn-team-m1-name');
+        const m1Role = document.getElementById('dyn-team-m1-role');
+        const m1Bio = document.getElementById('dyn-team-m1-bio');
+        const m2Name = document.getElementById('dyn-team-m2-name');
+        const m2Role = document.getElementById('dyn-team-m2-role');
+        const m2Bio = document.getElementById('dyn-team-m2-bio');
+        const m3Name = document.getElementById('dyn-team-m3-name');
+        const m3Role = document.getElementById('dyn-team-m3-role');
+        const m3Bio = document.getElementById('dyn-team-m3-bio');
+
+        if (m1Name) m1Name.innerText = settings.teamM1Name;
+        if (m1Role) m1Role.innerText = settings.teamM1Role;
+        if (m1Bio) m1Bio.innerText = settings.teamM1Bio;
+        if (m2Name) m2Name.innerText = settings.teamM2Name;
+        if (m2Role) m2Role.innerText = settings.teamM2Role;
+        if (m2Bio) m2Bio.innerText = settings.teamM2Bio;
+        if (m3Name) m3Name.innerText = settings.teamM3Name;
+        if (m3Role) m3Role.innerText = settings.teamM3Role;
+        if (m3Bio) m3Bio.innerText = settings.teamM3Bio;
+
+        // 6. Regulations
+        const regT1 = document.getElementById('dyn-reg-t1');
+        const regC1 = document.getElementById('dyn-reg-c1');
+        const regT2 = document.getElementById('dyn-reg-t2');
+        const regC2 = document.getElementById('dyn-reg-c2');
+        const regT3 = document.getElementById('dyn-reg-t3');
+        const regC3 = document.getElementById('dyn-reg-c3');
+        const regT4 = document.getElementById('dyn-reg-t4');
+        const regC4 = document.getElementById('dyn-reg-c4');
+
+        if (regT1) regT1.innerText = settings.regT1;
+        if (regC1) regC1.innerText = settings.regC1;
+        if (regT2) regT2.innerText = settings.regT2;
+        if (regC2) regC2.innerText = settings.regC2;
+        if (regT3) regT3.innerText = settings.regT3;
+        if (regC3) regC3.innerText = settings.regC3;
+        if (regT4) regT4.innerText = settings.regT4;
+        if (regC4) regC4.innerText = settings.regC4;
     }
 
     // Dynamic homepage stats update (combines local + cloud count)
@@ -2006,6 +2067,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const linkedinInput = document.getElementById('set-social-linkedin');
         const instagramInput = document.getElementById('set-social-instagram');
 
+        // Team
+        const teamM1NameInput = document.getElementById('set-team-m1-name');
+        const teamM1RoleInput = document.getElementById('set-team-m1-role');
+        const teamM1BioInput = document.getElementById('set-team-m1-bio');
+        const teamM2NameInput = document.getElementById('set-team-m2-name');
+        const teamM2RoleInput = document.getElementById('set-team-m2-role');
+        const teamM2BioInput = document.getElementById('set-team-m2-bio');
+        const teamM3NameInput = document.getElementById('set-team-m3-name');
+        const teamM3RoleInput = document.getElementById('set-team-m3-role');
+        const teamM3BioInput = document.getElementById('set-team-m3-bio');
+
+        // Regs
+        const regT1Input = document.getElementById('set-reg-t1');
+        const regC1Input = document.getElementById('set-reg-c1');
+        const regT2Input = document.getElementById('set-reg-t2');
+        const regC2Input = document.getElementById('set-reg-c2');
+        const regT3Input = document.getElementById('set-reg-t3');
+        const regC3Input = document.getElementById('set-reg-c3');
+        const regT4Input = document.getElementById('set-reg-t4');
+        const regC4Input = document.getElementById('set-reg-c4');
+
         if (heroTitleInput) heroTitleInput.value = settings.heroTitle;
         if (heroDescInput) heroDescInput.value = settings.heroDesc;
         if (aboutP1Input) aboutP1Input.value = settings.aboutText1;
@@ -2015,6 +2097,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (githubInput) githubInput.value = settings.socialGithub;
         if (linkedinInput) linkedinInput.value = settings.socialLinkedin;
         if (instagramInput) instagramInput.value = settings.socialInstagram;
+
+        if (teamM1NameInput) teamM1NameInput.value = settings.teamM1Name || '';
+        if (teamM1RoleInput) teamM1RoleInput.value = settings.teamM1Role || '';
+        if (teamM1BioInput) teamM1BioInput.value = settings.teamM1Bio || '';
+        if (teamM2NameInput) teamM2NameInput.value = settings.teamM2Name || '';
+        if (teamM2RoleInput) teamM2RoleInput.value = settings.teamM2Role || '';
+        if (teamM2BioInput) teamM2BioInput.value = settings.teamM2Bio || '';
+        if (teamM3NameInput) teamM3NameInput.value = settings.teamM3Name || '';
+        if (teamM3RoleInput) teamM3RoleInput.value = settings.teamM3Role || '';
+        if (teamM3BioInput) teamM3BioInput.value = settings.teamM3Bio || '';
+
+        if (regT1Input) regT1Input.value = settings.regT1 || '';
+        if (regC1Input) regC1Input.value = settings.regC1 || '';
+        if (regT2Input) regT2Input.value = settings.regT2 || '';
+        if (regC2Input) regC2Input.value = settings.regC2 || '';
+        if (regT3Input) regT3Input.value = settings.regT3 || '';
+        if (regC3Input) regC3Input.value = settings.regC3 || '';
+        if (regT4Input) regT4Input.value = settings.regT4 || '';
+        if (regC4Input) regC4Input.value = settings.regC4 || '';
     }
 
     const settingsForm = document.getElementById('admin-settings-form');
@@ -2031,6 +2132,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const socialLinkedin = document.getElementById('set-social-linkedin').value.trim();
             const socialInstagram = document.getElementById('set-social-instagram').value.trim();
 
+            // Team
+            const teamM1Name = document.getElementById('set-team-m1-name').value.trim();
+            const teamM1Role = document.getElementById('set-team-m1-role').value.trim();
+            const teamM1Bio = document.getElementById('set-team-m1-bio').value.trim();
+            const teamM2Name = document.getElementById('set-team-m2-name').value.trim();
+            const teamM2Role = document.getElementById('set-team-m2-role').value.trim();
+            const teamM2Bio = document.getElementById('set-team-m2-bio').value.trim();
+            const teamM3Name = document.getElementById('set-team-m3-name').value.trim();
+            const teamM3Role = document.getElementById('set-team-m3-role').value.trim();
+            const teamM3Bio = document.getElementById('set-team-m3-bio').value.trim();
+
+            // Regs
+            const regT1 = document.getElementById('set-reg-t1').value.trim();
+            const regC1 = document.getElementById('set-reg-c1').value.trim();
+            const regT2 = document.getElementById('set-reg-t2').value.trim();
+            const regC2 = document.getElementById('set-reg-c2').value.trim();
+            const regT3 = document.getElementById('set-reg-t3').value.trim();
+            const regC3 = document.getElementById('set-reg-c3').value.trim();
+            const regT4 = document.getElementById('set-reg-t4').value.trim();
+            const regC4 = document.getElementById('set-reg-c4').value.trim();
+
             const settingsData = {
                 heroTitle,
                 heroDesc,
@@ -2040,7 +2162,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 contactEmail,
                 socialGithub,
                 socialLinkedin,
-                socialInstagram
+                socialInstagram,
+
+                teamM1Name,
+                teamM1Role,
+                teamM1Bio,
+                teamM2Name,
+                teamM2Role,
+                teamM2Bio,
+                teamM3Name,
+                teamM3Role,
+                teamM3Bio,
+
+                regT1,
+                regC1,
+                regT2,
+                regC2,
+                regT3,
+                regC3,
+                regT4,
+                regC4
             };
 
             saveLocalStorageSettings(settingsData);
@@ -2121,6 +2262,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     targetInput = document.getElementById('set-about-p1');
                 } else if (section === 'contact') {
                     targetInput = document.getElementById('set-contact-address');
+                } else if (section === 'team') {
+                    targetInput = document.getElementById('set-team-m1-name');
+                } else if (section === 'regulations') {
+                    targetInput = document.getElementById('set-reg-t1');
                 }
                 
                 if (targetInput) {
