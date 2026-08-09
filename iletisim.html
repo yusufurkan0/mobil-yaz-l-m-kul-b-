@@ -60,7 +60,7 @@
                     <i class="fa-solid fa-moon"></i>
                 </button>
                 <a href="index.html" id="login-trigger" class="btn btn-secondary nav-btn-login">Giriş Yap</a>
-                <a href="index.html" id="user-profile-trigger" class="btn btn-secondary nav-btn-profile hidden">
+                <a href="profil.html" id="user-profile-trigger" class="btn btn-secondary nav-btn-profile hidden">
                     <i class="fa-solid fa-user"></i> <span id="nav-user-name">Profilim</span>
                 </a>
                 <a href="index.html" id="register-trigger-nav" class="btn btn-primary nav-btn-register">Kayıt Ol</a>
@@ -294,7 +294,7 @@
                 if (registerTrigger) registerTrigger.classList.add('hidden');
                 if (profileTrigger) {
                     profileTrigger.classList.remove('hidden');
-                    profileTrigger.href = "index.html"; // Go to homepage dashboard
+                    profileTrigger.href = "profil.html"; // Go to profile dashboard
                 }
                 
                 // Fetch name from local cache if possible

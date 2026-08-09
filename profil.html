@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Üye Profili - Gedik Mobil Yazılım Kulübü</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Internal styles for Profile specific layout -->
+    <style>
+        /* Profile Layout Styling */
+        .profile-wrapper {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 30px;
+            align-items: start;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .profile-sidebar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            box-shadow: var(--shadow-soft);
+        }
+        
+        .profile-avatar-wrapper {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(var(--primary-rgb), 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            border: 2px dashed var(--primary);
+            box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.15);
+            transition: var(--transition-normal);
+        }
+        
+        body.dark-theme .profile-avatar-wrapper {
+            background: rgba(217, 38, 122, 0.15);
+            border-color: var(--primary);
+        }
+        
+        .profile-sidebar.approved .profile-avatar-wrapper {
+            color: var(--success);
+            border-color: var(--success);
+            background: rgba(46, 204, 113, 0.1);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.2);
+        }
+        
+        .profile-nav {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px 0;
+        }
+        
+        .profile-nav-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+        
+        .profile-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--headings-color);
+        }
+        
+        .profile-nav-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
+        }
+
+        .profile-nav-btn.logout {
+            color: var(--accent-pink);
+            border-color: rgba(255, 77, 148, 0.2);
+            margin-top: 10px;
+        }
+        
+        .profile-nav-btn.logout:hover {
+            background: rgba(255, 77, 148, 0.1);
+            color: var(--accent-pink);
+        }
+        
+        .profile-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            min-height: 500px;
+            box-shadow: var(--shadow-soft);
+        }
+        
+        .profile-section-title {
+            font-size: 1.5rem;
+            color: var(--headings-color);
+            font-weight: 700;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .profile-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-value {
+            font-size: 1rem;
+            color: var(--headings-color);
+            font-weight: 600;
+        }
+        
+        /* Interactive Virtual Member ID Card */
+        .id-card-container {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+            perspective: 1000px;
+        }
+        
+        .member-id-card {
+            width: 420px;
+            height: 250px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #1f0814 0%, #0d0409 60%, #170410 100%);
+            border: 1px solid rgba(var(--primary-rgb), 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(var(--primary-rgb), 0.15);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 25px;
+            font-family: 'Space Grotesk', sans-serif;
+            color: white;
+            transition: var(--transition-normal);
+        }
+        
+        .member-id-card:hover {
+            transform: translateY(-5px) rotateX(5deg) rotateY(-5deg);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.6), 0 0 35px rgba(var(--primary-rgb), 0.3);
+            border-color: rgba(var(--primary-rgb), 0.4);
+        }
+        
+        .member-id-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(var(--primary-rgb), 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .id-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .id-card-logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .id-card-logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+            box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.5);
+        }
+        
+        .id-card-logo-text {
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .id-card-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 4px 12px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .id-card-badge.approved {
+            background: rgba(46, 204, 113, 0.15);
+            border-color: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+            box-shadow: 0 0 8px rgba(46, 204, 113, 0.1);
+        }
+        
+        .id-card-badge.pending {
+            background: rgba(241, 196, 15, 0.15);
+            border-color: rgba(241, 196, 15, 0.3);
+            color: #f1c40f;
+            box-shadow: 0 0 8px rgba(241, 196, 15, 0.1);
+        }
+        
+        .id-card-body {
+            margin-top: 20px;
+        }
+        
+        .id-card-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+        
+        .id-card-role {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .id-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 15px;
+        }
+        
+        .id-card-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .id-card-meta-label {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .id-card-meta-value {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        /* Barcode Simulator */
+        .id-card-barcode {
+            display: flex;
+            align-items: flex-end;
+            height: 35px;
+            gap: 2px;
+            opacity: 0.6;
+        }
+        
+        .id-card-barcode-line {
+            width: 2px;
+            height: 100%;
+            background: white;
+        }
+        
+        /* Responsiveness */
+        @media (max-width: 900px) {
+            .profile-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="dark-theme subpage">
+
+    <!-- Subtle Tech Background Orbs -->
+    <div class="bg-orb orb-blue"></div>
+    <div class="bg-orb orb-cyan"></div>
+
+    <!-- Header Navigation -->
+    <header id="main-header" class="scrolled">
+        <div class="container navbar-container">
+            <a href="index.html" class="logo">
+                <img src="img/logo.png" alt="MYGK Logo" class="logo-img">
+            </a>
+            
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="index.html#hero" class="nav-link">Ana Sayfa</a></li>
+                    <li class="dropdown-item">
+                        <a href="index.html#about" class="nav-link dropdown-toggle">Hakkımızda <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.html#about">Biz Kimiz?</a></li>
+                            <li><a href="index.html#board">Yönetim Kurulu</a></li>
+                            <li><a href="index.html#regulations">Kulüp Tüzüğü</a></li>
+                            <li><a href="index.html#sponsors">Sponsorlarımız</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="etkinlikler.html" class="nav-link dropdown-toggle">Etkinlikler <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="etkinlikler.html#upcoming">Gelecek Etkinlikler</a></li>
+                            <li><a href="etkinlikler.html#past">Geçmiş Etkinlikler</a></li>
+                            <li><a href="etkinlikler.html#workshops">Workshoplar</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="blog.html" class="nav-link dropdown-toggle">Blog <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="blog.html#mobile-posts">Mobil Yazılım Yazıları</a></li>
+                            <li><a href="blog.html#sector-news">Sektörden Haberler</a></li>
+                            <li><a href="blog.html#resources">Kaynak Tavsiyeleri</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="duyurular.html" class="nav-link">Duyurular</a></li>
+                    <li><a href="iletisim.html" class="nav-link">İletişim</a></li>
+                </ul>
+            </nav>
+            
+            <div class="nav-buttons">
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Temayı Değiştir">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <a href="index.html" id="login-trigger" class="btn btn-secondary nav-btn-login">Giriş Yap</a>
+                <a href="profil.html" id="user-profile-trigger" class="btn btn-secondary nav-btn-profile hidden">
+                    <i class="fa-solid fa-user"></i> <span id="nav-user-name">Profilim</span>
+                </a>
+                <a href="index.html" id="register-trigger-nav" class="btn btn-primary nav-btn-register">Kayıt Ol</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- PROFILE DASHBOARD SECTION -->
+    <section style="padding-top: 140px; padding-bottom: 80px; min-height: 80vh;">
+        <div class="container">
+            <div class="profile-wrapper">
+                
+                <!-- Sidebar -->
+                <div class="profile-sidebar" id="profile-sidebar-card">
+                    <div class="profile-avatar-wrapper">
+                        <i class="fa-solid fa-user" id="profile-avatar-icon"></i>
+                    </div>
+                    <div>
+                        <h3 id="sidebar-user-name" style="font-size: 1.25rem; color: var(--headings-color); font-weight: 700; margin-bottom: 4px;">-</h3>
+                        <p id="sidebar-user-id" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">Öğrenci No: -</p>
+                    </div>
+                    
+                    <!-- App Status Badge -->
+                    <span class="id-card-badge" id="sidebar-status-badge">Yükleniyor...</span>
+                    
+                    <!-- Nav Tabs -->
+                    <div class="profile-nav">
+                        <button class="profile-nav-btn active" data-tab="tab-details"><i class="fa-solid fa-address-card"></i> Profil Bilgileri</button>
+                        <button class="profile-nav-btn" data-tab="tab-edit"><i class="fa-solid fa-user-pen"></i> Bilgilerimi Düzenle</button>
+                        <button class="profile-nav-btn" data-tab="tab-card"><i class="fa-solid fa-id-badge"></i> Üye Kimlik Kartı</button>
+                        <button class="profile-nav-btn logout" id="member-profile-logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap</button>
+                    </div>
+                </div>
+                
+                <!-- Content Panel -->
+                <div class="profile-content">
+                    
+                    <!-- SECTION 1: Details -->
+                    <div id="tab-details" class="tab-panel">
+                        <h3 class="profile-section-title"><i class="fa-solid fa-address-card" style="color: var(--primary);"></i> Hesap ve Başvuru Bilgileri</h3>
+                        
+                        <!-- Status Alert Banner -->
+                        <div id="status-banner" style="padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; border: 1px solid transparent;">
+                            <i class="fa-solid" id="status-banner-icon" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h4 id="status-banner-title" style="font-size: 0.95rem; font-weight: 700; margin-bottom: 4px;">-</h4>
+                                <p id="status-banner-desc" style="font-size: 0.85rem; line-height: 1.4; margin: 0;">-</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Details Grid -->
+                        <div class="profile-info-grid">
+                            <div class="info-card">
+                                <span class="info-label">E-posta</span>
+                                <span class="info-value" id="det-email">-</span>
+                            </div>
+                            <div class="info-card">
+                                <span class="info-label">Kullanıcı Adı</span>
+                                <span class="info-value" id="det-username">-</span>
+                            </div>
+                            <div class="info-card">
+                                <span class="info-label">Telefon Numarası</span>
+                                <span class="info-value" id="det-phone">-</span>
+                            </div>
+                            <div class="info-card">
+                                <span class="info-label">Fakülte</span>
+                                <span class="info-value" id="det-faculty">-</span>
+                            </div>
+                            <div class="info-card">
+                                <span class="info-label">Bölüm</span>
+                                <span class="info-value" id="det-department">-</span>
+                            </div>
+                            <div class="info-card">
+                                <span class="info-label">Sınıf</span>
+                                <span class="info-value" id="det-grade">-</span>
+                            </div>
+                            <div class="info-card">
+                                <span class="info-label">Doğum Tarihi</span>
+                                <span class="info-value" id="det-birthdate">-</span>
+                            </div>
+                            <div class="info-card">
+                                <span class="info-label">Mobil Alan Tercihi</span>
+                                <span class="info-value" id="det-track">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- SECTION 2: Edit Info -->
+                    <div id="tab-edit" class="tab-panel hidden">
+                        <h3 class="profile-section-title"><i class="fa-solid fa-user-pen" style="color: var(--primary);"></i> Profil Bilgilerini Düzenle</h3>
+                        <p class="modal-desc" style="margin-bottom: 25px;">Bilgilerinizde değişiklik yaptıktan sonra kaydetmeyi unutmayın.</p>
+                        
+                        <form id="profile-page-edit-form" style="display: flex; flex-direction: column; gap: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label for="edit-profile-phone">Telefon Numarası</label>
+                                    <input type="tel" id="edit-profile-phone" placeholder="05550000555" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label for="edit-profile-grade">Sınıf</label>
+                                    <select id="edit-profile-grade" required>
+                                        <option value="Hazırlık">Hazırlık</option>
+                                        <option value="1. Sınıf">1. Sınıf</option>
+                                        <option value="2. Sınıf">2. Sınıf</option>
+                                        <option value="3. Sınıf">3. Sınıf</option>
+                                        <option value="4. Sınıf">4. Sınıf</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label for="edit-profile-password">Yeni Şifre (Değiştirmek istemiyorsanız boş bırakın)</label>
+                                    <input type="password" id="edit-profile-password" placeholder="••••••••">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label for="edit-profile-password-confirm">Yeni Şifre Tekrar</label>
+                                    <input type="password" id="edit-profile-password-confirm" placeholder="••••••••">
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary glow-btn" style="width: fit-content; padding: 12px 35px; margin-top: 10px;">
+                                <i class="fa-solid fa-floppy-disk"></i> Değişiklikleri Kaydet
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- SECTION 3: Member ID Card -->
+                    <div id="tab-card" class="tab-panel hidden">
+                        <h3 class="profile-section-title"><i class="fa-solid fa-id-badge" style="color: var(--primary);"></i> Dijital Üye Kimlik Kartınız</h3>
+                        <p class="modal-desc" style="margin-bottom: 30px;">Mobil Yazılım Kulübü etkinliklerinde bu sanal kimlik kartını göstererek öncelik ve özel haklar kazanabilirsiniz.</p>
+                        
+                        <div class="id-card-container">
+                            <div class="member-id-card">
+                                <div class="id-card-header">
+                                    <div class="id-card-logo-area">
+                                        <div class="id-card-logo-icon">
+                                            <i class="fa-solid fa-mobile-screen-button"></i>
+                                        </div>
+                                        <span class="id-card-logo-text">Gedik MYGK</span>
+                                    </div>
+                                    <span class="id-card-badge" id="id-card-status-badge">-</span>
+                                </div>
+                                
+                                <div class="id-card-body">
+                                    <div class="id-card-name" id="id-card-user-name">-</div>
+                                    <div class="id-card-role" id="id-card-user-track">-</div>
+                                </div>
+                                
+                                <div class="id-card-footer">
+                                    <div class="id-card-meta">
+                                        <span class="id-card-meta-label">Üye Numarası</span>
+                                        <span class="id-card-meta-value" id="id-card-user-id">-</span>
+                                    </div>
+                                    
+                                    <!-- Barcode Simulator -->
+                                    <div class="id-card-barcode" id="id-card-barcode-lines">
+                                        <!-- Generated dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Area -->
+    <footer style="margin-top: 50px;">
+        <div class="container footer-grid">
+            <div class="footer-info">
+                <a href="index.html" class="logo">
+                    <img src="img/logo.png" alt="MYGK Logo" class="logo-img">
+                </a>
+                <p>Geleceğin mobil geliştiricilerini bir araya getiren bağımsız öğrenci topluluğu.</p>
+                <div class="social-links">
+                    <a href="https://github.com" id="dyn-footer-github" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://linkedin.com" id="dyn-footer-linkedin" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://instagram.com" id="dyn-footer-instagram" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Hızlı Menü</h4>
+                <ul>
+                    <li><a href="index.html#hero">Ana Sayfa</a></li>
+                    <li><a href="index.html#about">Biz Kimiz?</a></li>
+                    <li><a href="etkinlikler.html">Etkinlikler</a></li>
+                    <li><a href="index.html#sponsors">Sponsorlar</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Sistem</h4>
+                <ul>
+                    <li><a href="index.html" onclick="alert('Yönetici Paneline erişmek için ana sayfadaki giriş panelini kullanınız.'); return false;">Yönetici Paneli</a></li>
+                    <li><a href="#">Gizlilik Politikası</a></li>
+                    <li><a href="#">Kullanım Şartları</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-contact">
+                <h4>İletişim</h4>
+                <p id="dyn-footer-address"><i class="fa-solid fa-location-dot"></i> Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul</p>
+                <p id="dyn-footer-email-row"><i class="fa-solid fa-envelope"></i> <span id="dyn-footer-email" class="contact-email">gedikmobilyazilimkulubu@gmail.com</span></p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom text-center">
+            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with ❤️ by Yusuf Furkan Gelişin.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK (Only if active) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/config.js"></script>
+    
+    <!-- Toast status UI template helper -->
+    <div id="status-toast" class="status-toast hidden">
+        <div class="toast-content">
+            <i class="fa-solid" id="toast-icon"></i>
+            <div>
+                <h4 id="toast-title">Başarılı</h4>
+                <p id="toast-message">İşleminiz gerçekleştirildi.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Theme setup
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.body.classList.remove('dark-theme');
+                document.getElementById('theme-toggle').innerHTML = `<i class="fa-solid fa-moon"></i>`;
+            } else {
+                document.body.classList.add('dark-theme');
+                document.getElementById('theme-toggle').innerHTML = `<i class="fa-solid fa-sun"></i>`;
+            }
+
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    document.body.classList.toggle('dark-theme');
+                    if (document.body.classList.contains('dark-theme')) {
+                        themeToggle.innerHTML = `<i class="fa-solid fa-sun"></i>`;
+                        localStorage.setItem('theme', 'dark');
+                    } else {
+                        themeToggle.innerHTML = `<i class="fa-solid fa-moon"></i>`;
+                        localStorage.setItem('theme', 'light');
+                    }
+                });
+            }
+
+            // Apply Site Settings (CMS footer)
+            const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {
+                contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
+                contactEmail: "gedikmobilyazilimkulubu@gmail.com",
+                socialInstagram: "https://instagram.com",
+                socialLinkedin: "https://linkedin.com",
+                socialGithub: "https://github.com/yusufurkan0"
+            };
+            const contactAddr = document.getElementById('dyn-footer-address');
+            const contactEmail = document.getElementById('dyn-footer-email');
+            if (contactAddr) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
+            if (contactEmail) contactEmail.innerText = settings.contactEmail;
+            
+            const githubLink = document.getElementById('dyn-footer-github');
+            const linkedinLink = document.getElementById('dyn-footer-linkedin');
+            const instagramLink = document.getElementById('dyn-footer-instagram');
+            if (githubLink) githubLink.href = settings.socialGithub;
+            if (linkedinLink) linkedinLink.href = settings.socialLinkedin;
+            if (instagramLink) instagramLink.href = settings.socialInstagram;
+
+            // Authentication verification
+            const loggedInEmail = sessionStorage.getItem('member_logged_in_email');
+            if (!loggedInEmail) {
+                alert("Profilinizi görüntülemek için lütfen üye girişi yapınız!");
+                window.location.href = "index.html?login=true"; // open login modal
+                return;
+            }
+
+            // Sync user profile state to header
+            const loginTrigger = document.getElementById('login-trigger');
+            const registerTrigger = document.getElementById('register-trigger-nav');
+            const profileTrigger = document.getElementById('user-profile-trigger');
+            const navUserName = document.getElementById('nav-user-name');
+
+            if (loginTrigger) loginTrigger.classList.add('hidden');
+            if (registerTrigger) registerTrigger.classList.add('hidden');
+            if (profileTrigger) profileTrigger.classList.remove('hidden');
+
+            // Load Member Data
+            let dbMembers = [];
+            function getLocalStorageMembers() {
+                const stored = localStorage.getItem('myk_members');
+                return stored ? JSON.parse(stored) : [];
+            }
+            dbMembers = getLocalStorageMembers();
+
+            let currentUser = dbMembers.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
+            
+            // Check Firebase if configured and user not found locally, or to check for status updates
+            const useFirebase = typeof firebase !== 'undefined' && CONFIG && CONFIG.firebase && CONFIG.firebase.apiKey;
+            let db = null;
+            if (useFirebase) {
+                try {
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(CONFIG.firebase);
+                    }
+                    db = firebase.firestore();
+                } catch (err) {
+                    console.error("Firebase init failed:", err);
+                }
+            }
+
+            if (useFirebase && db) {
+                try {
+                    const snapshot = await db.collection('applicants').where('email', '==', loggedInEmail).get();
+                    if (!snapshot.empty) {
+                        const doc = snapshot.docs[0];
+                        const fbUser = { id: doc.id, ...doc.data() };
+                        
+                        // Update local cache
+                        currentUser = fbUser;
+                        const localIndex = dbMembers.findIndex(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
+                        if (localIndex !== -1) {
+                            dbMembers[localIndex] = fbUser;
+                        } else {
+                            dbMembers.push(fbUser);
+                        }
+                        localStorage.setItem('myk_members', JSON.stringify(dbMembers));
+                    }
+                } catch (fbErr) {
+                    console.error("Firebase sync failed:", fbErr);
+                }
+            }
+
+            if (!currentUser) {
+                alert("Üye bilgileri bulunamadı. Lütfen tekrar giriş yapın.");
+                sessionStorage.removeItem('member_logged_in_email');
+                window.location.href = "index.html";
+                return;
+            }
+
+            // Set Header name
+            if (navUserName) navUserName.innerText = currentUser.username || currentUser.name.split(' ')[0];
+
+            // Render Page details
+            renderProfileDetails(currentUser);
+
+            // Dashboard tabs control
+            const tabBtns = document.querySelectorAll('.profile-nav-btn[data-tab]');
+            const panels = document.querySelectorAll('.tab-panel');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetTab = btn.getAttribute('data-tab');
+                    
+                    // Activate btn
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Toggle Panels
+                    panels.forEach(p => {
+                        if (p.id === targetTab) {
+                            p.classList.remove('hidden');
+                        } else {
+                            p.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            // Logout Action
+            const logoutBtn = document.getElementById('member-profile-logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    sessionStorage.removeItem('member_logged_in_email');
+                    window.location.href = "index.html";
+                });
+            }
+
+            // Edit Profile Form Submission
+            const editForm = document.getElementById('profile-page-edit-form');
+            if (editForm) {
+                // Populate inputs
+                document.getElementById('edit-profile-phone').value = currentUser.phone || '';
+                document.getElementById('edit-profile-grade').value = currentUser.grade || '1. Sınıf';
+                
+                editForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const phone = document.getElementById('edit-profile-phone').value.trim();
+                    const grade = document.getElementById('edit-profile-grade').value;
+                    const password = document.getElementById('edit-profile-password').value;
+                    const confirmPassword = document.getElementById('edit-profile-password-confirm').value;
+                    
+                    if (password && password.length < 6) {
+                        showToast("Hata", "Yeni şifreniz en az 6 karakter olmalıdır!", false);
+                        return;
+                    }
+                    
+                    if (password && password !== confirmPassword) {
+                        showToast("Hata", "Şifreler uyuşmuyor!", false);
+                        return;
+                    }
+                    
+                    // Update current user values
+                    currentUser.phone = phone;
+                    currentUser.grade = grade;
+                    if (password) {
+                        currentUser.password = password;
+                    }
+                    
+                    // Update Local Storage cache
+                    const idx = dbMembers.findIndex(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
+                    if (idx !== -1) {
+                        dbMembers[idx] = currentUser;
+                        localStorage.setItem('myk_members', JSON.stringify(dbMembers));
+                    }
+                    
+                    // Update Firestore (non-blocking)
+                    if (useFirebase && db) {
+                        const targetId = currentUser.id.toString();
+                        const updateData = {
+                            phone: phone,
+                            grade: grade
+                        };
+                        if (password) {
+                            updateData.password = password;
+                        }
+                        
+                        db.collection('applicants').doc(targetId).update(updateData)
+                        .then(() => console.log("Firestore profile updated successfully."))
+                        .catch(err => console.error("Firestore profile update failed:", err));
+                    }
+                    
+                    // Re-render
+                    renderProfileDetails(currentUser);
+                    showToast("Güncellendi!", "Profil bilgileriniz başarıyla güncellendi.", true);
+                    
+                    // Switch back to details tab
+                    const detailsTabBtn = document.querySelector('.profile-nav-btn[data-tab="tab-details"]');
+                    if (detailsTabBtn) detailsTabBtn.click();
+                    
+                    // Clear passwords inputs
+                    document.getElementById('edit-profile-password').value = '';
+                    document.getElementById('edit-profile-password-confirm').value = '';
+                });
+            }
+
+            // Function to render details
+            function renderProfileDetails(user) {
+                // Sidebar
+                document.getElementById('sidebar-user-name').innerText = user.name;
+                document.getElementById('sidebar-user-id').innerText = `Öğrenci No: ${user.studentId}`;
+                
+                const statusBadge = document.getElementById('sidebar-status-badge');
+                const sidebarCard = document.getElementById('profile-sidebar-card');
+                const avatarIcon = document.getElementById('profile-avatar-icon');
+                
+                // Reset sidebar classes
+                sidebarCard.classList.remove('approved');
+                
+                // Status mapping
+                if (user.status === 'approved') {
+                    statusBadge.innerText = "KABUL EDİLDİ";
+                    statusBadge.className = "id-card-badge approved";
+                    sidebarCard.classList.add('approved');
+                    avatarIcon.className = "fa-solid fa-crown"; // Crown icon for official members
+                    
+                    // Banner
+                    const banner = document.getElementById('status-banner');
+                    banner.style.background = "rgba(46, 204, 113, 0.1)";
+                    banner.style.borderColor = "rgba(46, 204, 113, 0.3)";
+                    banner.style.color = "#2ecc71";
+                    document.getElementById('status-banner-icon').className = "fa-solid fa-circle-check";
+                    document.getElementById('status-banner-title').innerText = "Başvurunuz Onaylandı!";
+                    document.getElementById('status-banner-desc').innerText = "Tebrikler! Gedik Mobil Yazılım Kulübü resmi üyelik başvurunuz onaylandı. Artık kulüp etkinliklerinde öncelik hakkına sahipsiniz.";
+                } else {
+                    statusBadge.innerText = "ONAY BEKLİYOR";
+                    statusBadge.className = "id-card-badge pending";
+                    avatarIcon.className = "fa-solid fa-user-clock"; // Clock icon for pending
+                    
+                    // Banner
+                    const banner = document.getElementById('status-banner');
+                    banner.style.background = "rgba(241, 196, 15, 0.1)";
+                    banner.style.borderColor = "rgba(241, 196, 15, 0.3)";
+                    banner.style.color = "#f1c40f";
+                    document.getElementById('status-banner-icon').className = "fa-solid fa-clock-rotate-left";
+                    document.getElementById('status-banner-title').innerText = "Başvurunuz İnceleme Aşamasında";
+                    document.getElementById('status-banner-desc').innerText = "Üyelik başvurunuz başarıyla alındı. Yönetim kurulumuz en kısa sürede başvurunuzu inceleyip onaylayacaktır. Lütfen takipte kalın.";
+                }
+                
+                // Details Grid
+                document.getElementById('det-email').innerText = user.email;
+                document.getElementById('det-username').innerText = `@${user.username || user.name.toLowerCase().replace(/\s/g, '')}`;
+                document.getElementById('det-phone').innerText = user.phone || '-';
+                document.getElementById('det-faculty').innerText = user.faculty || '-';
+                document.getElementById('det-department').innerText = user.department || '-';
+                document.getElementById('det-grade').innerText = user.grade || '-';
+                document.getElementById('det-birthdate').innerText = user.birthdate ? formatDate(user.birthdate) : '-';
+                document.getElementById('det-track').innerText = user.track === 'ios' ? 'iOS Geliştirme (Swift)' : 'Android Geliştirme (Kotlin)';
+
+                // ID Card Rendering
+                document.getElementById('id-card-user-name').innerText = user.name;
+                document.getElementById('id-card-user-id').innerText = user.studentId;
+                document.getElementById('id-card-user-track').innerText = user.track === 'ios' ? 'iOS DEVELOPER' : 'ANDROID DEVELOPER';
+                
+                const cardStatus = document.getElementById('id-card-status-badge');
+                if (user.status === 'approved') {
+                    cardStatus.innerText = "RESMİ ÜYE";
+                    cardStatus.className = "id-card-badge approved";
+                } else {
+                    cardStatus.innerText = "ADAY ÜYE";
+                    cardStatus.className = "id-card-badge pending";
+                }
+                
+                // Barcode simulation lines
+                const barcodeContainer = document.getElementById('id-card-barcode-lines');
+                if (barcodeContainer) {
+                    barcodeContainer.innerHTML = '';
+                    const idString = user.studentId.toString();
+                    for (let i = 0; i < idString.length; i++) {
+                        const width = (parseInt(idString[i]) % 3) + 1; // random barcode widths based on digits
+                        const opacity = 0.4 + (parseInt(idString[i]) % 5) * 0.1;
+                        const line = document.createElement('div');
+                        line.className = 'id-card-barcode-line';
+                        line.style.width = `${width}px`;
+                        line.style.opacity = opacity;
+                        barcodeContainer.appendChild(line);
+                    }
+                }
+            }
+
+            // Helper to format date nicely
+            function formatDate(dateStr) {
+                try {
+                    const d = new Date(dateStr);
+                    if (isNaN(d.getTime())) return dateStr;
+                    return d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+                } catch(e) {
+                    return dateStr;
+                }
+            }
+
+            // Toast feedback helper
+            function showToast(title, msg, isSuccess) {
+                const toast = document.getElementById('status-toast');
+                const tIcon = document.getElementById('toast-icon');
+                const tTitle = document.getElementById('toast-title');
+                const tMessage = document.getElementById('toast-message');
+                
+                if (!toast) return;
+                
+                tTitle.innerText = title;
+                tMessage.innerText = msg;
+                
+                if (isSuccess) {
+                    toast.className = "status-toast success show";
+                    if (tIcon) tIcon.className = "fa-solid fa-circle-check";
+                } else {
+                    toast.className = "status-toast error show";
+                    if (tIcon) tIcon.className = "fa-solid fa-triangle-exclamation";
+                }
+                
+                setTimeout(() => {
+                    toast.className = "status-toast hidden";
+                }, 4000);
+            }
+        });
+    </script>
+</body>
+</html>

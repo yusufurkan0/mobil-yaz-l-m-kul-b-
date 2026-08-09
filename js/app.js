@@ -1379,48 +1379,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showMemberDashboard(member) {
-        // Reset to view mode first
-        if (memberViewArea) memberViewArea.classList.remove('hidden');
-        if (memberEditArea) memberEditArea.classList.add('hidden');
-
-        document.getElementById('member-dash-name').innerText = member.name;
-        document.getElementById('member-dash-email').innerText = member.email;
-        
-        // Populate dashboard view values
-        document.getElementById('member-dash-username').innerText = member.username || '-';
-        document.getElementById('member-dash-student-id').innerText = member.studentId || '-';
-        document.getElementById('member-dash-phone').innerText = member.phone || '-';
-        document.getElementById('member-dash-faculty').innerText = member.faculty || '-';
-        document.getElementById('member-dash-dept').innerText = member.department || '-';
-        document.getElementById('member-dash-grade').innerText = member.grade || '-';
-        document.getElementById('member-dash-birthdate').innerText = member.birthdate || '-';
-
-        // Set status
-        const statusSpan = document.getElementById('member-dash-status');
-        const statusClass = member.status === 'approved' ? 'approved' : 'pending';
-        const statusText = member.status === 'approved' ? 'Onaylandı' : 'Beklemede';
-        statusSpan.className = `status-badge ${statusClass}`;
-        statusSpan.innerText = statusText;
-
-        // Display correct status info card
-        const pendingCard = document.getElementById('member-status-pending-card');
-        const approvedCard = document.getElementById('member-status-approved-card');
-
-        if (member.status === 'approved') {
-            if (approvedCard) approvedCard.classList.remove('hidden');
-            if (pendingCard) pendingCard.classList.add('hidden');
-        } else {
-            if (pendingCard) pendingCard.classList.remove('hidden');
-            if (approvedCard) approvedCard.classList.add('hidden');
-        }
-
-        // Update header nav buttons state
-        updateHeaderState(member, true);
-
-        // Show modal
-        if (memberDashboardModal) {
-            memberDashboardModal.classList.remove('hidden');
-        }
+        window.location.href = 'profil.html';
     }
 
     // Member login form submit
