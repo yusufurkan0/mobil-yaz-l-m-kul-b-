@@ -1782,15 +1782,48 @@ document.addEventListener('DOMContentLoaded', () => {
     if (adminLoginForm) {
         adminLoginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('admin-email').value;
+            const email = document.getElementById('admin-email').value.trim();
             const pass = document.getElementById('admin-password').value;
 
-            if (email === 'admin@kulup.com' && pass === 'admin') {
-                loginModal.classList.add('hidden');
-                sessionStorage.setItem('admin_logged_in', 'true'); // Save session state
-                enableAdminMode();
+            // Submit button loading state
+            const submitBtn = adminLoginForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Giriş Yapılıyor...`;
+
+            if (useFirebase && typeof firebase !== 'undefined' && firebase.auth) {
+                // Secure Firebase Auth Authentication
+                firebase.auth().signInWithEmailAndPassword(email, pass)
+                    .then((userCredential) => {
+                        loginModal.classList.add('hidden');
+                        sessionStorage.setItem('admin_logged_in', 'true'); // Save session state
+                        enableAdminMode();
+                        if (loginError) loginError.classList.add('hidden');
+                        adminLoginForm.reset();
+                    })
+                    .catch((error) => {
+                        console.error("Firebase Admin Authentication failed:", error);
+                        if (loginError) loginError.classList.remove('hidden');
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    });
             } else {
-                loginError.classList.remove('hidden');
+                // Offline Local Testing Fallback
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                    if (email === 'admin@kulup.com' && pass === 'admin') {
+                        loginModal.classList.add('hidden');
+                        sessionStorage.setItem('admin_logged_in', 'true'); // Save session state
+                        enableAdminMode();
+                        if (loginError) loginError.classList.add('hidden');
+                        adminLoginForm.reset();
+                    } else {
+                        if (loginError) loginError.classList.remove('hidden');
+                    }
+                }, 400);
             }
         });
     }
