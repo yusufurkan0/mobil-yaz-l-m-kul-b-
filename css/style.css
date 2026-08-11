@@ -1107,6 +1107,14 @@ body.dark-theme .form-group select {
     background-color: rgba(255, 255, 255, 0.03);
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d9b3c4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
 }
+.form-group select option {
+    background-color: #ffffff;
+    color: #1e293b;
+}
+body.dark-theme .form-group select option {
+    background-color: #1a1625; /* Dark background to match register modal */
+    color: #f1f5f9; /* Light text for readability */
+}
 .form-group select:disabled {
     opacity: 0.6;
     cursor: not-allowed;
