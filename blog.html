@@ -15,6 +15,24 @@
 </head>
 <body class="dark-theme">
 
+    <!-- Admin Toolbar (Only visible when logged in as admin) -->
+    <div id="admin-toolbar" class="admin-toolbar hidden">
+        <div class="toolbar-container">
+            <div class="toolbar-info">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Yönetici Modu Aktif (Canlı Düzenleme)</span>
+            </div>
+            <div class="toolbar-actions">
+                <button class="toolbar-btn" data-target="members"><i class="fa-solid fa-users"></i> Başvurular</button>
+                <button class="toolbar-btn" data-target="events"><i class="fa-solid fa-calendar-days"></i> Etkinlikler</button>
+                <button class="toolbar-btn" data-target="announcements"><i class="fa-solid fa-bullhorn"></i> Duyurular</button>
+                <button class="toolbar-btn" data-target="blog"><i class="fa-solid fa-newspaper"></i> Bloglar</button>
+                <button class="toolbar-btn" data-target="settings"><i class="fa-solid fa-sliders"></i> İçerik (CMS)</button>
+                <button id="admin-toolbar-logout" class="toolbar-btn logout"><i class="fa-solid fa-right-from-bracket"></i> Çıkış</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Header Navigation -->
     <header id="main-header">
         <div class="container navbar-container">
@@ -393,6 +411,33 @@
 
             // Run render
             renderBlog();
+
+            // Admin session synchronization
+            if (sessionStorage.getItem('admin_logged_in') === 'true') {
+                const adminToolbar = document.getElementById('admin-toolbar');
+                if (adminToolbar) {
+                    adminToolbar.classList.remove('hidden');
+                    document.body.classList.add('admin-mode-active');
+                }
+                
+                // Map toolbar buttons to index.html redirect with target query param
+                const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
+                toolbarBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const target = btn.getAttribute('data-target');
+                        window.location.href = `index.html?admin_target=${target}`;
+                    });
+                });
+                
+                // Handle admin logout from subpage
+                const logoutBtn = document.getElementById('admin-toolbar-logout');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', () => {
+                        sessionStorage.removeItem('admin_logged_in');
+                        window.location.reload();
+                    });
+                }
+            }
         });
     </script>
 </body>

@@ -2563,6 +2563,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (sessionStorage.getItem('admin_logged_in') === 'true') {
         enableAdminMode();
+        
+        // Handle URL parameters for Admin Dashboard tab redirection
+        const urlParams = new URLSearchParams(window.location.search);
+        const adminTarget = urlParams.get('admin_target');
+        if (adminTarget) {
+            setTimeout(() => {
+                const dashboardTabBtn = document.querySelector(`.dash-tab-btn[data-tab="${adminTarget}"]`);
+                if (dashboardTabBtn) {
+                    dashboardTabBtn.click();
+                }
+                if (adminDashboard) {
+                    adminDashboard.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden'; // Lock scroll
+                }
+            }, 300);
+        }
     }
 
     // --- 10. Club Tools (CV Builder, Skills Evaluator, Leaderboard, Quiz, CTF) Logic ---
