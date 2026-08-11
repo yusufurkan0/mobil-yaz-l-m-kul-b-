@@ -2363,6 +2363,9 @@ body.admin-mode-active #main-header {
     .interest-checkboxes-grid {
         grid-template-columns: 1fr !important; /* Stack fields on small mobile */
     }
+    .bg-orb {
+        display: none !important; /* Prevent iOS layout shifting and improve mobile performance */
+    }
 }
 
 

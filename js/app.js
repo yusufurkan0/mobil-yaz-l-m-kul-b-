@@ -17,11 +17,77 @@ document.addEventListener('DOMContentLoaded', () => {
             db = firebase.firestore();
             useFirebase = true;
             console.log("Firebase initialized successfully.");
+            syncFirestoreToLocalStorage(); // Fetch latest Firestore records in background
         } catch (err) {
             console.error("Firebase initialization failed. Falling back to LocalStorage:", err);
         }
     } else {
         console.log("Firebase config not found. Running in LocalStorage fallback mode.");
+    }
+
+    async function syncFirestoreToLocalStorage() {
+        if (!useFirebase || !db) return;
+        try {
+            // 1. Sync Events
+            const eventsSnapshot = await db.collection('events').get();
+            if (!eventsSnapshot.empty) {
+                const events = [];
+                eventsSnapshot.forEach(doc => {
+                    events.push(doc.data());
+                });
+                localStorage.setItem('myk_events', JSON.stringify(events));
+                console.log("Events synced from Firestore.");
+                
+                // Update live state in index.html (if we have direct references)
+                if (typeof dbEvents !== 'undefined') dbEvents = events;
+                if (typeof renderEvents === 'function') renderEvents();
+            }
+
+            // 2. Sync Announcements
+            const annSnapshot = await db.collection('announcements').get();
+            if (!annSnapshot.empty) {
+                const announcements = [];
+                annSnapshot.forEach(doc => {
+                    announcements.push(doc.data());
+                });
+                localStorage.setItem('myk_announcements', JSON.stringify(announcements));
+                console.log("Announcements synced from Firestore.");
+                if (typeof dbAnnouncements !== 'undefined') dbAnnouncements = announcements;
+                if (typeof renderAnnouncements === 'function') renderAnnouncements();
+            }
+
+            // 3. Sync Blog
+            const blogSnapshot = await db.collection('blog').get();
+            if (!blogSnapshot.empty) {
+                const blog = [];
+                blogSnapshot.forEach(doc => {
+                    blog.push(doc.data());
+                });
+                localStorage.setItem('myk_blog', JSON.stringify(blog));
+                console.log("Blog posts synced from Firestore.");
+                if (typeof dbBlog !== 'undefined') dbBlog = blog;
+                if (typeof renderBlog === 'function') renderBlog();
+            }
+
+            // 4. Sync Settings
+            const settingsDoc = await db.collection('settings').doc('cms').get();
+            if (settingsDoc.exists) {
+                const settingsData = settingsDoc.data();
+                localStorage.setItem('myk_site_settings', JSON.stringify(settingsData));
+                console.log("CMS Settings synced from Firestore.");
+                if (typeof applySiteSettings === 'function') applySiteSettings();
+            }
+            
+            // Re-render admin tables if admin is logged in
+            if (sessionStorage.getItem('admin_logged_in') === 'true') {
+                if (typeof renderDashboardEvents === 'function') renderDashboardEvents();
+                if (typeof renderDashboardAnnouncements === 'function') renderDashboardAnnouncements();
+                if (typeof renderDashboardBlog === 'function') renderDashboardBlog();
+                if (typeof initSettingsTab === 'function') initSettingsTab();
+            }
+        } catch (err) {
+            console.error("Error syncing Firestore collections:", err);
+        }
     }
 
     // EmailJS Initialization
@@ -774,6 +840,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveLocalStorageEvents(events) {
         localStorage.setItem('myk_events', JSON.stringify(events));
+        if (useFirebase && db) {
+            events.forEach(ev => {
+                db.collection('events').doc(ev.id.toString()).set(ev)
+                    .catch(err => console.error("Firestore sync event fail:", err));
+            });
+        }
     }
 
     function getLocalStorageAnnouncements() {
@@ -787,6 +859,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveLocalStorageAnnouncements(announcements) {
         localStorage.setItem('myk_announcements', JSON.stringify(announcements));
+        if (useFirebase && db) {
+            announcements.forEach(ann => {
+                db.collection('announcements').doc(ann.id.toString()).set(ann)
+                    .catch(err => console.error("Firestore sync announcement fail:", err));
+            });
+        }
     }
 
     // --- Blog Database Helpers & Mock Data ---
@@ -876,6 +954,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveLocalStorageBlog(blog) {
         localStorage.setItem('myk_blog', JSON.stringify(blog));
+        if (useFirebase && db) {
+            blog.forEach(post => {
+                db.collection('blog').doc(post.id.toString()).set(post)
+                    .catch(err => console.error("Firestore sync blog post fail:", err));
+            });
+        }
     }
 
     // --- Site Settings Helpers & Mock Data (CMS) ---
@@ -923,6 +1007,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveLocalStorageSettings(settings) {
         localStorage.setItem('myk_site_settings', JSON.stringify(settings));
+        if (useFirebase && db) {
+            db.collection('settings').doc('cms').set(settings)
+                .catch(err => console.error("Firestore sync CMS settings fail:", err));
+        }
     }
 
     function applySiteSettings() {
@@ -2063,6 +2151,10 @@ document.addEventListener('DOMContentLoaded', () => {
             saveLocalStorageEvents(events);
             renderDashboardEvents();
             showStatusToast("Silindi", "Etkinlik başarıyla silindi.", true);
+            if (useFirebase && db) {
+                db.collection('events').doc(id.toString()).delete()
+                    .catch(err => console.error("Firestore delete event fail:", err));
+            }
         }
     }
 
@@ -2140,6 +2232,10 @@ document.addEventListener('DOMContentLoaded', () => {
             saveLocalStorageAnnouncements(announcements);
             renderDashboardAnnouncements();
             showStatusToast("Silindi", "Duyuru başarıyla silindi.", true);
+            if (useFirebase && db) {
+                db.collection('announcements').doc(id.toString()).delete()
+                    .catch(err => console.error("Firestore delete announcement fail:", err));
+            }
         }
     }
 
@@ -2282,6 +2378,10 @@ document.addEventListener('DOMContentLoaded', () => {
             saveLocalStorageBlog(blog);
             renderDashboardBlog();
             showStatusToast("Silindi", "Blog yazısı başarıyla silindi.", true);
+            if (useFirebase && db) {
+                db.collection('blog').doc(id.toString()).delete()
+                    .catch(err => console.error("Firestore delete blog post fail:", err));
+            }
         }
     }
 
