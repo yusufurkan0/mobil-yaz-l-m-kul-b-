@@ -88,6 +88,8 @@ html {
     scroll-behavior: smooth;
     font-size: 16px;
     background-color: var(--bg-dark);
+    overflow-x: hidden;
+    width: 100%;
 }
 
 body {
@@ -96,6 +98,7 @@ body {
     background-color: var(--bg-dark);
     line-height: 1.6;
     overflow-x: hidden;
+    width: 100%;
     position: relative;
     transition: background-color var(--transition-normal);
 }
@@ -2340,6 +2343,26 @@ body.admin-mode-active {
 }
 body.admin-mode-active #main-header {
     top: 50px;
+}
+
+/* --- Mobile Modal Optimization --- */
+@media (max-width: 580px) {
+    .modal {
+        padding: 12px;
+    }
+    .modal-content {
+        padding: 24px 16px !important;
+        border-radius: 20px;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto;
+    }
+    #register-modal .modal-content {
+        max-width: 100% !important;
+    }
+    .interest-checkboxes-grid {
+        grid-template-columns: 1fr !important; /* Stack fields on small mobile */
+    }
 }
 
 

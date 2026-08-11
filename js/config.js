@@ -10,12 +10,12 @@
 const CONFIG = {
     // Firebase Firestore Veritabanı Yapılandırması
     firebase: {
-        apiKey: "AIzaSyD1DU6viGdeezdEf1aI7KFiboqOGNYFtlc",
-        authDomain: "mobil-yazilim.firebaseapp.com",
-        projectId: "mobil-yazilim",
-        storageBucket: "mobil-yazilim.firebasestorage.app",
-        messagingSenderId: "1064794786111",
-        appId: "1:1064794786111:web:156014ec4fd432be1d6b8a"
+        apiKey: "AIzaSyBt0erS3Xh_tWbpDwQzyZwn_C2ZWTcLmEk",
+        authDomain: "gedik-mygk.firebaseapp.com",
+        projectId: "gedik-mygk",
+        storageBucket: "gedik-mygk.firebasestorage.app",
+        messagingSenderId: "772100380736",
+        appId: "1:772100380736:web:83716a920a14961bf7e7a5"
     },
 
     // EmailJS (Gerçek E-posta Gönderim Servisi) Yapılandırması
