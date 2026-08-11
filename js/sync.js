@@ -40,33 +40,27 @@
         const path = window.location.pathname;
         if (path.includes('etkinlikler.html')) {
             db.collection('events').get().then(snapshot => {
-                if (!snapshot.empty) {
-                    const events = [];
-                    snapshot.forEach(doc => events.push(doc.data()));
-                    localStorage.setItem('myk_events', JSON.stringify(events));
-                    console.log("Events synced from Firestore.");
-                    if (typeof renderEvents === 'function') renderEvents();
-                }
+                const events = [];
+                snapshot.forEach(doc => events.push(doc.data()));
+                localStorage.setItem('myk_events', JSON.stringify(events));
+                console.log("Events synced from Firestore:", events.length);
+                if (typeof renderEvents === 'function') renderEvents();
             }).catch(err => console.error("Events sync failed:", err));
         } else if (path.includes('duyurular.html')) {
             db.collection('announcements').get().then(snapshot => {
-                if (!snapshot.empty) {
-                    const announcements = [];
-                    snapshot.forEach(doc => announcements.push(doc.data()));
-                    localStorage.setItem('myk_announcements', JSON.stringify(announcements));
-                    console.log("Announcements synced from Firestore.");
-                    if (typeof renderAnnouncements === 'function') renderAnnouncements();
-                }
+                const announcements = [];
+                snapshot.forEach(doc => announcements.push(doc.data()));
+                localStorage.setItem('myk_announcements', JSON.stringify(announcements));
+                console.log("Announcements synced from Firestore:", announcements.length);
+                if (typeof renderAnnouncements === 'function') renderAnnouncements();
             }).catch(err => console.error("Announcements sync failed:", err));
         } else if (path.includes('blog.html')) {
             db.collection('blog').get().then(snapshot => {
-                if (!snapshot.empty) {
-                    const blog = [];
-                    snapshot.forEach(doc => blog.push(doc.data()));
-                    localStorage.setItem('myk_blog', JSON.stringify(blog));
-                    console.log("Blog posts synced from Firestore.");
-                    if (typeof renderBlog === 'function') renderBlog();
-                }
+                const blog = [];
+                snapshot.forEach(doc => blog.push(doc.data()));
+                localStorage.setItem('myk_blog', JSON.stringify(blog));
+                console.log("Blog posts synced from Firestore:", blog.length);
+                if (typeof renderBlog === 'function') renderBlog();
             }).catch(err => console.error("Blog posts sync failed:", err));
         }
     }

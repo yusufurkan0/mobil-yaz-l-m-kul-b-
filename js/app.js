@@ -30,44 +30,36 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // 1. Sync Events
             const eventsSnapshot = await db.collection('events').get();
-            if (!eventsSnapshot.empty) {
-                const events = [];
-                eventsSnapshot.forEach(doc => {
-                    events.push(doc.data());
-                });
-                localStorage.setItem('myk_events', JSON.stringify(events));
-                console.log("Events synced from Firestore.");
-                
-                // Update live state in index.html (if we have direct references)
-                if (typeof dbEvents !== 'undefined') dbEvents = events;
-                if (typeof renderEvents === 'function') renderEvents();
-            }
+            const events = [];
+            eventsSnapshot.forEach(doc => {
+                events.push(doc.data());
+            });
+            localStorage.setItem('myk_events', JSON.stringify(events));
+            console.log("Events synced from Firestore:", events.length);
+            if (typeof dbEvents !== 'undefined') dbEvents = events;
+            if (typeof renderEvents === 'function') renderEvents();
 
             // 2. Sync Announcements
             const annSnapshot = await db.collection('announcements').get();
-            if (!annSnapshot.empty) {
-                const announcements = [];
-                annSnapshot.forEach(doc => {
-                    announcements.push(doc.data());
-                });
-                localStorage.setItem('myk_announcements', JSON.stringify(announcements));
-                console.log("Announcements synced from Firestore.");
-                if (typeof dbAnnouncements !== 'undefined') dbAnnouncements = announcements;
-                if (typeof renderAnnouncements === 'function') renderAnnouncements();
-            }
+            const announcements = [];
+            annSnapshot.forEach(doc => {
+                announcements.push(doc.data());
+            });
+            localStorage.setItem('myk_announcements', JSON.stringify(announcements));
+            console.log("Announcements synced from Firestore:", announcements.length);
+            if (typeof dbAnnouncements !== 'undefined') dbAnnouncements = announcements;
+            if (typeof renderAnnouncements === 'function') renderAnnouncements();
 
             // 3. Sync Blog
             const blogSnapshot = await db.collection('blog').get();
-            if (!blogSnapshot.empty) {
-                const blog = [];
-                blogSnapshot.forEach(doc => {
-                    blog.push(doc.data());
-                });
-                localStorage.setItem('myk_blog', JSON.stringify(blog));
-                console.log("Blog posts synced from Firestore.");
-                if (typeof dbBlog !== 'undefined') dbBlog = blog;
-                if (typeof renderBlog === 'function') renderBlog();
-            }
+            const blog = [];
+            blogSnapshot.forEach(doc => {
+                blog.push(doc.data());
+            });
+            localStorage.setItem('myk_blog', JSON.stringify(blog));
+            console.log("Blog posts synced from Firestore:", blog.length);
+            if (typeof dbBlog !== 'undefined') dbBlog = blog;
+            if (typeof renderBlog === 'function') renderBlog();
 
             // 4. Sync Settings
             const settingsDoc = await db.collection('settings').doc('cms').get();
@@ -88,6 +80,37 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             console.error("Error syncing Firestore collections:", err);
         }
+    }
+
+    async function loadMembers(forceFetch = false) {
+        if (dbMembers.length === 0 || forceFetch) {
+            let success = false;
+            if (useFirebase && db) {
+                try {
+                    const fetchPromise = db.collection('applicants').get();
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 4000));
+                    
+                    const snapshot = await Promise.race([fetchPromise, timeoutPromise]);
+                    const members = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        members.push({ id: doc.id, ...data });
+                    });
+                    
+                    dbMembers = members;
+                    saveLocalStorageMembers(dbMembers); // Sync to local cache
+                    success = true;
+                    console.log("Members loaded from Firestore successfully:", dbMembers.length);
+                } catch (err) {
+                    console.error("Firestore read failed, falling back to local storage:", err);
+                }
+            }
+            
+            if (!success) {
+                dbMembers = getLocalStorageMembers();
+            }
+        }
+        return dbMembers;
     }
 
     // EmailJS Initialization
@@ -1088,26 +1111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const memberSpan = document.getElementById('homepage-member-count');
         if (!memberSpan) return;
 
-        // If dbMembers is already loaded, use it. Otherwise, load it first.
-        if (dbMembers.length === 0) {
-            let membersMap = new Map();
-            const local = getLocalStorageMembers();
-            local.forEach(m => membersMap.set(m.id.toString(), m));
-
-            if (useFirebase) {
-                try {
-                    const fetchPromise = db.collection('applicants').get();
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2000));
-                    const snapshot = await Promise.race([fetchPromise, timeoutPromise]);
-                    snapshot.forEach(doc => {
-                        membersMap.set(doc.id, { id: doc.id, ...doc.data() });
-                    });
-                } catch (err) {
-                    console.error("Firestore read timed out or failed for stats:", err);
-                }
-            }
-            dbMembers = Array.from(membersMap.values());
-        }
+        await loadMembers();
 
         const totalCount = dbMembers.length;
         memberSpan.setAttribute('data-val', totalCount);
@@ -1141,30 +1145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         listContainer.innerHTML = '';
         
         // 1. Fetch only if cache is empty or forceFetch is requested
-        if (dbMembers.length === 0 || forceFetch) {
-            let localMembers = getLocalStorageMembers();
-            let membersMap = new Map();
-            
-            localMembers.forEach(m => {
-                membersMap.set(m.id.toString(), m);
-            });
-            
-            if (useFirebase) {
-                try {
-                    const fetchPromise = db.collection('applicants').get();
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 3000));
-                    
-                    const snapshot = await Promise.race([fetchPromise, timeoutPromise]);
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        membersMap.set(doc.id, { id: doc.id, ...data });
-                    });
-                } catch (err) {
-                    console.error("Firestore read timed out or failed, displaying local data only:", err);
-                }
-            }
-            dbMembers = Array.from(membersMap.values());
-        }
+        await loadMembers(forceFetch);
         
         // 2. Calculate Dashboard Stats based on ALL members in memory (not just filtered search matches)
         let total = 0;
