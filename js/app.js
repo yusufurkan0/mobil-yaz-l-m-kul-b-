@@ -103,6 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log("Members loaded from Firestore successfully:", dbMembers.length);
                 } catch (err) {
                     console.error("Firestore read failed, falling back to local storage:", err);
+                    // If permissions prevent reading applicants (e.g. anonymous visitor), don't treat it as database failure, treat as lack of access
+                    if (err.code === 'permission-denied' || err.message.includes('permission-denied') || err.message.includes('Permission')) {
+                        dbMembers = [];
+                        success = true; // Mark as success so we don't load default mock data
+                    }
                 }
             }
             

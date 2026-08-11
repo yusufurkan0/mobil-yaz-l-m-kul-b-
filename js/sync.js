@@ -33,6 +33,26 @@
                 const settingsData = doc.data();
                 localStorage.setItem('myk_site_settings', JSON.stringify(settingsData));
                 applySyncedFooterSettings(settingsData);
+                
+                // Immediately apply stats to the homepage elements if they exist on the page
+                const memberSpan = document.getElementById('homepage-member-count');
+                if (memberSpan) {
+                    const approvedCount = settingsData.totalMembers !== undefined ? settingsData.totalMembers : 0;
+                    memberSpan.setAttribute('data-val', approvedCount);
+                    memberSpan.innerText = approvedCount;
+                }
+                const eventSpan = document.getElementById('homepage-event-count');
+                if (eventSpan) {
+                    const eventCount = settingsData.totalEvents !== undefined ? settingsData.totalEvents : 0;
+                    eventSpan.setAttribute('data-val', eventCount);
+                    eventSpan.innerText = eventCount;
+                }
+                const sponsorSpan = document.getElementById('homepage-sponsor-count');
+                if (sponsorSpan) {
+                    const sponsorCount = settingsData.totalSponsors !== undefined ? settingsData.totalSponsors : 5;
+                    sponsorSpan.setAttribute('data-val', sponsorCount);
+                    sponsorSpan.innerText = sponsorCount;
+                }
             }
         }).catch(err => console.error("CMS settings sync failed:", err));
 
