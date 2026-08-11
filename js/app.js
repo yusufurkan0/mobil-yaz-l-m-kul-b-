@@ -1029,9 +1029,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveLocalStorageSettings(settings) {
-        localStorage.setItem('myk_site_settings', JSON.stringify(settings));
+        const current = getLocalStorageSettings();
+        const merged = { ...current, ...settings };
+        localStorage.setItem('myk_site_settings', JSON.stringify(merged));
         if (useFirebase && db) {
-            db.collection('settings').doc('cms').set(settings)
+            db.collection('settings').doc('cms').set(merged)
                 .catch(err => console.error("Firestore sync CMS settings fail:", err));
         }
     }
@@ -1104,18 +1106,55 @@ document.addEventListener('DOMContentLoaded', () => {
         if (regC3) regC3.innerText = settings.regC3;
         if (regT4) regT4.innerText = settings.regT4;
         if (regC4) regC4.innerText = settings.regC4;
+
+        // 7. Homepage Stats Strip (Dynamically syncs from public settings without permission errors)
+        const memberSpan = document.getElementById('homepage-member-count');
+        if (memberSpan) {
+            const approvedCount = settings.totalMembers !== undefined ? settings.totalMembers : 0;
+            memberSpan.setAttribute('data-val', approvedCount);
+            memberSpan.innerText = approvedCount;
+        }
+
+        const eventSpan = document.getElementById('homepage-event-count');
+        if (eventSpan) {
+            const events = JSON.parse(localStorage.getItem('myk_events')) || [];
+            const eventCount = events.length || (settings.totalEvents !== undefined ? settings.totalEvents : 0);
+            eventSpan.setAttribute('data-val', eventCount);
+            eventSpan.innerText = eventCount;
+        }
+
+        const sponsorSpan = document.getElementById('homepage-sponsor-count');
+        if (sponsorSpan) {
+            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 5;
+            sponsorSpan.setAttribute('data-val', sponsorCount);
+            sponsorSpan.innerText = sponsorCount;
+        }
     }
 
     // Dynamic homepage stats update (combines local + cloud count)
     async function updateHomepageStats() {
+        const settings = getLocalStorageSettings();
         const memberSpan = document.getElementById('homepage-member-count');
-        if (!memberSpan) return;
+        if (memberSpan) {
+            const approvedCount = settings.totalMembers !== undefined ? settings.totalMembers : 0;
+            memberSpan.setAttribute('data-val', approvedCount);
+            memberSpan.innerText = approvedCount;
+        }
 
-        await loadMembers();
+        const eventSpan = document.getElementById('homepage-event-count');
+        if (eventSpan) {
+            const events = JSON.parse(localStorage.getItem('myk_events')) || [];
+            const eventCount = events.length || (settings.totalEvents !== undefined ? settings.totalEvents : 0);
+            eventSpan.setAttribute('data-val', eventCount);
+            eventSpan.innerText = eventCount;
+        }
 
-        const totalCount = dbMembers.length;
-        memberSpan.setAttribute('data-val', totalCount);
-        memberSpan.innerText = totalCount;
+        const sponsorSpan = document.getElementById('homepage-sponsor-count');
+        if (sponsorSpan) {
+            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 5;
+            sponsorSpan.setAttribute('data-val', sponsorCount);
+            sponsorSpan.innerText = sponsorCount;
+        }
     }
 
     const trackLabels = {
@@ -1151,9 +1190,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let total = 0;
         let ios = 0;
         let android = 0;
+        let approvedCount = 0;
 
         dbMembers.forEach(m => {
             total++;
+            if (m.status === 'approved') approvedCount++;
             if (m.track) {
                 const tracks = m.track.split(',');
                 tracks.forEach(trackKey => {
@@ -1167,6 +1208,18 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('dash-total-members').innerText = total;
         document.getElementById('dash-ios-count').innerText = ios;
         document.getElementById('dash-android-count').innerText = android;
+
+        // Sync total approved members count to CMS settings doc in Firestore so anonymous users can read it securely
+        if (useFirebase && db && sessionStorage.getItem('admin_logged_in') === 'true') {
+            db.collection('settings').doc('cms').update({
+                totalMembers: approvedCount
+            }).then(() => {
+                const currentSettings = getLocalStorageSettings();
+                currentSettings.totalMembers = approvedCount;
+                localStorage.setItem('myk_site_settings', JSON.stringify(currentSettings));
+                console.log("Synced totalMembers count to CMS:", approvedCount);
+            }).catch(err => console.error("Failed to sync totalMembers count to CMS:", err));
+        }
 
         // 3. Filter members for search display
         const filtered = dbMembers.filter(m => {
