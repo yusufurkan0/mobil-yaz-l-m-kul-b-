@@ -288,6 +288,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (regTriggerNav) regTriggerNav.addEventListener('click', openRegisterModal);
+    const regTriggerMobile = document.getElementById('register-trigger-mobile');
+    if (regTriggerMobile) regTriggerMobile.addEventListener('click', openRegisterModal);
     if (regTriggerHero) regTriggerHero.addEventListener('click', openRegisterModal);
     if (closeRegister) closeRegister.addEventListener('click', closeRegisterModal);
 
@@ -1432,6 +1434,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (loginTrigger) loginTrigger.addEventListener('click', openLoginModal);
+    const loginTriggerMobile = document.getElementById('login-trigger-mobile');
+    if (loginTriggerMobile) loginTriggerMobile.addEventListener('click', openLoginModal);
     if (adminTriggerFooter) adminTriggerFooter.addEventListener('click', openLoginModal);
     
     if (closeLogin) {
@@ -1491,17 +1495,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const loginTrigger = document.getElementById('login-trigger');
         const registerTriggerNav = document.getElementById('register-trigger-nav');
         const navUserName = document.getElementById('nav-user-name');
+        
+        const loginTriggerMobile = document.getElementById('login-trigger-mobile');
+        const registerTriggerMobile = document.getElementById('register-trigger-mobile');
+        const userProfileTriggerMobile = document.getElementById('user-profile-trigger-mobile');
+        const navUserNameMobile = document.getElementById('nav-user-name-mobile');
 
         if (isLoggedIn && member) {
             if (loginTrigger) loginTrigger.classList.add('hidden');
             if (registerTriggerNav) registerTriggerNav.classList.add('hidden');
             if (userProfileTrigger) userProfileTrigger.classList.remove('hidden');
+            
+            if (loginTriggerMobile) loginTriggerMobile.classList.add('hidden');
+            if (registerTriggerMobile) registerTriggerMobile.classList.add('hidden');
+            if (userProfileTriggerMobile) userProfileTriggerMobile.classList.remove('hidden');
+            
             // Use username if available, otherwise fallback to first name
-            if (navUserName) navUserName.innerText = member.username || member.name.split(' ')[0];
+            const displayName = member.username || member.name.split(' ')[0];
+            if (navUserName) navUserName.innerText = displayName;
+            if (navUserNameMobile) navUserNameMobile.innerText = displayName;
         } else {
             if (loginTrigger) loginTrigger.classList.remove('hidden');
             if (registerTriggerNav) registerTriggerNav.classList.remove('hidden');
             if (userProfileTrigger) userProfileTrigger.classList.add('hidden');
+            
+            if (loginTriggerMobile) loginTriggerMobile.classList.remove('hidden');
+            if (registerTriggerMobile) registerTriggerMobile.classList.remove('hidden');
+            if (userProfileTriggerMobile) userProfileTriggerMobile.classList.add('hidden');
         }
     }
 

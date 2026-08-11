@@ -70,19 +70,37 @@
                     </li>
                     <li><a href="duyurular.html" class="nav-link active">Duyurular</a></li>
                     <li><a href="iletisim.html" class="nav-link">İletişim</a></li>
+                    
+                    <!-- Mobile Action Buttons -->
+                    <li class="mobile-actions-wrapper" style="display: none; width: 100%; flex-direction: column; gap: 12px; margin-top: 20px; padding: 0 20px;">
+                        <a href="index.html" id="login-trigger-mobile" class="btn btn-secondary" style="width: 100%; text-align: center;">Giriş Yap</a>
+                        <a href="profil.html" id="user-profile-trigger-mobile" class="btn btn-secondary hidden" style="width: 100%; text-align: center;">
+                            <i class="fa-solid fa-user"></i> <span id="nav-user-name-mobile">Profilim</span>
+                        </a>
+                        <a href="index.html" id="register-trigger-mobile" class="btn btn-primary" style="width: 100%; text-align: center;">Kayıt Ol</a>
+                    </li>
                 </ul>
             </nav>
             
-            <div class="nav-buttons">
+            <div class="header-right-wrapper" style="display: flex; align-items: center; gap: 14px;">
                 <button id="theme-toggle" class="theme-toggle-btn" aria-label="Temayı Değiştir">
                     <i class="fa-solid fa-moon"></i>
                 </button>
-                <a href="index.html" id="login-trigger" class="btn btn-secondary nav-btn-login">Giriş Yap</a>
-                <a href="profil.html" id="user-profile-trigger" class="btn btn-secondary nav-btn-profile hidden">
-                    <i class="fa-solid fa-user"></i> <span id="nav-user-name">Profilim</span>
-                </a>
-                <a href="index.html" id="register-trigger-nav" class="btn btn-primary nav-btn-register">Kayıt Ol</a>
+                <div class="nav-buttons">
+                    <a href="index.html" id="login-trigger" class="btn btn-secondary nav-btn-login">Giriş Yap</a>
+                    <a href="profil.html" id="user-profile-trigger" class="btn btn-secondary nav-btn-profile hidden">
+                        <i class="fa-solid fa-user"></i> <span id="nav-user-name">Profilim</span>
+                    </a>
+                    <a href="index.html" id="register-trigger-nav" class="btn btn-primary nav-btn-register">Kayıt Ol</a>
+                </div>
             </div>
+
+            <!-- Mobile Menu Toggle -->
+            <button id="menu-toggle" aria-label="Menüyü Aç">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </header>
 

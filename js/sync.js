@@ -7,6 +7,35 @@
 */
 
 (function() {
+    // 1. Immediate Theme Persistence (prevent flash of light theme)
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+
+    // Toggle theme handler for subpages
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme');
+                const isDark = document.body.classList.contains('dark-theme');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            });
+        }
+
+        // Mobile hamburger menu toggle handler for subpages
+        const menuToggle = document.getElementById('menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+        if (menuToggle && navMenu) {
+            menuToggle.addEventListener('click', () => {
+                menuToggle.classList.toggle('open');
+                navMenu.classList.toggle('open');
+                document.body.classList.toggle('no-scroll');
+            });
+        }
+    });
+
     // Only run if CONFIG is defined (which holds our credentials)
     if (typeof CONFIG === 'undefined' || !CONFIG.firebase || !CONFIG.firebase.projectId) return;
 

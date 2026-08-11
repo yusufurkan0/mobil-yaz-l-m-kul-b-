@@ -434,6 +434,9 @@ body.dark-theme #main-header.scrolled {
     align-items: center;
     gap: 14px;
 }
+.mobile-actions-wrapper {
+    display: none;
+}
 
 /* Theme toggle button styling in standard theme */
 .theme-toggle-btn {
@@ -1754,6 +1757,9 @@ body.dark-theme .track-badge-mini.cross { color: #22d3ee; border-color: rgba(34,
     }
     .nav-buttons {
         display: none;
+    }
+    .mobile-actions-wrapper {
+        display: flex !important;
     }
     
     #menu-toggle.open span:nth-child(1) {
