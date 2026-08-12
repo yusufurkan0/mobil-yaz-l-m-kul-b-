@@ -428,6 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let resetVerificationCode = '';
     let resetVerificationEmail = '';
+    let resetTargetDocId = '';
 
     function sendResetVerificationEmail(code, email, name) {
         if (useEmailJS) {
@@ -627,9 +628,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Cache data (Defaults tracks to 'ios' for mobile club classification)
                 pendingMemberData = {
-                    id: Date.now(),
+                    id: email.trim().toLowerCase(),
                     name: `${firstName} ${lastName}`,
-                    email: email,
+                    email: email.trim().toLowerCase(),
                     username: username,
                     studentId: studentId,
                     phone: phone,
@@ -1687,26 +1688,78 @@ document.addEventListener('DOMContentLoaded', () => {
         forgotPasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+            const submitBtn = forgotPasswordForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.innerHTML : "Devam Et";
 
-            // Load members list if empty
-            if (dbMembers.length === 0) {
-                await renderDashboardTable('', true);
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Kontrol Ediliyor...';
             }
 
-            const found = dbMembers.find(m => m.email.toLowerCase() === email);
-            if (found) {
-                if (forgotEmailError) forgotEmailError.classList.add('hidden');
-                resetVerificationEmail = email;
-                resetVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-                
-                // Send email
-                sendResetVerificationEmail(resetVerificationCode, email, found.name);
-                
-                // Show verification code step
-                if (forgotPasswordArea) forgotPasswordArea.classList.add('hidden');
-                if (passwordResetVerifArea) passwordResetVerifArea.classList.remove('hidden');
-            } else {
+            try {
+                let foundMember = null;
+                let docId = '';
+
+                // Fetch matching member from Firestore safely using query with doc get fallback
+                if (useFirebase && db) {
+                    try {
+                        let snapshot = await db.collection('applicants').where('email', '==', email).get();
+                        if (snapshot.empty) {
+                            const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
+                            snapshot = await db.collection('applicants').where('email', '==', capitalizedEmail).get();
+                        }
+                        if (!snapshot.empty) {
+                            const doc = snapshot.docs[0];
+                            foundMember = { id: doc.id, ...doc.data() };
+                            docId = doc.id;
+                        }
+                    } catch (queryErr) {
+                        console.warn("Forgot password query failed, trying direct doc get:", queryErr);
+                        let doc = await db.collection('applicants').doc(email).get();
+                        if (!doc.exists) {
+                            const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
+                            doc = await db.collection('applicants').doc(capitalizedEmail).get();
+                        }
+                        if (doc.exists) {
+                            foundMember = { id: doc.id, ...doc.data() };
+                            docId = doc.id;
+                        }
+                    }
+                } else {
+                    const localData = localStorage.getItem('myk_members');
+                    if (localData) {
+                        const members = JSON.parse(localData);
+                        const localFound = members.find(m => m.email.toLowerCase() === email);
+                        if (localFound) {
+                            foundMember = localFound;
+                            docId = localFound.id.toString();
+                        }
+                    }
+                }
+
+                if (foundMember) {
+                    if (forgotEmailError) forgotEmailError.classList.add('hidden');
+                    resetVerificationEmail = email;
+                    resetTargetDocId = docId; // Save the exact document ID for password update!
+                    resetVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+                    
+                    // Send email
+                    sendResetVerificationEmail(resetVerificationCode, email, foundMember.name);
+                    
+                    // Show verification code step
+                    if (forgotPasswordArea) forgotPasswordArea.classList.add('hidden');
+                    if (passwordResetVerifArea) passwordResetVerifArea.classList.remove('hidden');
+                } else {
+                    if (forgotEmailError) forgotEmailError.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error("Forgot password validation failed:", err);
                 if (forgotEmailError) forgotEmailError.classList.remove('hidden');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
             }
         });
     }
@@ -1757,7 +1810,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Update Firestore if active (Non-blocking background update)
                 if (useFirebase) {
-                    const targetId = localMembers[idx].id.toString();
+                    const targetId = resetTargetDocId || localMembers[idx].id.toString();
                     db.collection('applicants').doc(targetId).update({
                         password: newPassword
                     })
