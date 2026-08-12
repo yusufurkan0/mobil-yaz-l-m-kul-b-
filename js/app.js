@@ -1578,7 +1578,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!snapshot.empty) {
                         const doc = snapshot.docs[0];
                         const fbUser = { id: doc.id, ...doc.data() };
-                        if (fbUser.password === password) {
+                        if (fbUser.password && fbUser.password.trim() === password.trim()) {
                             foundMember = fbUser;
                             
                             // Save to local cache 'myk_members'
@@ -1594,7 +1594,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const localData = localStorage.getItem('myk_members');
                     if (localData) {
                         const localMembers = JSON.parse(localData);
-                        foundMember = localMembers.find(m => m.email.toLowerCase() === email && m.password === password);
+                        foundMember = localMembers.find(m => m.email.toLowerCase() === email && m.password && m.password.trim() === password.trim());
                     }
                 }
 
