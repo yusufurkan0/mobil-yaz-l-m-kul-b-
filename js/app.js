@@ -1565,27 +1565,52 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 let foundMember = null;
 
-                // 1. First check in Firestore directly using document get (bypasses list permission restriction)
+                // 1. First check in Firestore directly (try email query first to match legacy timestamp IDs, fallback to direct doc if restricted)
                 if (useFirebase && db) {
-                    let doc = await db.collection('applicants').doc(email).get();
-                    
-                    // Fallback to capitalizing first letter (common mobile keyboard default behavior)
-                    if (!doc.exists) {
-                        const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
-                        doc = await db.collection('applicants').doc(capitalizedEmail).get();
-                    }
+                    try {
+                        let snapshot = await db.collection('applicants').where('email', '==', email).get();
+                        
+                        // Fallback to capitalizing first letter
+                        if (snapshot.empty) {
+                            const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
+                            snapshot = await db.collection('applicants').where('email', '==', capitalizedEmail).get();
+                        }
 
-                    if (doc.exists) {
-                        const fbUser = { id: doc.id, ...doc.data() };
-                        if (fbUser.password && fbUser.password.trim() === password.trim()) {
-                            foundMember = fbUser;
-                            
-                            // Save to local cache 'myk_members'
-                            const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
-                            const idx = localMembers.findIndex(m => m.email.toLowerCase() === email);
-                            if (idx !== -1) localMembers[idx] = fbUser;
-                            else localMembers.push(fbUser);
-                            localStorage.setItem('myk_members', JSON.stringify(localMembers));
+                        if (!snapshot.empty) {
+                            const doc = snapshot.docs[0];
+                            const fbUser = { id: doc.id, ...doc.data() };
+                            if (fbUser.password && fbUser.password.trim() === password.trim()) {
+                                foundMember = fbUser;
+                                
+                                // Save to local cache 'myk_members'
+                                const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
+                                const idx = localMembers.findIndex(m => m.email.toLowerCase() === email);
+                                if (idx !== -1) localMembers[idx] = fbUser;
+                                else localMembers.push(fbUser);
+                                localStorage.setItem('myk_members', JSON.stringify(localMembers));
+                            }
+                        }
+                    } catch (queryErr) {
+                        console.warn("Firestore query failed, using direct doc fetch fallback:", queryErr);
+                        // Fallback to direct document get by email (if list is completely disabled but get is allowed)
+                        let doc = await db.collection('applicants').doc(email).get();
+                        if (!doc.exists) {
+                            const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
+                            doc = await db.collection('applicants').doc(capitalizedEmail).get();
+                        }
+
+                        if (doc.exists) {
+                            const fbUser = { id: doc.id, ...doc.data() };
+                            if (fbUser.password && fbUser.password.trim() === password.trim()) {
+                                foundMember = fbUser;
+                                
+                                // Save to local cache 'myk_members'
+                                const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
+                                const idx = localMembers.findIndex(m => m.email.toLowerCase() === email);
+                                if (idx !== -1) localMembers[idx] = fbUser;
+                                else localMembers.push(fbUser);
+                                localStorage.setItem('myk_members', JSON.stringify(localMembers));
+                            }
                         }
                     }
                 } else {
@@ -2824,12 +2849,26 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Sync/Verify with Firestore in the background
             if (useFirebase && db) {
-                db.collection('applicants').doc(memberEmail).get().then(doc => {
-                    if (!doc.exists) {
+                // Try query first to find legacy timestamp-ID documents
+                db.collection('applicants').where('email', '==', memberEmail).get().then(snapshot => {
+                    if (snapshot.empty) {
                         const capitalizedEmail = memberEmail.charAt(0).toUpperCase() + memberEmail.slice(1);
-                        return db.collection('applicants').doc(capitalizedEmail).get();
+                        return db.collection('applicants').where('email', '==', capitalizedEmail).get();
                     }
-                    return doc;
+                    return snapshot;
+                }).then(snapshot => {
+                    if (!snapshot.empty) {
+                        const doc = snapshot.docs[0];
+                        return doc;
+                    }
+                    // If query returned empty, try direct doc get (for new email-ID documents under strict rules)
+                    return db.collection('applicants').doc(memberEmail).get().then(doc => {
+                        if (!doc.exists) {
+                            const capitalizedEmail = memberEmail.charAt(0).toUpperCase() + memberEmail.slice(1);
+                            return db.collection('applicants').doc(capitalizedEmail).get();
+                        }
+                        return doc;
+                    });
                 }).then(doc => {
                     if (doc && doc.exists) {
                         const fbUser = { id: doc.id, ...doc.data() };
@@ -2844,7 +2883,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Apply updated header state
                         updateHeaderState(fbUser, true);
                     }
-                }).catch(err => console.error("Auto-login Firestore sync failed:", err));
+                }).catch(err => {
+                    console.warn("Auto-login Firestore query failed, attempting direct doc get fallback:", err);
+                    // Absolute fallback to direct document get in case query failed due to permission denial
+                    db.collection('applicants').doc(memberEmail).get().then(doc => {
+                        if (!doc.exists) {
+                            const capitalizedEmail = memberEmail.charAt(0).toUpperCase() + memberEmail.slice(1);
+                            return db.collection('applicants').doc(capitalizedEmail).get();
+                        }
+                        return doc;
+                    }).then(doc => {
+                        if (doc && doc.exists) {
+                            const fbUser = { id: doc.id, ...doc.data() };
+                            const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
+                            const idx = localMembers.findIndex(m => m.email.toLowerCase() === memberEmail.toLowerCase());
+                            if (idx !== -1) localMembers[idx] = fbUser;
+                            else localMembers.push(fbUser);
+                            localStorage.setItem('myk_members', JSON.stringify(localMembers));
+                            updateHeaderState(fbUser, true);
+                        }
+                    }).catch(fbErr => console.error("Auto-login Firestore sync completely failed:", fbErr));
+                });
             }
         }
     });

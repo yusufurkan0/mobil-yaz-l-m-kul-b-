@@ -740,15 +740,31 @@
 
             if (useFirebase && db) {
                 try {
-                    let doc = await db.collection('applicants').doc(loggedInEmail).get();
-                    if (!doc.exists) {
-                        const capitalizedEmail = loggedInEmail.charAt(0).toUpperCase() + loggedInEmail.slice(1);
-                        doc = await db.collection('applicants').doc(capitalizedEmail).get();
+                    let fbUser = null;
+                    try {
+                        let snapshot = await db.collection('applicants').where('email', '==', loggedInEmail).get();
+                        if (snapshot.empty) {
+                            const capitalizedEmail = loggedInEmail.charAt(0).toUpperCase() + loggedInEmail.slice(1);
+                            snapshot = await db.collection('applicants').where('email', '==', capitalizedEmail).get();
+                        }
+                        if (!snapshot.empty) {
+                            const doc = snapshot.docs[0];
+                            fbUser = { id: doc.id, ...doc.data() };
+                        }
+                    } catch (queryErr) {
+                        console.warn("Firestore query failed in profile, trying doc get fallback:", queryErr);
+                        // Fallback to direct document get by email (if list is completely disabled but get is allowed)
+                        let doc = await db.collection('applicants').doc(loggedInEmail).get();
+                        if (!doc.exists) {
+                            const capitalizedEmail = loggedInEmail.charAt(0).toUpperCase() + loggedInEmail.slice(1);
+                            doc = await db.collection('applicants').doc(capitalizedEmail).get();
+                        }
+                        if (doc.exists) {
+                            fbUser = { id: doc.id, ...doc.data() };
+                        }
                     }
 
-                    if (doc.exists) {
-                        const fbUser = { id: doc.id, ...doc.data() };
-                        
+                    if (fbUser) {
                         // Update local cache
                         currentUser = fbUser;
                         const localIndex = dbMembers.findIndex(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
@@ -760,7 +776,7 @@
                         localStorage.setItem('myk_members', JSON.stringify(dbMembers));
                     }
                 } catch (fbErr) {
-                    console.error("Firebase sync failed:", fbErr);
+                    console.error("Firebase sync completely failed:", fbErr);
                 }
             }
 
