@@ -603,8 +603,8 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gönderiliyor...`;
 
             // Validate passwords match
-            const password = document.getElementById('user-password').value;
-            const passwordConfirm = document.getElementById('user-password-confirm').value;
+            const password = document.getElementById('user-password').value.trim();
+            const passwordConfirm = document.getElementById('user-password-confirm').value.trim();
             if (password !== passwordConfirm) {
                 alert("Şifreler uyuşmuyor!");
                 submitBtn.disabled = false;
@@ -614,9 +614,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Simulate loader check
             setTimeout(() => {
-                const firstName = document.getElementById('first-name').value;
-                const lastName = document.getElementById('last-name').value;
-                const email = document.getElementById('user-email').value;
+                const firstName = document.getElementById('first-name').value.trim();
+                const lastName = document.getElementById('last-name').value.trim();
+                const email = document.getElementById('user-email').value.trim().toLowerCase();
                 const username = document.getElementById('user-username').value;
                 const studentId = document.getElementById('user-student-id').value;
                 const phone = document.getElementById('user-phone').value;
@@ -1553,7 +1553,7 @@ document.addEventListener('DOMContentLoaded', () => {
         memberLoginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('member-email').value.trim().toLowerCase();
-            const password = document.getElementById('member-password').value;
+            const password = document.getElementById('member-password').value.trim();
             const submitBtn = memberLoginForm.querySelector('button[type="submit"]');
             const originalText = submitBtn ? submitBtn.innerHTML : "Giriş Yap";
 
@@ -1567,7 +1567,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 1. First check in Firestore directly by querying email
                 if (useFirebase && db) {
-                    const snapshot = await db.collection('applicants').where('email', '==', email).get();
+                    let snapshot = await db.collection('applicants').where('email', '==', email).get();
+                    
+                    // Fallback to capitalizing first letter (common mobile keyboard default behavior)
+                    if (snapshot.empty) {
+                        const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
+                        snapshot = await db.collection('applicants').where('email', '==', capitalizedEmail).get();
+                    }
+
                     if (!snapshot.empty) {
                         const doc = snapshot.docs[0];
                         const fbUser = { id: doc.id, ...doc.data() };
