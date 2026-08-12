@@ -1742,10 +1742,15 @@ body.dark-theme .track-badge-mini.cross { color: #22d3ee; border-color: rgba(34,
         background: var(--bg-dark);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        padding: 40px 24px;
-        transition: var(--transition-normal);
-        border-top: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
         z-index: 999;
+        transition: var(--transition-normal);
+        border-bottom: 1px solid var(--border-color);
+        overflow-y: auto;
+        padding: 40px 0 60px 0;
     }
     #nav-menu.open {
         left: 0;

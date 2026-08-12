@@ -254,6 +254,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openRegisterModal(e) {
         if (e) e.preventDefault();
+        
+        // Auto-close mobile menu
+        const menuToggleBtn = document.getElementById('menu-toggle');
+        const navMenuDrawer = document.getElementById('nav-menu');
+        if (menuToggleBtn && navMenuDrawer) {
+            menuToggleBtn.classList.remove('open');
+            navMenuDrawer.classList.remove('open');
+        }
+        
         registerModal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
         
@@ -1428,7 +1437,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Modal login triggers
     function openLoginModal(e) {
-        e.preventDefault();
+        if (e) e.preventDefault();
+        
+        // Auto-close mobile menu
+        const menuToggleBtn = document.getElementById('menu-toggle');
+        const navMenuDrawer = document.getElementById('nav-menu');
+        if (menuToggleBtn && navMenuDrawer) {
+            menuToggleBtn.classList.remove('open');
+            navMenuDrawer.classList.remove('open');
+        }
+        
         loginModal.classList.remove('hidden');
         loginError.classList.add('hidden');
     }
@@ -3622,6 +3640,28 @@ document.addEventListener('DOMContentLoaded', () => {
         .finally(() => {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
-        });
     }
+
+    // URL Hash Modal Checker (Enables index.html#login and #register redirection from subpages)
+    function checkUrlHash() {
+        const hash = window.location.hash;
+        if (hash === '#login') {
+            const loginM = document.getElementById('login-modal');
+            const errArea = document.getElementById('member-login-error');
+            if (loginM) {
+                loginM.classList.remove('hidden');
+                if (errArea) errArea.classList.add('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        } else if (hash === '#register') {
+            const registerM = document.getElementById('register-modal');
+            if (registerM) {
+                openRegisterModal();
+            }
+        }
+    }
+
+    // Run hash checks
+    checkUrlHash();
+    window.addEventListener('hashchange', checkUrlHash);
 });
