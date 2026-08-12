@@ -3640,6 +3640,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .finally(() => {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
+        });
     }
 
     // URL Hash Modal Checker (Enables index.html#login and #register redirection from subpages)
