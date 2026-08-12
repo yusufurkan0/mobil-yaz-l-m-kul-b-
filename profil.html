@@ -740,9 +740,13 @@
 
             if (useFirebase && db) {
                 try {
-                    const snapshot = await db.collection('applicants').where('email', '==', loggedInEmail).get();
-                    if (!snapshot.empty) {
-                        const doc = snapshot.docs[0];
+                    let doc = await db.collection('applicants').doc(loggedInEmail).get();
+                    if (!doc.exists) {
+                        const capitalizedEmail = loggedInEmail.charAt(0).toUpperCase() + loggedInEmail.slice(1);
+                        doc = await db.collection('applicants').doc(capitalizedEmail).get();
+                    }
+
+                    if (doc.exists) {
                         const fbUser = { id: doc.id, ...doc.data() };
                         
                         // Update local cache

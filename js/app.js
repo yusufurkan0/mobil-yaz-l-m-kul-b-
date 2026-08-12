@@ -698,7 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Write to Firestore asynchronously in background (fire-and-forget)
                 if (useFirebase) {
-                    const docId = pendingMemberData.id.toString();
+                    const docId = pendingMemberData.email.toLowerCase();
                     db.collection('applicants').doc(docId).set({
                         name: pendingMemberData.name,
                         email: pendingMemberData.email,
@@ -1565,18 +1565,17 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 let foundMember = null;
 
-                // 1. First check in Firestore directly by querying email
+                // 1. First check in Firestore directly using document get (bypasses list permission restriction)
                 if (useFirebase && db) {
-                    let snapshot = await db.collection('applicants').where('email', '==', email).get();
+                    let doc = await db.collection('applicants').doc(email).get();
                     
                     // Fallback to capitalizing first letter (common mobile keyboard default behavior)
-                    if (snapshot.empty) {
+                    if (!doc.exists) {
                         const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
-                        snapshot = await db.collection('applicants').where('email', '==', capitalizedEmail).get();
+                        doc = await db.collection('applicants').doc(capitalizedEmail).get();
                     }
 
-                    if (!snapshot.empty) {
-                        const doc = snapshot.docs[0];
+                    if (doc.exists) {
                         const fbUser = { id: doc.id, ...doc.data() };
                         if (fbUser.password && fbUser.password.trim() === password.trim()) {
                             foundMember = fbUser;
@@ -2825,9 +2824,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Sync/Verify with Firestore in the background
             if (useFirebase && db) {
-                db.collection('applicants').where('email', '==', memberEmail).get().then(snapshot => {
-                    if (!snapshot.empty) {
-                        const doc = snapshot.docs[0];
+                db.collection('applicants').doc(memberEmail).get().then(doc => {
+                    if (!doc.exists) {
+                        const capitalizedEmail = memberEmail.charAt(0).toUpperCase() + memberEmail.slice(1);
+                        return db.collection('applicants').doc(capitalizedEmail).get();
+                    }
+                    return doc;
+                }).then(doc => {
+                    if (doc && doc.exists) {
                         const fbUser = { id: doc.id, ...doc.data() };
                         
                         // Save/update cache
