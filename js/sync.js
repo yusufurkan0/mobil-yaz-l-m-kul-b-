@@ -13,16 +13,8 @@
         document.body.classList.add('dark-theme');
     }
 
-    // Toggle theme handler for subpages
+    // Mobile hamburger menu toggle handler for subpages
     document.addEventListener('DOMContentLoaded', () => {
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                document.body.classList.toggle('dark-theme');
-                const isDark = document.body.classList.contains('dark-theme');
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            });
-        }
 
         // Mobile hamburger menu toggle handler for subpages
         const menuToggle = document.getElementById('menu-toggle');
