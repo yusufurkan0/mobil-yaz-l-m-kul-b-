@@ -200,21 +200,35 @@
                 const registerTrigger = document.getElementById('register-trigger-nav');
                 const profileTrigger = document.getElementById('user-profile-trigger');
                 const navUserName = document.getElementById('nav-user-name');
+                
+                const loginTriggerMobile = document.getElementById('login-trigger-mobile');
+                const registerTriggerMobile = document.getElementById('register-trigger-mobile');
+                const profileTriggerMobile = document.getElementById('user-profile-trigger-mobile');
+                const navUserNameMobile = document.getElementById('nav-user-name-mobile');
 
                 if (loginTrigger) loginTrigger.classList.add('hidden');
                 if (registerTrigger) registerTrigger.classList.add('hidden');
                 if (profileTrigger) {
                     profileTrigger.classList.remove('hidden');
-                    profileTrigger.href = "profil.html"; // Go to profile dashboard
+                    profileTrigger.href = "profil.html";
                 }
                 
-                // Fetch name from local cache if possible
-                const localData = localStorage.getItem('db_members');
+                if (loginTriggerMobile) loginTriggerMobile.classList.add('hidden');
+                if (registerTriggerMobile) registerTriggerMobile.classList.add('hidden');
+                if (profileTriggerMobile) {
+                    profileTriggerMobile.classList.remove('hidden');
+                    profileTriggerMobile.href = "profil.html";
+                }
+                
+                // Fetch name from local cache if possible (uses 'myk_members')
+                const localData = localStorage.getItem('myk_members');
                 if (localData) {
                     const members = JSON.parse(localData);
                     const found = members.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
-                    if (found && navUserName) {
-                        navUserName.innerText = found.username || found.name;
+                    if (found) {
+                        const displayName = found.username || found.name.split(' ')[0];
+                        if (navUserName) navUserName.innerText = displayName;
+                        if (navUserNameMobile) navUserNameMobile.innerText = displayName;
                     }
                 }
             }

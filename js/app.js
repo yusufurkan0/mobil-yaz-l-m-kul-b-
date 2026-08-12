@@ -1554,23 +1554,64 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const email = document.getElementById('member-email').value.trim().toLowerCase();
             const password = document.getElementById('member-password').value;
+            const submitBtn = memberLoginForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.innerHTML : "Giriş Yap";
 
-            // Make sure cache is loaded
-            if (dbMembers.length === 0) {
-                await renderDashboardTable('', true);
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Giriş Yapılıyor...';
             }
 
-            // Find member matching credentials
-            const foundMember = dbMembers.find(m => m.email.toLowerCase() === email && m.password === password);
+            try {
+                let foundMember = null;
 
-            if (foundMember) {
-                loginModal.classList.add('hidden');
-                sessionStorage.setItem('member_logged_in_email', email);
-                showMemberDashboard(foundMember);
-                if (memberLoginError) memberLoginError.classList.add('hidden');
-                memberLoginForm.reset();
-            } else {
+                // 1. First check in Firestore directly by querying email
+                if (useFirebase && db) {
+                    const snapshot = await db.collection('applicants').where('email', '==', email).get();
+                    if (!snapshot.empty) {
+                        const doc = snapshot.docs[0];
+                        const fbUser = { id: doc.id, ...doc.data() };
+                        if (fbUser.password === password) {
+                            foundMember = fbUser;
+                            
+                            // Save to local cache 'myk_members'
+                            const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
+                            const idx = localMembers.findIndex(m => m.email.toLowerCase() === email);
+                            if (idx !== -1) localMembers[idx] = fbUser;
+                            else localMembers.push(fbUser);
+                            localStorage.setItem('myk_members', JSON.stringify(localMembers));
+                        }
+                    }
+                } else {
+                    // 2. Fallback to local storage cache if offline/no Firebase
+                    const localData = localStorage.getItem('myk_members');
+                    if (localData) {
+                        const localMembers = JSON.parse(localData);
+                        foundMember = localMembers.find(m => m.email.toLowerCase() === email && m.password === password);
+                    }
+                }
+
+                if (foundMember) {
+                    loginModal.classList.add('hidden');
+                    sessionStorage.setItem('member_logged_in_email', email);
+                    
+                    // Apply header state instantly before redirecting
+                    updateHeaderState(foundMember, true);
+                    
+                    if (memberLoginError) memberLoginError.classList.add('hidden');
+                    memberLoginForm.reset();
+                    showMemberDashboard(foundMember);
+                } else {
+                    if (memberLoginError) memberLoginError.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error("Login verification failed:", err);
                 if (memberLoginError) memberLoginError.classList.remove('hidden');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
             }
         });
     }
@@ -2763,10 +2804,36 @@ document.addEventListener('DOMContentLoaded', () => {
     updateHomepageStats().then(() => {
         // Auto-login member if session exists
         const memberEmail = sessionStorage.getItem('member_logged_in_email');
-        if (memberEmail && dbMembers.length > 0) {
-            const found = dbMembers.find(m => m.email.toLowerCase() === memberEmail.toLowerCase());
-            if (found) {
-                updateHeaderState(found, true); // Update header navigation ONLY (no modal popup on reload)
+        if (memberEmail) {
+            // First check local cache to show username instantly without waiting for network
+            const localData = localStorage.getItem('myk_members');
+            let found = null;
+            if (localData) {
+                const members = JSON.parse(localData);
+                found = members.find(m => m.email.toLowerCase() === memberEmail.toLowerCase());
+                if (found) {
+                    updateHeaderState(found, true);
+                }
+            }
+            
+            // Sync/Verify with Firestore in the background
+            if (useFirebase && db) {
+                db.collection('applicants').where('email', '==', memberEmail).get().then(snapshot => {
+                    if (!snapshot.empty) {
+                        const doc = snapshot.docs[0];
+                        const fbUser = { id: doc.id, ...doc.data() };
+                        
+                        // Save/update cache
+                        const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
+                        const idx = localMembers.findIndex(m => m.email.toLowerCase() === memberEmail.toLowerCase());
+                        if (idx !== -1) localMembers[idx] = fbUser;
+                        else localMembers.push(fbUser);
+                        localStorage.setItem('myk_members', JSON.stringify(localMembers));
+                        
+                        // Apply updated header state
+                        updateHeaderState(fbUser, true);
+                    }
+                }).catch(err => console.error("Auto-login Firestore sync failed:", err));
             }
         }
     });
