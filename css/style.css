@@ -1052,6 +1052,14 @@ body.dark-theme .modal {
     display: flex;
     gap: 16px;
 }
+.contact-layout-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 30px;
+    align-items: start;
+    max-width: 1100px;
+    margin: 0 auto;
+}
 .form-group {
     flex: 1;
     display: flex;
@@ -1703,6 +1711,14 @@ body.dark-theme .track-badge-mini.cross { color: #22d3ee; border-color: rgba(34,
 }
 
 @media (max-width: 768px) {
+    .contact-layout-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    .form-row {
+        flex-direction: column;
+        gap: 16px;
+    }
     section {
         padding: 60px 0;
     }
