@@ -158,9 +158,11 @@ p {
 
 /* Gradient Text Effect */
 .gradient-text {
+    color: var(--primary); /* Fallback for browsers with rendering issues */
     background: var(--gradient-mixed);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    display: inline-block; /* Resolves rendering issues in certain mobile webviews */
 }
 
 /* Glowing Background Orbs */
@@ -1707,7 +1709,9 @@ body.dark-theme .track-badge-mini.cross { color: #22d3ee; border-color: rgba(34,
         font-size: 2rem;
     }
     .hero-content h1 {
-        font-size: 2.8rem;
+        font-size: clamp(1.9rem, 9vw, 2.8rem);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
     .about-card-large {
         padding: 30px;
