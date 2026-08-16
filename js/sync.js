@@ -9,7 +9,9 @@
 (function() {
     // 1. Immediate Theme Persistence (prevent flash of light theme)
     const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'dark') {
+    if (storedTheme === 'light') {
+        document.body.classList.remove('dark-theme');
+    } else {
         document.body.classList.add('dark-theme');
     }
 

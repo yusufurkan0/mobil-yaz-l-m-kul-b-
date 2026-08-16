@@ -1010,7 +1010,7 @@ document.addEventListener('DOMContentLoaded', () => {
         aboutText2: "Yeni kurulan kulübümüzle birlikte hedeflerimiz arasında; sıfırdan başlayanlar için atölyeler düzenlemek, ortak çalışma gruplarıyla App Store ve Google Play'e uygulamalar yüklemek ve hackathonlarda kampüsümüzü temsil etmek yer almaktadır.",
         contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
         contactEmail: "gedikmobilyazilimkulubu@gmail.com",
-        socialInstagram: "https://instagram.com",
+        socialInstagram: "https://www.instagram.com/gedikmygk",
         socialLinkedin: "https://linkedin.com",
         socialGithub: "https://github.com/yusufurkan0",
         
