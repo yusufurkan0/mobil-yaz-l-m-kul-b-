@@ -349,6 +349,17 @@ body.dark-theme #main-header.scrolled {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
+/* Subpage Header default background */
+body.subpage #main-header {
+    background-color: var(--bg-nav);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-color: var(--border-color);
+}
+body.subpage.dark-theme #main-header {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
 .navbar-container {
     display: flex;
     align-items: center;
@@ -909,7 +920,7 @@ footer {
 
 .footer-grid {
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr 0.8fr 1.2fr;
+    grid-template-columns: 1.2fr 1fr 1.2fr;
     gap: 40px;
     margin-bottom: 60px;
 }
@@ -947,6 +958,7 @@ footer {
 .footer-links h4, .footer-contact h4 {
     font-size: 1rem;
     margin-bottom: 24px;
+    color: #ffffff;
 }
 .footer-links ul {
     list-style: none;
