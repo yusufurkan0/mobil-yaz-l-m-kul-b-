@@ -1686,6 +1686,7 @@ body.dark-theme .track-badge-mini.cross { color: #22d3ee; border-color: rgba(34,
         display: flex;
         flex-direction: column;
         align-items: center;
+        text-align: center;
     }
     .hero-actions {
         justify-content: center;
@@ -1712,6 +1713,20 @@ body.dark-theme .track-badge-mini.cross { color: #22d3ee; border-color: rgba(34,
         font-size: clamp(1.9rem, 9vw, 2.8rem);
         word-wrap: break-word;
         overflow-wrap: break-word;
+        text-align: center;
+    }
+    .hero-desc {
+        text-align: center;
+    }
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 12px;
+        padding: 0 10px;
+    }
+    .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
     }
     .about-card-large {
         padding: 30px;
