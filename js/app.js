@@ -1005,8 +1005,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Site Settings Helpers & Mock Data (CMS) ---
     const defaultSiteSettings = {
         heroTitle: `Geleceğin Mobil <br>\n                    <span class="gradient-text animate-gradient">Geliştiricileri Burada</span>`,
-        heroDesc: "iOS ve Android geliştirmeye odaklanan kulübümüzle mobil yazılım ekosistemine ilk adımını at. Sıvırdan başla, projeler geliştir, sektöre yön ver!",
-        aboutText1: "Mobil Yazılım Kulübü, geleceğin mobil uygulama ekosistemini inşa edecek geliştiricileri ve tasarımcıları bir araya getiren dinamik bir öğrenci topluluğudur. Mobil platformların (iOS, Android, Cross-platform) gücünü keşfederek, teorik bilgiyi pratik projelerle pekiştiriyor ve üyelerimizi sektöre hazır hale getiriyoruz.",
+        heroDesc: "Mobil uygulama geliştirmeye odaklanan kulübümüzle mobil yazılım ekosistemine ilk adımını at. Sıfırdan başla, projeler geliştir, sektöre yön ver!",
+        aboutText1: "Mobil Yazılım Kulübü, geleceğin mobil uygulama ekosistemini inşa edecek geliştiricileri ve tasarımcıları bir araya getiren dinamik bir öğrenci topluluğudur. Mobil platformların gücünü keşfederek, teorik bilgiyi pratik projelerle pekiştiriyor ve üyelerimizi sektöre hazır hale getiriyoruz.",
         aboutText2: "Yeni kurulan kulübümüzle birlikte hedeflerimiz arasında; sıfırdan başlayanlar için atölyeler düzenlemek, ortak çalışma gruplarıyla App Store ve Google Play'e uygulamalar yüklemek ve hackathonlarda kampüsümüzü temsil etmek yer almaktadır.",
         contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
         contactEmail: "gedikmobilyazilimkulubu@gmail.com",
@@ -1223,8 +1223,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Write Stats to UI
         document.getElementById('dash-total-members').innerText = total;
-        document.getElementById('dash-ios-count').innerText = ios;
-        document.getElementById('dash-android-count').innerText = android;
+        document.getElementById('dash-ios-count').innerText = approvedCount; // reuse for approved count
+        document.getElementById('dash-android-count').innerText = total - approvedCount; // reuse for pending count
 
         // Sync total approved members count to CMS settings doc in Firestore so anonymous users can read it securely
         if (useFirebase && db && sessionStorage.getItem('admin_logged_in') === 'true') {

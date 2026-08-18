@@ -510,7 +510,7 @@
                                 <span class="info-value" id="det-birthdate">-</span>
                             </div>
                             <div class="info-card">
-                                <span class="info-label">Mobil Alan Tercihi</span>
+                                <span class="info-label">Kulüp Alanı</span>
                                 <span class="info-value" id="det-track">-</span>
                             </div>
                         </div>
@@ -945,12 +945,12 @@
                 document.getElementById('det-department').innerText = user.department || '-';
                 document.getElementById('det-grade').innerText = user.grade || '-';
                 document.getElementById('det-birthdate').innerText = user.birthdate ? formatDate(user.birthdate) : '-';
-                document.getElementById('det-track').innerText = user.track === 'ios' ? 'iOS Geliştirme (Swift)' : 'Android Geliştirme (Kotlin)';
+                document.getElementById('det-track').innerText = 'Mobil Uygulama Geliştirme';
 
                 // ID Card Rendering
                 document.getElementById('id-card-user-name').innerText = user.name;
                 document.getElementById('id-card-user-id').innerText = user.studentId;
-                document.getElementById('id-card-user-track').innerText = user.track === 'ios' ? 'iOS DEVELOPER' : 'ANDROID DEVELOPER';
+                document.getElementById('id-card-user-track').innerText = 'KULÜP ÜYESİ';
                 
                 const cardStatus = document.getElementById('id-card-status-badge');
                 if (user.status === 'approved') {
