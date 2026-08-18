@@ -17,10 +17,11 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            background: #d9267a; /* Fallback solid color */
+            background: linear-gradient(135deg, var(--primary), rgba(var(--primary-rgb), 0.8));
             box-shadow: 0 8px 32px rgba(var(--primary-rgb), 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #ffffff;
+            color: #ffffff !important;
             font-size: 1.6rem;
             cursor: pointer;
             display: flex;
@@ -29,8 +30,12 @@
             z-index: 999999;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        .chatbot-toggle i {
+            color: #ffffff !important;
+        }
         .chatbot-toggle:hover {
             transform: scale(1.1) rotate(5deg);
+            background: var(--primary);
             box-shadow: 0 12px 40px rgba(var(--primary-rgb), 0.5);
         }
         .chatbot-toggle .fa-xmark {
@@ -87,12 +92,15 @@
             height: 40px;
             border-radius: 50%;
             background: var(--primary);
-            color: #ffffff;
+            color: #ffffff !important;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
             position: relative;
+        }
+        .chatbot-avatar i {
+            color: #ffffff !important;
         }
         .chatbot-avatar::after {
             content: '';
@@ -156,7 +164,7 @@
         .chatbot-msg.user {
             align-self: flex-end;
             background: var(--primary);
-            color: #ffffff;
+            color: #ffffff !important;
             border-top-right-radius: 2px;
             box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.15);
         }
@@ -229,7 +237,7 @@
             height: 38px;
             border-radius: 50%;
             background: var(--primary);
-            color: #ffffff;
+            color: #ffffff !important;
             border: none;
             cursor: pointer;
             display: flex;
@@ -237,6 +245,9 @@
             justify-content: center;
             font-size: 0.95rem;
             transition: all 0.2s ease;
+        }
+        .chatbot-send-btn i {
+            color: #ffffff !important;
         }
         .chatbot-send-btn:hover {
             transform: scale(1.05);
@@ -336,8 +347,15 @@
         // Simulate thinking delay (1s - 1.5s)
         setTimeout(() => {
             removeTypingIndicator(typingId);
-            const botResponse = generateBotResponse(text);
+            const { text: botResponse, action } = generateBotResponse(text);
             appendMessage(botResponse, 'bot');
+            
+            // Execute page scroll or modal triggers if any
+            if (action) {
+                setTimeout(() => {
+                    triggerPageAction(action);
+                }, 500);
+            }
         }, 1000 + Math.random() * 500);
     }
 
@@ -366,54 +384,185 @@
         }
     }
 
-    // 4. Smart Local AI Bot Response Logic
+    // Page action driver: scrolls to relevant sections or launches interactive workflows
+    function triggerPageAction(category) {
+        const isHomepage = window.location.pathname === '/' || window.location.pathname.endsWith('index.html') || window.location.pathname === '';
+        
+        if (category === 'tüzük') {
+            if (isHomepage) {
+                const regEl = document.getElementById('regulations');
+                if (regEl) regEl.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                window.location.href = 'index.html#regulations';
+            }
+        } else if (category === 'yönetim') {
+            if (isHomepage) {
+                const boardEl = document.getElementById('board');
+                if (boardEl) boardEl.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                window.location.href = 'index.html#board';
+            }
+        } else if (category === 'hakkımızda') {
+            if (isHomepage) {
+                const aboutEl = document.getElementById('about');
+                if (aboutEl) aboutEl.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                window.location.href = 'index.html#about';
+            }
+        } else if (category === 'sponsor') {
+            if (isHomepage) {
+                const spEl = document.getElementById('sponsors');
+                if (spEl) spEl.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                window.location.href = 'index.html#sponsors';
+            }
+        } else if (category === 'kayıt') {
+            if (isHomepage) {
+                const regHero = document.getElementById('register-trigger-hero');
+                if (regHero) regHero.click();
+            } else {
+                window.location.href = 'index.html';
+            }
+        } else if (category === 'giriş') {
+            const loginTrig = document.getElementById('login-trigger');
+            if (loginTrig) loginTrig.click();
+        } else if (category === 'iletişim') {
+            if (window.location.pathname.endsWith('iletisim.html')) {
+                const footer = document.querySelector('footer');
+                if (footer) footer.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                window.location.href = 'iletisim.html';
+            }
+        }
+    }
+
+    // 4. Smart Local AI Bot Response Logic with Page Redirection Hooks
     function generateBotResponse(input) {
         const query = input.toLowerCase();
 
         // Helper to check keywords
         const contains = (words) => words.some(word => query.includes(word));
 
-        if (contains(['merhaba', 'selam', 'hey', 'naber', 'günaydın', 'tünaydın', 'salam'])) {
-            return "Merhaba! Ben Gedik MYGK Asistanıyım. Kulübümüz, eğitimlerimiz veya üyelik başvuruları hakkında sana bilgi verebilirim. Nasıl yardımcı olabilirim?";
+        // 1. Tüzük Maddeleri
+        if (contains(['madde 1', 'madde bir', '1. madde'])) {
+            return {
+                text: "<b>Madde 1 (Kuruluş ve Amaç):</b> Topluluğun amacı, İstanbul Gedik Üniversitesi öğrencilerine mobil yazılım alanlarında teorik eğitimler vermek, pratik projeler geliştirmek ve öğrencileri teknoloji ekosistemine hazırlamaktır. Seni şimdi tüzük bölümüne kaydırıyorum.",
+                action: 'tüzük'
+            };
+        }
+        if (contains(['madde 2', 'madde iki', '2. madde'])) {
+            return {
+                text: "<b>Madde 2 (Üyelik ve Katılım):</b> Topluluğa üye olmak tamamen ücretsizdir. Mobil uygulama geliştirmeye ve tasarıma ilgi duyan tüm Gedik Üniversitesi öğrencileri katılabilir. Seni şimdi tüzük bölümüne kaydırıyorum.",
+                action: 'tüzük'
+            };
+        }
+        if (contains(['madde 3', 'madde üç', '3. madde'])) {
+            return {
+                text: "<b>Madde 3 (Proje ve Eğitim Esasları):</b> Eğitimler açık kaynaklı ve paylaşımcı kültür esasına göre yürütülür. Çalışma grupları kurularak Google Play ve App Store'a uygulamalar yüklenir. Seni şimdi tüzük bölümüne kaydırıyorum.",
+                action: 'tüzük'
+            };
+        }
+        if (contains(['madde 4', 'madde dört', '4. madde'])) {
+            return {
+                text: "<b>Madde 4 (Yönetim ve Temsil):</b> Yönetim kurulu; kulüp başkanı ve koordinatörlerden oluşur. Üniversite içindeki etkinlik planlamaları yönetim kurulu tarafından kararlaştırılır. Seni şimdi tüzük bölümüne kaydırıyorum.",
+                action: 'tüzük'
+            };
+        }
+        if (contains(['tüzük', 'tuzuk', 'kural', 'ilkeler', 'madde', 'tüzüğü'])) {
+            return {
+                text: "Gedik MYGK Resmi Tüzüğü 4 ana maddeden oluşur: Amaç, Üyelik, Eğitim ve Yönetim ilkeleri. Seni hemen sayfanın <b>Kulüp Tüzüğü</b> (Kurallar ve İlkeler) bölümüne yönlendiriyorum.",
+                action: 'tüzük'
+            };
         }
 
+        // 2. Üyelik ve Kayıt
         if (contains(['üye', 'kayıt', 'nasıl katılırım', 'katılmak', 'başvuru', 'form', 'başvurusu'])) {
-            return "Kulübümüze üye olmak tamamen ücretsizdir! Ana sayfadaki <b>'Topluluğa Katıl'</b> butonuna tıklayarak veya sağ üstteki <b>'Kayıt Ol'</b> seçeneğinden başvuru formunu doldurabilirsiniz. Başvurunuz yönetim kurulumuz tarafından onaylandıktan sonra profilinize giriş yapabilirsiniz.";
+            return {
+                text: "Kulübümüze katılım tamamen ücretsizdir! Seni şimdi ana sayfadaki <b>Topluluğa Katıl / Kayıt Ol</b> başvuru formuna yönlendiriyorum.",
+                action: 'kayıt'
+            };
         }
 
+        // 3. Giriş ve Admin
+        if (contains(['giriş', 'giriş yap', 'oturum', 'admin', 'yönetici'])) {
+            return {
+                text: "Hesabınıza girmek veya Yönetici Paneline erişmek için seni <b>Giriş Yap</b> formuna yönlendiriyorum.",
+                action: 'giriş'
+            };
+        }
+
+        // 4. Yönetim Kurulu
+        if (contains(['başkan', 'kurucu', 'yönetim', 'ekip', 'burak', 'yusuf', 'furkan', 'selin', 'koordinatör'])) {
+            return {
+                text: "Kulübümüzün Başkanı <b>Burak Kaya</b>'dır. Başkan Yardımcılarımız ise <b>Yusuf Furkan Gelişin</b> ve <b>Selin Durdu</b>'dur. Seni şimdi <b>Yönetim Kurulu (Kulüp Ekibimiz)</b> bölümüne kaydırıyorum.",
+                action: 'yönetim'
+            };
+        }
+
+        // 5. Hakkımızda & Vizyon
+        if (contains(['hakkında', 'hakkımızda', 'vizyon', 'misyon', 'biz kimiz', 'amaç'])) {
+            return {
+                text: "Mobil Yazılım Kulübü, geleceğin mobil uygulama ekosistemini inşa edecek geliştiricileri ve tasarımcıları bir araya getiren dinamik bir öğrenci topluluğudur. Seni hemen <b>Vizyonumuz ve Amacımız</b> bölümüne kaydırıyorum.",
+                action: 'hakkımızda'
+            };
+        }
+
+        // 6. Sponsorlar
+        if (contains(['sponsor', 'sponsorship', 'destek', 'ortak'])) {
+            return {
+                text: "Kulübümüzün sponsorları ve iş birliği ortakları hakkında bilgi almak için seni <b>Sponsorlarımız</b> bölümüne kaydırıyorum.",
+                action: 'sponsor'
+            };
+        }
+
+        // 7. İletişim & Konum
+        if (contains(['iletişim', 'adres', 'nerede', 'ulaşım', 'konum', 'yerleşke', 'mail', 'eposta'])) {
+            return {
+                text: "Kulübümüz İstanbul Gedik Üniversitesi Kartal Yerleşkesindedir. E-posta: <b>gedikmobilyazilimkulubu@gmail.com</b>. Seni detaylı adres ve form için <b>İletişim</b> sayfasına yönlendiriyorum.",
+                action: 'iletişim'
+            };
+        }
+
+        // 8. Eğitim & Etkinlikler
         if (contains(['etkinlik', 'eğitim', 'workshop', 'ders', 'kurs', 'seminer', 'aktivite'])) {
-            return "Kulübümüzde mobil uygulama geliştirme atölyeleri, kodlama eğitimleri ve hackathon çalışmaları düzenlenmektedir. Güncel ve geçmiş tüm etkinliklerimizi menüden <a href='etkinlikler.html'>Etkinlikler</a> sayfamıza giderek inceleyebilirsiniz.";
+            return {
+                text: "Kulübümüzde mobil uygulama geliştirme atölyeleri, kodlama eğitimleri ve hackathon çalışmaları düzenlenmektedir. Güncel tüm etkinliklerimizi incelemek için <a href='etkinlikler.html'>Etkinlikler</a> sayfamıza gidebilirsin.",
+                action: null
+            };
         }
 
-        if (contains(['kim', 'kurucu', 'başkan', 'yönetim', 'ekip', 'üyeleri', 'yönetici'])) {
-            return "Kulübümüzün Başkanı <b>Burak Kaya</b>'dır. Başkan Yardımcılarımız ise <b>Yusuf Furkan Gelişin</b> ve <b>Selin Durdu</b>'dur. Yönetim ekibimiz ve tüzüğümüz hakkında detaylı bilgiyi ana sayfadaki <b>'Yönetim Kurulu'</b> bölümünde bulabilirsiniz.";
-        }
-
-        if (contains(['iletişim', 'adres', 'nerede', 'ulaşım', 'instagram', 'mail', 'eposta', 'konum', 'yerleşke'])) {
-            return "Bize aşağıdaki kanallardan ulaşabilirsiniz:<br><br>📧 <b>E-posta:</b> gedikmobilyazilimkulubu@gmail.com<br>📸 <b>Instagram:</b> <a href='https://www.instagram.com/gedikmygk' target='_blank'>@gedikmygk</a><br>📍 <b>Konum:</b> İstanbul Gedik Üniversitesi Kartal Yerleşkesi.";
-        }
-
-        if (contains(['tüzük', 'kural', 'amaç', 'misyon', 'vizyon'])) {
-            return "Gedik MYGK'nin temel amacı, üniversitemiz bünyesindeki öğrencileri mobil yazılım ve arayüz tasarımı alanlarında eğitmek, ortak projeler geliştirerek Google Play ve App Store platformlarında yayınlamaktır. Eğitimler tamamen ücretsiz ve paylaşım esasına dayanır.";
-        }
-
-        if (contains(['teşekkür', 'sağol', 'teşekkürler', 'eyvallah', 'ok', 'tamam'])) {
-            return "Rica ederim! Yardımcı olabildiysem ne mutlu. Gedik MYGK hakkında sormak istediğin başka bir soru olursa her zaman buradayım.";
-        }
-
-        if (contains(['ios', 'kotlin', 'swift', 'android', 'flutter', 'react'])) {
-            return "Kulübümüzde genel mobil uygulama geliştirme teorisine, arayüz tasarımlarına ve uygulama yayınlama süreçlerine odaklanıyoruz. Herhangi bir platform ayrımı gözetmeksizin tüm mobil ekosistemi hedefliyoruz.";
-        }
-
+        // 9. Blog ve Duyurular
         if (contains(['blog', 'yazı', 'kaynak', 'makale'])) {
-            return "Üyelerimizin ve yönetim ekibimizin mobil yazılım dünyası hakkında paylaştığı en son makaleleri, ipuçlarını ve kaynak tavsiyelerini <a href='blog.html'>Blog</a> sayfamızdan okuyabilirsiniz.";
+            return {
+                text: "Üyelerimizin ve yönetim ekibimizin mobil yazılım dünyası hakkında paylaştığı en son makaleleri <a href='blog.html'>Blog</a> sayfamızdan okuyabilirsin.",
+                action: null
+            };
         }
-
         if (contains(['duyuru', 'haber', 'ilan'])) {
-            return "Kulübümüzle ilgili en güncel duyuru ve haberlere menüdeki <a href='duyurular.html'>Duyurular</a> sayfasından erişebilirsiniz.";
+            return {
+                text: "Kulübümüzle ilgili en güncel duyuru ve haberlere <a href='duyurular.html'>Duyurular</a> sayfasından erişebilirsin.",
+                action: null
+            };
         }
 
-        // Fallback
-        return "Bu konuda kesin bir bilgim yok ama istersen doğrudan iletişim formunu kullanarak veya <b>gedikmobilyazilimkulubu@gmail.com</b> e-posta adresinden yönetim ekibimize sorularını iletebilirsin. Sana başka bir konuda yardımcı olabilir miyim?";
+        // 10. Greeting & Politeness
+        if (contains(['merhaba', 'selam', 'hey', 'naber', 'günaydın', 'tünaydın', 'salam'])) {
+            return {
+                text: "Merhaba! Ben Gedik MYGK Asistanıyım. Kulübümüz, eğitimlerimiz veya üyelik başvuruları hakkında sana bilgi verebilirim. Nasıl yardımcı olabilirim?",
+                action: null
+            };
+        }
+        if (contains(['teşekkür', 'sağol', 'teşekkürler', 'eyvallah', 'ok', 'tamam'])) {
+            return {
+                text: "Rica ederim! Yardımcı olabildiysem ne mutlu. Gedik MYGK hakkında sormak istediğin başka bir soru olursa her zaman buradayım.",
+                action: null
+            };
+        }
+
+        // Fallback response
+        return {
+            text: "Bu konuda tam bilgim yok ama istersen doğrudan iletişim formunu kullanarak veya <b>gedikmobilyazilimkulubu@gmail.com</b> e-posta adresinden yönetim ekibimize sorularını iletebilirsin. Sana başka bir konuda yardımcı olabilir miyim?",
+            action: null
+        };
     }
 })();
