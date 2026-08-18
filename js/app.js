@@ -1845,19 +1845,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Profile button click to open dashboard
-    if (userProfileTrigger) {
-        userProfileTrigger.addEventListener('click', (e) => {
-            e.preventDefault();
-            const memberEmail = sessionStorage.getItem('member_logged_in_email');
-            if (memberEmail && dbMembers.length > 0) {
-                const found = dbMembers.find(m => m.email.toLowerCase() === memberEmail.toLowerCase());
-                if (found) {
-                    showMemberDashboard(found);
-                }
-            }
-        });
-    }
+
 
     // Member Dashboard Close/Logout handlers
     if (closeMemberDash) {
