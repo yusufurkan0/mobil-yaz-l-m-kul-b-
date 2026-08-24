@@ -1,12 +1,438 @@
 /* ==========================================================
-   GEDIK MYGK - AI CHATBOX ASSISTANT WIDGET
+   GEDIK MYGK - AI CHATBOX ASSISTANT WIDGET (SECURE & AI ENHANCED)
    ==========================================================
-   Generates a floating premium glassmorphism AI chat widget
-   loaded dynamically across all pages.
+   Floating glassmorphism AI chat widget with:
+   1. AI Security Vulnerability Guardrails (XSS, Prompt Injection, Rate Limiting)
+   2. 30 Q&A Semantic / Fuzzy Matching Database
+   3. Dynamic Page Redirection & Action Triggers
+   ==========================================================
 */
 
 (function() {
-    // 1. Inject Styles
+    // ==========================================================
+    // 1. SECURITY & VULNERABILITY GUARDRAILS
+    // ==========================================================
+
+    // XSS Sanitizer helper
+    function escapeHTML(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Rate Limiter: Max 4 messages per 6 seconds
+    const RateLimiter = {
+        timestamps: [],
+        maxLimit: 4,
+        timeWindowMs: 6000,
+        minDelayMs: 600,
+        lastMsgTime: 0,
+
+        canSend: function() {
+            const now = Date.now();
+            if (now - this.lastMsgTime < this.minDelayMs) {
+                return { allowed: false, reason: "Lütfen mesajlar arasında biraz bekleyin." };
+            }
+            this.timestamps = this.timestamps.filter(t => now - t < this.timeWindowMs);
+            if (this.timestamps.length >= this.maxLimit) {
+                return { allowed: false, reason: "Çok hızlı mesaj gönderiyorsunuz. Lütfen birkaç saniye bekleyin." };
+            }
+            this.timestamps.push(now);
+            this.lastMsgTime = now;
+            return { allowed: true };
+        }
+    };
+
+    // Prompt Injection & Malicious Pattern Detector
+    function checkSecurityVulnerabilities(input) {
+        const lower = input.toLowerCase();
+
+        // 1. Input length limit (Max 300 characters)
+        if (input.length > 300) {
+            return {
+                safe: false,
+                reason: "🛡️ <b>Güvenlik Uyarısı:</b> Mesajınız maksimum 300 karakter sınırını aşıyor."
+            };
+        }
+
+        // 2. Script / HTML Enjeksiyon Koruması
+        const scriptPatterns = [
+            /<script/i, /javascript:/i, /onerror=/i, /onload=/i, /onclick=/i,
+            /<iframe/i, /<object/i, /<embed/i, /eval\(/i, /document\.cookie/i
+        ];
+        for (const pattern of scriptPatterns) {
+            if (pattern.test(input)) {
+                return {
+                    safe: false,
+                    reason: "🛡️ <b>Güvenlik Engeli (XSS Guard):</b> Mesajınız zararlı kod veya script enjeksiyonu içeriyor."
+                };
+            }
+        }
+
+        // 3. Prompt Injection / Jailbreak Koruması
+        const promptInjectionPatterns = [
+            "ignore previous instructions", "ignore all instructions", "override prompt",
+            "system prompt", "you are now a", "act as a unrestricted", "dan mode",
+            "jailbreak", "forget your rules", "sql injection", "drop table", "select * from"
+        ];
+        for (const pattern of promptInjectionPatterns) {
+            if (lower.includes(pattern)) {
+                return {
+                    safe: false,
+                    reason: "🛡️ <b>Yapay Zeka Güvenlik Koruması:</b> Zararlı komut veya sistem manipülasyonu algılandı. Lütfen kulüp ve mobil yazılım ile ilgili geçerli sorular sorunuz."
+                };
+            }
+        }
+
+        return { safe: true };
+    }
+
+
+    // ==========================================================
+    // 2. 30 SORU & 30 CEVAP KAPSAMLI VERİ TABANI (GEDIK MYGK)
+    // ==========================================================
+    const mygkKnowledgeBase = [
+        {
+            id: 1,
+            question: "Kulübe nasıl üye olabilirim? Üyelik ücretli mi?",
+            keywords: ["üye", "üye olmak", "katılmak", "katılım", "ücret", "ücretsiz", "kayıt", "başvuru", "form", "nasıl katılırım"],
+            answer: "<b>Gedik MYGK'ya üyelik tamamen ücretsizdir!</b> Mobil uygulama geliştirmeye ilgi duyan tüm Gedik Üniversitesi öğrencileri katılabilir. Seni ana sayfadaki başvuru formuna yönlendiriyorum.",
+            action: "kayıt"
+        },
+        {
+            id: 2,
+            question: "Kulüp başkanı ve yönetim kurulunda kimler yer alıyor?",
+            keywords: ["başkan", "yönetim", "kurucu", "ekip", "yusuf furkan", "burak", "selin", "ahmet", "elif", "lider", "yöneticiler"],
+            answer: "Kulüp Başkanımız <b>Yusuf Furkan Yılmaz</b>'dır. Yönetim ve koordinasyon ekibimizde iOS Lead <b>Ahmet Yılmaz</b> ve Android Lead <b>Elif Kaya</b> yer almaktadır. Seni yönetim ekibimize kaydırıyorum.",
+            action: "yönetim"
+        },
+        {
+            id: 3,
+            question: "Mobil Yazılım Kulübü'nün (MYGK) amacı ve vizyonu nedir?",
+            keywords: ["amaç", "vizyon", "misyon", "biz kimiz", "hakkında", "kulüp ne yapar", "ne iş yapar", "hedef"],
+            answer: "Gedik MYGK, geleceğin mobil uygulama ekosistemini inşa edecek geliştiricileri ve tasarımcıları bir araya getirir. Teorik eğitimi pratik projelerle pekiştirerek üyelerimizi sektöre hazırlarız.",
+            action: "hakkımızda"
+        },
+        {
+            id: 4,
+            question: "Kulüp tüzüğü ve temel kuralları nelerdir?",
+            keywords: ["tüzük", "tuzuk", "kural", "ilkeler", "madde", "madde 1", "madde 2", "madde 3", "madde 4", "yönetmelik"],
+            answer: "Resmi tüzüğümüz 4 ana maddeden oluşur: Madde 1-Kuruluş ve Amaç, Madde 2-Üyelik Şartları, Madde 3-Proje/Eğitim Esasları, Madde 4-Yönetim ve Temsil. Seni tüzük bölümüne kaydırıyorum.",
+            action: "tüzük"
+        },
+        {
+            id: 5,
+            question: "Hangi programlama dilleri ve teknolojileri öğrenilebilir?",
+            keywords: ["teknoloji", "dil", "swift", "kotlin", "flutter", "react native", "dart", "xcode", "android studio", "yazılım dilleri"],
+            answer: "Kulübümüzde <b>Swift (iOS/SwiftUI)</b>, <b>Kotlin (Android/Jetpack Compose)</b>, <b>Flutter (Dart)</b> ve <b>React Native</b> teknolojilerinde eğitimler ve çalışma grupları yürütülmektedir.",
+            action: "etkinlikler"
+        },
+        {
+            id: 6,
+            question: "Sıfırdan başlayanlar veya hiç kodlama bilmeyenler katılabilir mi?",
+            keywords: ["sıfırdan", "hiç bilmiyorum", "yeni başlayan", "başlangıç", "tecrübesiz", "öğrenebilir miyim", "temel", "acemi"],
+            answer: "Evet, kesinlikle! Eğitimlerimiz sıfırdan başlayan öğrencilere uygun temellerden başlar. Hiç kodlama bilmeseniz de kulübümüze katılıp kendinizi geliştirebilirsiniz.",
+            action: "kayıt"
+        },
+        {
+            id: 7,
+            question: "Kulüp etkinlikleri ve workshoplar ne zaman düzenleniyor?",
+            keywords: ["etkinlik", "workshop", "atölye", "takvim", "ders saatleri", "ne zaman", "saat", "gün", "seminer"],
+            answer: "Etkinliklerimiz ders çıkış saatlerinde yüz yüze veya hafta sonları online oturumlar şeklinde düzenlenmektedir. Güncel takvim için <a href='etkinlikler.html'>Etkinlikler</a> sayfamızı ziyaret edebilirsin.",
+            action: "etkinlikler"
+        },
+        {
+            id: 8,
+            question: "Kampüsteki kulüp konumu ve iletişim bilgileri nedir?",
+            keywords: ["iletişim", "adres", "nerede", "yerleşke", "konum", "kartal", "eposta", "mail", "oda", "ulaşım"],
+            answer: "Kulübümüz <b>İstanbul Gedik Üniversitesi Kartal Yerleşkesi</b>'ndedir. E-posta adresimiz: <b>gedikmobilyazilimkulubu@gmail.com</b>. Seni İletişim sayfasına yönlendiriyorum.",
+            action: "iletişim"
+        },
+        {
+            id: 9,
+            question: "Eğitimlerin ve workshopların sonunda sertifika veriliyor mu?",
+            keywords: ["sertifika", "katılım belgesi", "belge", "cv", "özgeçmiş", "onaylı", "sertifika var mı"],
+            answer: "Evet! Tamamlanan resmi workshop serileri ve proje çalışma gruplarındaki başarı durumunuza göre <b>Gedik MYGK Onaylı Katılım ve Başarı Sertifikası</b> verilmektedir.",
+            action: null
+        },
+        {
+            id: 10,
+            question: "Kulüp projelerinde yayın yapılıyor mu? (App Store / Google Play)",
+            keywords: ["proje", "app store", "google play", "yayın", "mağaza", "uygulama yükleme", "geliştirme", "market"],
+            answer: "Evet! Çalışma gruplarımızda üretilen başarılı mobil projeler, kulübümüzün geliştirici hesapları üzerinden App Store ve Google Play platformlarında yayınlanmaktadır.",
+            action: null
+        },
+        {
+            id: 11,
+            question: "Etkinliklere ve eğitimlere katılım zorunlu mu?",
+            keywords: ["zorunlu", "devam", "yoklama", "devamsızlık", "katılamazsam", "çakışma", "zorunluluk"],
+            answer: "Katılım zorunlu değildir. Ancak sertifika almaya hak kazanmak ve aktif proje ekiplerine seçilmek için oturumların en az %70'ine katılım göstermeniz önerilir.",
+            action: null
+        },
+        {
+            id: 12,
+            question: "Farklı bir bölümden veya fakülteden kulübe katılabilir miyim?",
+            keywords: ["farklı bölüm", "mühendislik dışı", "myo", "sağlık", "mimarlık", "bölüm fark eder mi", "herkes katılabilir mi"],
+            answer: "Evet! Mühendislik, İktisadi İdari Bilimler, Sağlık Bilimleri, Spor Bilimleri veya MYO fark etmeksizin tüm Gedik Üniversitesi öğrencilerine kapımız açıktır.",
+            action: "kayıt"
+        },
+        {
+            id: 13,
+            question: "Kulübe katılmak için kendi bilgisayarıma sahip olmak zorunda mıyım?",
+            keywords: ["bilgisayar", "laptop", "donanım", "şart mı", "bilgisayarım yok", "laboratuvar", "pc"],
+            answer: "Kendi bilgisayarınızın olması avantajdır; ancak zorunlu değildir. Atölyelerde üniversitemizin bilgisayar laboratuvarlarını aktif olarak kullanabiliyoruz.",
+            action: null
+        },
+        {
+            id: 14,
+            question: "iOS (iPhone) uygulaması geliştirmek için Mac / MacBook şart mı?",
+            keywords: ["mac", "macbook", "ios için mac", "windows ios", "xcode", "apple", "mac gerekli mi"],
+            answer: "Swift ve Xcode ile native iOS geliştirmek için Mac önerilir. Ancak Windows kullanıyorsanız Flutter veya React Native ile cross-platform iOS uyumlu uygulamalar geliştirebilirsiniz.",
+            action: null
+        },
+        {
+            id: 15,
+            question: "Hackathon yarışmalarına katılıyor musunuz?",
+            keywords: ["hackathon", "yarışma", "teknofest", "ödül", "maraton", "kodlama yarışı", "derece"],
+            answer: "Evet! Gedik MYGK olarak Teknofest, ulusal hackathonlar ve üniversiteler arası yazılım maratonlarına katılmak üzere özel proje takımları hazırlamaktayız.",
+            action: null
+        },
+        {
+            id: 16,
+            question: "Kulüp sponsorları ve iş birliği ortakları kimlerdir?",
+            keywords: ["sponsor", "destekçi", "ortak", "google", "apple academy", "github", "aws", "microsoft", "sponsorluk"],
+            answer: "Sponsorlarımız ve teknoloji ortaklarımız arasında Google Developers, Apple Academy, GitHub Campus, Microsoft ve AWS Academy yer almaktadır. Seni sponsorlar bölümüne yönlendiriyorum.",
+            action: "sponsor"
+        },
+        {
+            id: 17,
+            question: "Discord veya WhatsApp iletişim grupları var mı?",
+            keywords: ["discord", "whatsapp", "grup", "kanal", "sosyal medya", "sohbet", "topluluk", "iletişim grubu"],
+            answer: "Evet! Üye kaydınızı yaptıktan sonra üye profil paneliniz üzerinden özel WhatsApp Duyuru Grubu ve Discord Kodlama Sunucumuzun davet bağlantılarına ulaşabilirsiniz.",
+            action: null
+        },
+        {
+            id: 18,
+            question: "Kulüp duyurularını ve blog yazılarını nereden takip edebilirim?",
+            keywords: ["duyuru", "haber", "blog", "yazı", "makale", "kaynak", "içerik", "yeni haberler"],
+            answer: "En güncel kulüp haberleri için <a href='duyurular.html'>Duyurular</a> sayfamızı, teknik rehberler ve mobil yazılım makaleleri için <a href='blog.html'>Blog</a> sayfamızı ziyaret edebilirsiniz.",
+            action: null
+        },
+        {
+            id: 19,
+            question: "Şifremi unuttum, hesabıma nasıl yeniden giriş yapabilirim?",
+            keywords: ["şifremi unuttum", "parola sıfırlama", "giriş yapamıyorum", "şifre yenileme", "şifre sıfırla"],
+            answer: "Giriş Yap modalaındaki 'Şifremi Unuttum' bağlantısına tıklayarak e-posta adresinize sıfırlama kodu talep edebilirsiniz. Seni Giriş ekranına yönlendiriyorum.",
+            action: "giriş"
+        },
+        {
+            id: 20,
+            question: "Yönetici (Admin) Paneline nasıl giriş yapılır?",
+            keywords: ["admin", "yönetici", "panel", "cms", "yönetici girişi", "admin paneli", "yönetici modu"],
+            answer: "Giriş modalaındaki 'Yönetici Girişi' sekmesinden yetkili e-posta ve şifrenizle giriş yapabilirsiniz. Yönetici girişi ile sitede canlı içerik düzenleme araçları aktifleşir.",
+            action: "giriş"
+        },
+        {
+            id: 21,
+            question: "Staj ve kariyer imkanlarında kulüp destek sağlıyor mu?",
+            keywords: ["staj", "iş", "kariyer", "referans", "network", "cv inceleme", "sektör", "iş imkanı"],
+            answer: "Kulübümüz sektördeki yazılım firmalarıyla buluşma günleri, CV inceleme etkinlikleri ve aktif üyelerimiz için staj referansı desteği sunmaktadır.",
+            action: null
+        },
+        {
+            id: 22,
+            question: "Kulüpte Yapay Zeka (AI) entegrasyonlu mobil projeler yapılıyor mu?",
+            keywords: ["yapay zeka", "ai", "chatgpt", "openai", "coreml", "ml kit", "makine öğrenmesi", "yapay zeka dersi"],
+            answer: "Evet! Mobil uygulamalarda OpenAI API, Apple CoreML ve Google ML Kit entegrasyonu üzerine yapay zeka odaklı pratik mobil workshoplar düzenliyoruz.",
+            action: null
+        },
+        {
+            id: 23,
+            question: "Mobil Güvenlik ve Siber Güvenlik konuları işleniyor mu?",
+            keywords: ["siber güvenlik", "güvenlik", "zafiyet", "penetrasyon", "ssl pinning", "veri koruma", "güvenli kodlama"],
+            answer: "Mobil yazılımda güvenli kodlama, hassas veri şifreleme ve zararlı kod analizi esasları eğitim müfredatımızda yer almaktadır.",
+            action: null
+        },
+        {
+            id: 24,
+            question: "Üye profilimi ve bilgilerimi nasıl güncelleyebilirim?",
+            keywords: ["profil", "profilim", "bilgi güncelleme", "şifre değiştirme", "hesabım", "bilgilerimi değiştir"],
+            answer: "Sitemize giriş yaptıktan sonra sağ üst menüdeki 'Profilim' seçeneğine tıklayarak sınıf, telefon, e-posta ve şifre bilgilerinizi güncelleyebilirsiniz.",
+            action: null
+        },
+        {
+            id: 25,
+            question: "Hazırlık sınıfı öğrencileri kulübe üye olabilir mi?",
+            keywords: ["hazırlık", "hazırlık sınıfı", "ingilizce hazırlık", "yabancı diller", "1. sınıf öncesi"],
+            answer: "Evet! Hazırlık sınıfı öğrencileri ilk yıldan itibaren kulübümüze katılıp hem teknik altyapı oluşturabilir hem de sosyal ortama dahil olabilirler.",
+            action: "kayıt"
+        },
+        {
+            id: 26,
+            question: "Kulübe sponsor olmak veya iş birliği yapmak için kiminle görüşebiliriz?",
+            keywords: ["sponsor olmak", "destek vermek", "iş birliği", "kurumsal", "partnerlik", "firmalar"],
+            answer: "Sponsorluk ve kurumsal iş birliği teklifleri için <b>gedikmobilyazilimkulubu@gmail.com</b> e-posta adresimiz üzerinden Yönetim Kurulumuzla iletişime geçebilirsiniz.",
+            action: "iletişim"
+        },
+        {
+            id: 27,
+            question: "Kulüp yönetim ekibine veya koordinatörlüğe nasıl seçilebilirim?",
+            keywords: ["koordinatör", "yönetime girme", "seçim", "komite", "lider olma", "yönetici olma"],
+            answer: "Etkinliklerde aktif rol alan, çalışma gruplarına liderlik eden üyelerimiz dönem sonlarında yönetim kurulu ve koordinatörlük kadrolarına dahil edilmektedir.",
+            action: "yönetim"
+        },
+        {
+            id: 28,
+            question: "Mezun olduktan sonra kulüple bağımız devam eder mi?",
+            keywords: ["mezun", "mezuniyet", "alumni", "mezun üye", "kariyer sonrası", "okul bitince"],
+            answer: "Evet! Mezun üyelerimiz Gedik MYGK Alumni ağımıza dahil olarak tecrübelerini yeni üyelerle paylaşır ve mentorluk yaparlar.",
+            action: null
+        },
+        {
+            id: 29,
+            question: "Mobil Oyun Geliştirme (Unity/Unreal) çalışmaları var mı?",
+            keywords: ["oyun", "unity", "unreal", "game dev", "mobil oyun", "2d oyun", "game jam", "oyun geliştirme"],
+            answer: "Evet! Mobil uygulama geliştirmenin yanı sıra Unity ile 2D/3D Mobil Oyun Geliştirme atölyeleri ve Game Jam maratonları düzenlenmektedir.",
+            action: null
+        },
+        {
+            id: 30,
+            question: "Gece Kodlama (Night Coding) ve maraton kampları düzenleniyor mu?",
+            keywords: ["gece kodlama", "night coding", "kodlama kampı", "bootcamp", "24 saat", "maraton", "geceleme"],
+            answer: "Evet! Dönem içerisinde kampüsümüzde pizza eşliğinde 24 saatlik Gece Kodlama Maratonları ve Hackathon hazırlık kampları düzenlemekteyiz.",
+            action: null
+        }
+    ];
+
+    // ==========================================================
+    // 3. ANLAMSAL & YAKINLIK EŞLEŞME ALGORİTMASI (FUZZY MATCH)
+    // ==========================================================
+
+    // Turkish Normalizer
+    function normalizeTurkishText(str) {
+        if (!str) return '';
+        return str.toString()
+            .replace(/İ/g, 'i').replace(/I/g, 'ı').replace(/ı/g, 'i')
+            .replace(/Ğ/g, 'g').replace(/ğ/g, 'g')
+            .replace(/Ü/g, 'u').replace(/ü/g, 'u')
+            .replace(/Ş/g, 's').replace(/ş/g, 's')
+            .replace(/Ö/g, 'o').replace(/ö/g, 'o')
+            .replace(/Ç/g, 'c').replace(/ç/g, 'c')
+            .toLowerCase()
+            .replace(/[^a-z0-9\s]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    // Levenshtein String Distance for typos (e.g., "fluter" -> "flutter", "klupe" -> "kulube")
+    function getLevenshteinDistance(a, b) {
+        if (a.length === 0) return b.length;
+        if (b.length === 0) return a.length;
+        const matrix = [];
+        for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+        for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j - 1] + 1,
+                        matrix[i][j - 1] + 1,
+                        matrix[i - 1][j] + 1
+                    );
+                }
+            }
+        }
+        return matrix[b.length][a.length];
+    }
+
+    // Similarity score between two words (0.0 to 1.0)
+    function wordSimilarity(w1, w2) {
+        const norm1 = normalizeTurkishText(w1);
+        const norm2 = normalizeTurkishText(w2);
+        if (!norm1 || !norm2) return 0;
+        if (norm1 === norm2) return 1.0;
+        if (norm1.includes(norm2) || norm2.includes(norm1)) return 0.85;
+        const maxLen = Math.max(norm1.length, norm2.length);
+        if (maxLen === 0) return 1.0;
+        const dist = getLevenshteinDistance(norm1, norm2);
+        return Math.max(0, 1 - dist / maxLen);
+    }
+
+    // Compute match score of user query against a Knowledge Base Q&A item
+    function computeMatchScore(userQuery, item) {
+        const normQuery = normalizeTurkishText(userQuery);
+        const queryWords = normQuery.split(' ').filter(w => w.length > 1);
+        if (queryWords.length === 0) return 0;
+
+        let totalScore = 0;
+
+        // 1. Direct Question Text Similarity
+        const normQuestion = normalizeTurkishText(item.question);
+        if (normQuestion.includes(normQuery) || normQuery.includes(normQuestion)) {
+            totalScore += 2.5;
+        }
+
+        // 2. Keyword Matches (weighted high)
+        for (const keyword of item.keywords) {
+            const normKeyword = normalizeTurkishText(keyword);
+            const kwWords = normKeyword.split(' ');
+
+            if (normQuery.includes(normKeyword)) {
+                totalScore += 2.0;
+            } else {
+                // Check word by word fuzzy match
+                for (const qWord of queryWords) {
+                    for (const kWord of kwWords) {
+                        const sim = wordSimilarity(qWord, kWord);
+                        if (sim >= 0.75) {
+                            totalScore += sim * 1.2;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. Question Word Fuzzy Overlap
+        const questionWords = normQuestion.split(' ').filter(w => w.length > 2);
+        for (const qWord of queryWords) {
+            for (const itemWord of questionWords) {
+                const sim = wordSimilarity(qWord, itemWord);
+                if (sim >= 0.8) {
+                    totalScore += sim * 0.5;
+                }
+            }
+        }
+
+        return totalScore;
+    }
+
+    // Find best match in 30 Q&A Database
+    function findBestMatch(userQuery) {
+        let bestItem = null;
+        let highestScore = 0;
+
+        for (const item of mygkKnowledgeBase) {
+            const score = computeMatchScore(userQuery, item);
+            if (score > highestScore) {
+                highestScore = score;
+                bestItem = item;
+            }
+        }
+
+        return { item: bestItem, score: highestScore };
+    }
+
+
+    // ==========================================================
+    // 4. UI BUILDER & STYLES INJECTION
+    // ==========================================================
     const style = document.createElement('style');
     style.innerHTML = `
         /* Floating Chat Button */
@@ -17,10 +443,10 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: #d9267a; /* Fallback solid color */
-            background: linear-gradient(135deg, var(--primary), rgba(var(--primary-rgb), 0.8));
-            box-shadow: 0 8px 32px rgba(var(--primary-rgb), 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #d9267a;
+            background: linear-gradient(135deg, var(--primary, #d9267a), rgba(var(--primary-rgb, 217, 38, 122), 0.8));
+            box-shadow: 0 8px 32px rgba(var(--primary-rgb, 217, 38, 122), 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: #ffffff !important;
             font-size: 1.6rem;
             cursor: pointer;
@@ -35,8 +461,7 @@
         }
         .chatbot-toggle:hover {
             transform: scale(1.1) rotate(5deg);
-            background: var(--primary);
-            box-shadow: 0 12px 40px rgba(var(--primary-rgb), 0.5);
+            box-shadow: 0 12px 40px rgba(var(--primary-rgb, 217, 38, 122), 0.5);
         }
         .chatbot-toggle .fa-xmark {
             display: none;
@@ -54,15 +479,15 @@
             position: fixed;
             bottom: 105px;
             right: 30px;
-            width: 380px;
-            height: 520px;
+            width: 390px;
+            height: 540px;
             max-height: calc(100vh - 140px);
-            border-radius: 16px;
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--card-shadow);
+            border-radius: 18px;
+            background: var(--bg-card, #121829);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+            box-shadow: var(--card-shadow, 0 20px 50px rgba(0,0,0,0.5));
             z-index: 999998;
             display: flex;
             flex-direction: column;
@@ -80,9 +505,9 @@
 
         /* Chat Header */
         .chatbot-header {
-            padding: 16px 20px;
-            background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.15), rgba(var(--primary-rgb), 0.05));
-            border-bottom: 1px solid var(--border-color);
+            padding: 14px 18px;
+            background: linear-gradient(135deg, rgba(var(--primary-rgb, 217, 38, 122), 0.18), rgba(var(--primary-rgb, 217, 38, 122), 0.05));
+            border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
             display: flex;
             align-items: center;
             gap: 12px;
@@ -91,13 +516,14 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--primary);
+            background: var(--primary, #d9267a);
             color: #ffffff !important;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
             position: relative;
+            box-shadow: 0 4px 12px rgba(var(--primary-rgb, 217, 38, 122), 0.3);
         }
         .chatbot-avatar i {
             color: #ffffff !important;
@@ -111,65 +537,127 @@
             height: 9px;
             border-radius: 50%;
             background: #10b981;
-            border: 2px solid var(--bg-card);
+            border: 2px solid var(--bg-card, #121829);
         }
         .chatbot-header-info {
             flex-grow: 1;
         }
         .chatbot-header-title {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
             font-weight: 700;
             font-size: 0.95rem;
-            color: var(--headings-color);
-            margin: 0;
-        }
-        .chatbot-header-status {
-            font-size: 0.75rem;
-            color: var(--text-muted);
+            color: var(--headings-color, #ffffff);
             margin: 0;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
+        }
+        .chatbot-header-status {
+            font-size: 0.72rem;
+            color: var(--text-muted, #94a3b8);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.68rem;
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+            padding: 2px 7px;
+            border-radius: 10px;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            font-weight: 600;
+        }
+
+        /* Quick Suggestions Horizontal Scroll */
+        .chatbot-quick-pills {
+            display: flex;
+            gap: 8px;
+            padding: 10px 16px;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.05));
+            background: rgba(0, 0, 0, 0.1);
+            scrollbar-width: none;
+        }
+        .chatbot-quick-pills::-webkit-scrollbar {
+            display: none;
+        }
+        .quick-pill {
+            white-space: nowrap;
+            font-size: 0.74rem;
+            padding: 6px 12px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+            color: var(--text-color, #e2e8f0);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .quick-pill:hover {
+            background: var(--primary, #d9267a);
+            color: #ffffff !important;
+            border-color: var(--primary, #d9267a);
+            transform: translateY(-1px);
         }
 
         /* Chat Messages */
         .chatbot-messages {
             flex-grow: 1;
-            padding: 20px;
+            padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 14px;
             scroll-behavior: smooth;
         }
         .chatbot-msg {
-            max-width: 80%;
-            padding: 12px 16px;
+            max-width: 82%;
+            padding: 11px 15px;
             border-radius: 14px;
             font-size: 0.85rem;
-            line-height: 1.45;
+            line-height: 1.48;
             word-wrap: break-word;
+            animation: chatbot-fade-in 0.25s ease-out;
+        }
+        @keyframes chatbot-fade-in {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .chatbot-msg.bot {
             align-self: flex-start;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            border-top-left-radius: 2px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+            color: var(--text-color, #e2e8f0);
+            border-top-left-radius: 3px;
         }
-        /* Override light theme bot msg background */
         body:not(.dark-theme) .chatbot-msg.bot {
             background: #f8fafc;
+            border-color: #e2e8f0;
+            color: #1e293b;
         }
         .chatbot-msg.user {
             align-self: flex-end;
-            background: var(--primary);
+            background: var(--primary, #d9267a);
             color: #ffffff !important;
-            border-top-right-radius: 2px;
-            box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.15);
+            border-top-right-radius: 3px;
+            box-shadow: 0 4px 12px rgba(var(--primary-rgb, 217, 38, 122), 0.2);
+        }
+        .chatbot-msg.security-alert {
+            align-self: flex-start;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            border-top-left-radius: 3px;
         }
         .chatbot-msg.bot a {
-            color: var(--primary);
+            color: var(--primary, #d9267a);
             text-decoration: underline;
             font-weight: 600;
         }
@@ -179,11 +667,11 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
             border-radius: 14px;
-            border-top-left-radius: 2px;
+            border-top-left-radius: 3px;
             width: fit-content;
             align-self: flex-start;
         }
@@ -193,7 +681,7 @@
         .chatbot-typing span {
             width: 6px;
             height: 6px;
-            background: var(--text-muted);
+            background: var(--text-muted, #94a3b8);
             border-radius: 50%;
             display: inline-block;
             animation: chatbot-bounce 1.3s infinite ease-in-out;
@@ -206,37 +694,38 @@
             50% { transform: translateY(-5px); }
         }
 
-        /* Chat Input Area */
+        /* Input Container */
         .chatbot-input-container {
-            padding: 14px 20px;
-            border-top: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-top: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
             display: flex;
             gap: 10px;
-            background: rgba(255, 255, 255, 0.01);
+            background: rgba(0, 0, 0, 0.1);
             align-items: center;
         }
         .chatbot-input {
             flex-grow: 1;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
             border-radius: 24px;
-            padding: 10px 18px;
+            padding: 10px 16px;
             font-size: 0.85rem;
-            color: var(--text-color);
+            color: var(--text-color, #ffffff);
             outline: none;
             transition: border-color 0.2s ease;
         }
         body:not(.dark-theme) .chatbot-input {
             background: #ffffff;
+            color: #1e293b;
         }
         .chatbot-input:focus {
-            border-color: var(--primary);
+            border-color: var(--primary, #d9267a);
         }
         .chatbot-send-btn {
             width: 38px;
             height: 38px;
             border-radius: 50%;
-            background: var(--primary);
+            background: var(--primary, #d9267a);
             color: #ffffff !important;
             border: none;
             cursor: pointer;
@@ -245,13 +734,13 @@
             justify-content: center;
             font-size: 0.95rem;
             transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(var(--primary-rgb, 217, 38, 122), 0.25);
         }
         .chatbot-send-btn i {
             color: #ffffff !important;
         }
         .chatbot-send-btn:hover {
             transform: scale(1.05);
-            background: var(--primary-hover);
         }
 
         /* Responsiveness */
@@ -261,7 +750,7 @@
                 right: 15px;
                 left: 15px;
                 width: auto;
-                height: 480px;
+                height: 490px;
             }
             .chatbot-toggle {
                 bottom: 15px;
@@ -273,10 +762,10 @@
     `;
     document.head.appendChild(style);
 
-    // 2. Inject HTML Elements
+    // Dynamic HTML Injection
     const chatContainer = document.createElement('div');
     chatContainer.innerHTML = `
-        <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Asistanı Aç">
+        <button id="chatbot-toggle" class="chatbot-toggle" aria-label="MYGK Asistanını Aç">
             <i class="fa-solid fa-comments"></i>
             <i class="fa-solid fa-xmark"></i>
         </button>
@@ -286,20 +775,35 @@
                     <i class="fa-solid fa-robot"></i>
                 </div>
                 <div class="chatbot-header-info">
-                    <h4 class="chatbot-header-title">MYGK Asistan</h4>
+                    <h4 class="chatbot-header-title">
+                        MYGK Asistan
+                        <span class="security-badge"><i class="fa-solid fa-shield-halved"></i> Güvenli AI</span>
+                    </h4>
                     <p class="chatbot-header-status">
                         <span style="display:inline-block; width:6px; height:6px; background:#10b981; border-radius:50%;"></span>
-                        Çevrimiçi · Yapay Zeka
+                        Çevrimiçi · 30 Soru-Cevap Zekası
                     </p>
                 </div>
             </div>
+
+            <!-- Quick Pill Suggestions -->
+            <div class="chatbot-quick-pills">
+                <button class="quick-pill" data-query="Kulübe nasıl üye olabilirim?"><i class="fa-solid fa-user-plus"></i> Üyelik</button>
+                <button class="quick-pill" data-query="Kulüp başkanı ve yönetim kurulunda kimler var?"><i class="fa-solid fa-crown"></i> Yönetim</button>
+                <button class="quick-pill" data-query="Hangi programlama dilleri ve teknolojileri var?"><i class="fa-solid fa-code"></i> Teknolojiler</button>
+                <button class="quick-pill" data-query="Kulüp tüzüğü ve kuralları nedir?"><i class="fa-solid fa-book"></i> Tüzük</button>
+                <button class="quick-pill" data-query="Kampüsteki kulüp konumu nerede?"><i class="fa-solid fa-location-dot"></i> Konum</button>
+                <button class="quick-pill" data-query="Eğitim sonunda sertifika veriliyor mu?"><i class="fa-solid fa-certificate"></i> Sertifika</button>
+            </div>
+
             <div id="chatbot-messages" class="chatbot-messages">
                 <div class="chatbot-msg bot">
-                    Merhaba! Ben MYGK Yapay Zeka Asistanı. Gedik Üniversitesi Mobil Yazılım Geliştirme Kulübü, eğitimlerimiz, üyelik veya yönetim ekibimiz hakkında merak ettiğin her şeyi bana sorabilirsin. Sana nasıl yardımcı olabilirim? 😊
+                    Merhaba! Ben <b>Gedik MYGK Yapay Zeka Asistanıyım</b>. 🛡️ Güvenlik filtreleri ve 30 soru-cevaplık akıllı bilgi sistemi ile donatıldım. <br><br>Üyelik, tüzük, eğitimlerimiz, yönetim ekibimiz veya kampüsümüz hakkında merak ettiğin her şeyi sorabilirsin! 😊
                 </div>
             </div>
+
             <div class="chatbot-input-container">
-                <input type="text" id="chatbot-input" class="chatbot-input" placeholder="Bir mesaj yazın..." autocomplete="off">
+                <input type="text" id="chatbot-input" class="chatbot-input" placeholder="Soru sorun (ör: üyelik ücretli mi?)" autocomplete="off" maxlength="300">
                 <button id="chatbot-send-btn" class="chatbot-send-btn" aria-label="Gönder">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
@@ -308,12 +812,16 @@
     `;
     document.body.appendChild(chatContainer);
 
-    // 3. UI Interactions
+
+    // ==========================================================
+    // 5. EVENT LISTENERS & CHAT LOGIC
+    // ==========================================================
     const toggleBtn = document.getElementById('chatbot-toggle');
     const chatWindow = document.getElementById('chatbot-window');
     const chatInput = document.getElementById('chatbot-input');
     const sendBtn = document.getElementById('chatbot-send-btn');
     const msgContainer = document.getElementById('chatbot-messages');
+    const quickPills = document.querySelectorAll('.quick-pill');
 
     if (!toggleBtn || !chatWindow || !chatInput || !sendBtn || !msgContainer) return;
 
@@ -325,7 +833,18 @@
         }
     });
 
-    // Send Message Trigger
+    // Quick Pill Clicks
+    quickPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            const query = pill.getAttribute('data-query');
+            if (query) {
+                chatInput.value = query;
+                sendMessage();
+            }
+        });
+    });
+
+    // Send Triggers
     sendBtn.addEventListener('click', sendMessage);
     chatInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
@@ -334,34 +853,55 @@
     });
 
     function sendMessage() {
-        const text = chatInput.value.trim();
-        if (!text) return;
+        const rawText = chatInput.value.trim();
+        if (!rawText) return;
 
-        // Render User Message
-        appendMessage(text, 'user');
+        // 1. Rate Limiting Check
+        const rateCheck = RateLimiter.canSend();
+        if (!rateCheck.allowed) {
+            appendMessage(rateCheck.reason, 'security-alert');
+            return;
+        }
+
+        // 2. Vulnerability & Security Guardrail Check
+        const secCheck = checkSecurityVulnerabilities(rawText);
+        if (!secCheck.safe) {
+            // Render user input safely escaped
+            appendMessage(escapeHTML(rawText), 'user');
+            chatInput.value = '';
+            // Render security alert
+            appendMessage(secCheck.reason, 'security-alert');
+            return;
+        }
+
+        // Render User Input safely
+        const safeUserText = escapeHTML(rawText);
+        appendMessage(safeUserText, 'user');
         chatInput.value = '';
 
-        // Render Bot Typing Animation
+        // Show Typing Indicator
         const typingId = showTypingIndicator();
 
-        // Simulate thinking delay (1s - 1.5s)
+        // Simulate Smart Processing Delay (700ms - 1200ms)
         setTimeout(() => {
             removeTypingIndicator(typingId);
-            const { text: botResponse, action } = generateBotResponse(text);
-            appendMessage(botResponse, 'bot');
             
-            // Execute page scroll or modal triggers if any
-            if (action) {
+            // Generate Smart AI Match Response
+            const botResponseObj = generateSmartResponse(rawText);
+            appendMessage(botResponseObj.text, 'bot');
+
+            // Trigger Page Navigation Action if needed
+            if (botResponseObj.action) {
                 setTimeout(() => {
-                    triggerPageAction(action);
-                }, 500);
+                    triggerPageAction(botResponseObj.action);
+                }, 400);
             }
-        }, 1000 + Math.random() * 500);
+        }, 700 + Math.random() * 500);
     }
 
-    function appendMessage(text, sender) {
+    function appendMessage(text, type) {
         const msgDiv = document.createElement('div');
-        msgDiv.className = `chatbot-msg ${sender}`;
+        msgDiv.className = `chatbot-msg ${type}`;
         msgDiv.innerHTML = text;
         msgContainer.appendChild(msgDiv);
         msgContainer.scrollTop = msgContainer.scrollHeight;
@@ -378,16 +918,63 @@
     }
 
     function removeTypingIndicator(id) {
-        const element = document.getElementById(id);
-        if (element) {
-            element.remove();
-        }
+        const el = document.getElementById(id);
+        if (el) el.remove();
     }
 
-    // Page action driver: scrolls to relevant sections or launches interactive workflows
+
+    // ==========================================================
+    // 6. SMART AI BOT RESPONSE GENERATOR
+    // ==========================================================
+    function generateSmartResponse(rawInput) {
+        const lowerInput = rawInput.toLowerCase();
+
+        // Basic Greets & Politeness
+        if (['merhaba', 'selam', 'hey', 'naber', 'günaydın', 'tünaydın', 'iyi günler', 'sa'].some(w => lowerInput.includes(w))) {
+            return {
+                text: "Merhaba! Ben Gedik MYGK Asistanıyım. Kulübümüz, üyelik başvuruları, eğitimlerimiz ve etkinliklerimiz hakkında merak ettiğin her şeyi bana sorabilirsin! 😊",
+                action: null
+            };
+        }
+
+        if (['teşekkür', 'teşekkürler', 'sağol', 'eyvallah', 'harika', 'tamam', 'ok'].some(w => lowerInput.includes(w))) {
+            return {
+                text: "Rica ederim! Yardımcı olabildiysem ne mutlu. Gedik MYGK ile ilgili başka bir sorun olursa her zaman buradayım. 🚀",
+                action: null
+            };
+        }
+
+        // Run Semantic & Fuzzy Matcher over 30 Q&A Dataset
+        const matchResult = findBestMatch(rawInput);
+
+        if (matchResult.item && matchResult.score >= 0.4) {
+            // High Confidence Match
+            return {
+                text: matchResult.item.answer,
+                action: matchResult.item.action
+            };
+        } else if (matchResult.item && matchResult.score >= 0.2) {
+            // Moderate Confidence Match
+            return {
+                text: `<b>Aradığınız soru bu olabilir mi?</b><br><i>"${matchResult.item.question}"</i><br><br>${matchResult.item.answer}`,
+                action: matchResult.item.action
+            };
+        }
+
+        // Fallback Response
+        return {
+            text: "Bu soruya doğrudan karşılık gelen bir kayıt bulamadım. Ancak üst taraftaki **Hızlı Soru Etiketlerini** deneyebilir veya doğrudan <b>gedikmobilyazilimkulubu@gmail.com</b> adresinden yönetim ekibimizle iletişime geçebilirsin. İstersen sorunu farklı kelimelerle yazarak tekrar deneyebilirsin! 😊",
+            action: null
+        };
+    }
+
+
+    // ==========================================================
+    // 7. PAGE ACTION DRIVER (SCROLL & NAVIGATION)
+    // ==========================================================
     function triggerPageAction(category) {
         const isHomepage = window.location.pathname === '/' || window.location.pathname.endsWith('index.html') || window.location.pathname === '';
-        
+
         if (category === 'tüzük') {
             if (isHomepage) {
                 const regEl = document.getElementById('regulations');
@@ -433,136 +1020,10 @@
             } else {
                 window.location.href = 'iletisim.html';
             }
+        } else if (category === 'etkinlikler') {
+            if (!window.location.pathname.endsWith('etkinlikler.html')) {
+                window.location.href = 'etkinlikler.html';
+            }
         }
-    }
-
-    // 4. Smart Local AI Bot Response Logic with Page Redirection Hooks
-    function generateBotResponse(input) {
-        const query = input.toLowerCase();
-
-        // Helper to check keywords
-        const contains = (words) => words.some(word => query.includes(word));
-
-        // 1. Tüzük Maddeleri
-        if (contains(['madde 1', 'madde bir', '1. madde'])) {
-            return {
-                text: "<b>Madde 1 (Kuruluş ve Amaç):</b> Topluluğun amacı, İstanbul Gedik Üniversitesi öğrencilerine mobil yazılım alanlarında teorik eğitimler vermek, pratik projeler geliştirmek ve öğrencileri teknoloji ekosistemine hazırlamaktır. Seni şimdi tüzük bölümüne kaydırıyorum.",
-                action: 'tüzük'
-            };
-        }
-        if (contains(['madde 2', 'madde iki', '2. madde'])) {
-            return {
-                text: "<b>Madde 2 (Üyelik ve Katılım):</b> Topluluğa üye olmak tamamen ücretsizdir. Mobil uygulama geliştirmeye ve tasarıma ilgi duyan tüm Gedik Üniversitesi öğrencileri katılabilir. Seni şimdi tüzük bölümüne kaydırıyorum.",
-                action: 'tüzük'
-            };
-        }
-        if (contains(['madde 3', 'madde üç', '3. madde'])) {
-            return {
-                text: "<b>Madde 3 (Proje ve Eğitim Esasları):</b> Eğitimler açık kaynaklı ve paylaşımcı kültür esasına göre yürütülür. Çalışma grupları kurularak Google Play ve App Store'a uygulamalar yüklenir. Seni şimdi tüzük bölümüne kaydırıyorum.",
-                action: 'tüzük'
-            };
-        }
-        if (contains(['madde 4', 'madde dört', '4. madde'])) {
-            return {
-                text: "<b>Madde 4 (Yönetim ve Temsil):</b> Yönetim kurulu; kulüp başkanı ve koordinatörlerden oluşur. Üniversite içindeki etkinlik planlamaları yönetim kurulu tarafından kararlaştırılır. Seni şimdi tüzük bölümüne kaydırıyorum.",
-                action: 'tüzük'
-            };
-        }
-        if (contains(['tüzük', 'tuzuk', 'kural', 'ilkeler', 'madde', 'tüzüğü'])) {
-            return {
-                text: "Gedik MYGK Resmi Tüzüğü 4 ana maddeden oluşur: Amaç, Üyelik, Eğitim ve Yönetim ilkeleri. Seni hemen sayfanın <b>Kulüp Tüzüğü</b> (Kurallar ve İlkeler) bölümüne yönlendiriyorum.",
-                action: 'tüzük'
-            };
-        }
-
-        // 2. Üyelik ve Kayıt
-        if (contains(['üye', 'kayıt', 'nasıl katılırım', 'katılmak', 'başvuru', 'form', 'başvurusu'])) {
-            return {
-                text: "Kulübümüze katılım tamamen ücretsizdir! Seni şimdi ana sayfadaki <b>Topluluğa Katıl / Kayıt Ol</b> başvuru formuna yönlendiriyorum.",
-                action: 'kayıt'
-            };
-        }
-
-        // 3. Giriş ve Admin
-        if (contains(['giriş', 'giriş yap', 'oturum', 'admin', 'yönetici'])) {
-            return {
-                text: "Hesabınıza girmek veya Yönetici Paneline erişmek için seni <b>Giriş Yap</b> formuna yönlendiriyorum.",
-                action: 'giriş'
-            };
-        }
-
-        // 4. Yönetim Kurulu
-        if (contains(['başkan', 'kurucu', 'yönetim', 'ekip', 'burak', 'yusuf', 'furkan', 'selin', 'koordinatör'])) {
-            return {
-                text: "Kulübümüzün Başkanı <b>Burak Kaya</b>'dır. Başkan Yardımcılarımız ise <b>Yusuf Furkan Gelişin</b> ve <b>Selin Durdu</b>'dur. Seni şimdi <b>Yönetim Kurulu (Kulüp Ekibimiz)</b> bölümüne kaydırıyorum.",
-                action: 'yönetim'
-            };
-        }
-
-        // 5. Hakkımızda & Vizyon
-        if (contains(['hakkında', 'hakkımızda', 'vizyon', 'misyon', 'biz kimiz', 'amaç'])) {
-            return {
-                text: "Mobil Yazılım Kulübü, geleceğin mobil uygulama ekosistemini inşa edecek geliştiricileri ve tasarımcıları bir araya getiren dinamik bir öğrenci topluluğudur. Seni hemen <b>Vizyonumuz ve Amacımız</b> bölümüne kaydırıyorum.",
-                action: 'hakkımızda'
-            };
-        }
-
-        // 6. Sponsorlar
-        if (contains(['sponsor', 'sponsorship', 'destek', 'ortak'])) {
-            return {
-                text: "Kulübümüzün sponsorları ve iş birliği ortakları hakkında bilgi almak için seni <b>Sponsorlarımız</b> bölümüne kaydırıyorum.",
-                action: 'sponsor'
-            };
-        }
-
-        // 7. İletişim & Konum
-        if (contains(['iletişim', 'adres', 'nerede', 'ulaşım', 'konum', 'yerleşke', 'mail', 'eposta'])) {
-            return {
-                text: "Kulübümüz İstanbul Gedik Üniversitesi Kartal Yerleşkesindedir. E-posta: <b>gedikmobilyazilimkulubu@gmail.com</b>. Seni detaylı adres ve form için <b>İletişim</b> sayfasına yönlendiriyorum.",
-                action: 'iletişim'
-            };
-        }
-
-        // 8. Eğitim & Etkinlikler
-        if (contains(['etkinlik', 'eğitim', 'workshop', 'ders', 'kurs', 'seminer', 'aktivite'])) {
-            return {
-                text: "Kulübümüzde mobil uygulama geliştirme atölyeleri, kodlama eğitimleri ve hackathon çalışmaları düzenlenmektedir. Güncel tüm etkinliklerimizi incelemek için <a href='etkinlikler.html'>Etkinlikler</a> sayfamıza gidebilirsin.",
-                action: null
-            };
-        }
-
-        // 9. Blog ve Duyurular
-        if (contains(['blog', 'yazı', 'kaynak', 'makale'])) {
-            return {
-                text: "Üyelerimizin ve yönetim ekibimizin mobil yazılım dünyası hakkında paylaştığı en son makaleleri <a href='blog.html'>Blog</a> sayfamızdan okuyabilirsin.",
-                action: null
-            };
-        }
-        if (contains(['duyuru', 'haber', 'ilan'])) {
-            return {
-                text: "Kulübümüzle ilgili en güncel duyuru ve haberlere <a href='duyurular.html'>Duyurular</a> sayfasından erişebilirsin.",
-                action: null
-            };
-        }
-
-        // 10. Greeting & Politeness
-        if (contains(['merhaba', 'selam', 'hey', 'naber', 'günaydın', 'tünaydın', 'salam'])) {
-            return {
-                text: "Merhaba! Ben Gedik MYGK Asistanıyım. Kulübümüz, eğitimlerimiz veya üyelik başvuruları hakkında sana bilgi verebilirim. Nasıl yardımcı olabilirim?",
-                action: null
-            };
-        }
-        if (contains(['teşekkür', 'sağol', 'teşekkürler', 'eyvallah', 'ok', 'tamam'])) {
-            return {
-                text: "Rica ederim! Yardımcı olabildiysem ne mutlu. Gedik MYGK hakkında sormak istediğin başka bir soru olursa her zaman buradayım.",
-                action: null
-            };
-        }
-
-        // Fallback response
-        return {
-            text: "Bu konuda tam bilgim yok ama istersen doğrudan iletişim formunu kullanarak veya <b>gedikmobilyazilimkulubu@gmail.com</b> e-posta adresinden yönetim ekibimize sorularını iletebilirsin. Sana başka bir konuda yardımcı olabilir miyim?",
-            action: null
-        };
     }
 })();
