@@ -1,11 +1,1 @@
-{
-  "rewrites": [
-    { "source": "/basvurular.html", "destination": "/basvurular.html" },
-    { "source": "/basvurular", "destination": "/basvurular.html" },
-    { "source": "/duyurular.html", "destination": "/duyurular.html" },
-    { "source": "/etkinlikler.html", "destination": "/etkinlikler.html" },
-    { "source": "/blog.html", "destination": "/blog.html" },
-    { "source": "/iletisim.html", "destination": "/iletisim.html" },
-    { "source": "/profil.html", "destination": "/profil.html" }
-  ]
-}
+{}
