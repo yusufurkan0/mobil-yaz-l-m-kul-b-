@@ -811,82 +811,12 @@
                 <button id="logout-btn" class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap</button>
             </header>
 
-            <!-- Navigation Tabs -->
+            <!-- Navigation Tabs for CMS Management -->
             <div class="dashboard-tabs" style="display: flex; gap: 15px; margin-top: 25px; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-                <button class="dash-tab-btn active" data-tab="members" style="background: none; border: none; color: var(--headings-color); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid var(--primary); transition: var(--transition-fast);">Üye Başvuruları</button>
-                <button class="dash-tab-btn" data-tab="events" style="background: none; border: none; color: var(--text-muted); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid transparent; transition: var(--transition-fast);">Etkinlik Yönetimi</button>
+                <button class="dash-tab-btn active" data-tab="events" style="background: none; border: none; color: var(--headings-color); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid var(--primary); transition: var(--transition-fast);">Etkinlik Yönetimi</button>
                 <button class="dash-tab-btn" data-tab="announcements" style="background: none; border: none; color: var(--text-muted); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid transparent; transition: var(--transition-fast);">Duyuru Yönetimi</button>
                 <button class="dash-tab-btn" data-tab="blog" style="background: none; border: none; color: var(--text-muted); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid transparent; transition: var(--transition-fast);">Blog Yönetimi</button>
                 <button class="dash-tab-btn" data-tab="settings" style="background: none; border: none; color: var(--text-muted); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid transparent; transition: var(--transition-fast);">Site İçerik Ayarları (CMS)</button>
-            </div>
-
-            <!-- Tab 1: Member Applications -->
-            <div id="section-members" class="dash-tab-section">
-                <div class="dashboard-stats-grid">
-                    <div id="stat-card-all" class="dash-stat-card card-glow" style="cursor: pointer; transition: all 0.2s ease;">
-                        <span class="stat-icon-wrap purple"><i class="fa-solid fa-users"></i></span>
-                        <div>
-                            <h4 id="dash-total-members">0</h4>
-                            <p>Toplam Başvuru <small style="display:block; font-size: 0.7rem; color: var(--primary);">(Tümünü Göster)</small></p>
-                        </div>
-                    </div>
-                    <div id="stat-card-approved" class="dash-stat-card card-glow" style="cursor: pointer; transition: all 0.2s ease;">
-                        <span class="stat-icon-wrap" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fa-solid fa-user-check"></i></span>
-                        <div>
-                            <h4 id="dash-ios-count">0</h4>
-                            <p>Onaylı Üyeler <small style="display:block; font-size: 0.7rem; color: #10b981;">(Onaylıları Göster)</small></p>
-                        </div>
-                    </div>
-                    <div id="stat-card-pending" class="dash-stat-card card-glow" style="cursor: pointer; transition: all 0.2s ease;">
-                        <span class="stat-icon-wrap" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fa-solid fa-clock-rotate-left"></i></span>
-                        <div>
-                            <h4 id="dash-android-count">0</h4>
-                            <p>Bekleyen Başvurular <small style="display:block; font-size: 0.7rem; color: #f59e0b;">(Bekleyenleri Göster)</small></p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="dashboard-table-card card-glow" style="margin-top: 25px;">
-                    <div class="table-header" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;">
-                        <div>
-                            <h3 style="margin-bottom: 8px;">Başvuru Listesi</h3>
-                            <div class="member-filter-buttons" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <button type="button" class="btn btn-sm member-filter-btn" id="filter-btn-all" data-status="all" style="padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
-                                    <i class="fa-solid fa-layer-group"></i> Tüm Başvurular
-                                </button>
-                                <button type="button" class="btn btn-sm member-filter-btn" id="filter-btn-approved" data-status="approved" style="padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
-                                    <i class="fa-solid fa-circle-check"></i> Onaylanan Üyeler
-                                </button>
-                                <button type="button" class="btn btn-sm member-filter-btn" id="filter-btn-pending" data-status="pending" style="padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
-                                    <i class="fa-solid fa-clock-rotate-left"></i> Bekleyen / Onaylanmamış Başvurular
-                                </button>
-                            </div>
-                        </div>
-                        <div class="table-actions" style="display: flex; gap: 10px; align-items: center;">
-                            <input type="text" id="member-search" placeholder="İsim veya e-posta ile ara...">
-                            <button id="clear-data-btn" class="btn btn-outline btn-sm"><i class="fa-solid fa-trash-can"></i> Sıfırla</button>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="dashboard-table">
-                            <thead>
-                                <tr>
-                                    <th>Ad Soyad</th>
-                                    <th>E-posta</th>
-                                    <th>Şifre</th>
-                                    <th>Bölüm</th>
-                                    <th>İlgi Alanı</th>
-                                    <th>IP & Cihaz Bilgisi</th>
-                                    <th>Durum</th>
-                                    <th>İşlem</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-member-list">
-                                <!-- Members loaded dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
             </div>
 
             <!-- Tab 2: Events Management -->
