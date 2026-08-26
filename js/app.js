@@ -1230,8 +1230,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const memberSearch = document.getElementById('member-search');
     const clearDataBtn = document.getElementById('clear-data-btn');
 
+    let currentAdminMemberStatusFilter = 'all';
+
     // Render table rows and stats counters (Supports Asynchronous Firestore fetch)
-    async function renderDashboardTable(filterText = '', forceFetch = false) {
+    async function renderDashboardTable(filterText = '', forceFetch = false, statusFilter = currentAdminMemberStatusFilter) {
+        currentAdminMemberStatusFilter = statusFilter;
         const listContainer = document.getElementById('admin-member-list');
         if (!listContainer) return;
 
@@ -1242,26 +1245,28 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 2. Calculate Dashboard Stats based on ALL members in memory (not just filtered search matches)
         let total = 0;
-        let ios = 0;
-        let android = 0;
         let approvedCount = 0;
+        let pendingCount = 0;
 
         dbMembers.forEach(m => {
             total++;
             if (m.status === 'approved') approvedCount++;
-            if (m.track) {
-                const tracks = m.track.split(',');
-                tracks.forEach(trackKey => {
-                    if (trackKey === 'ios') ios++;
-                    else if (trackKey === 'android') android++;
-                });
-            }
+            else pendingCount++;
         });
 
         // Write Stats to UI
-        document.getElementById('dash-total-members').innerText = total;
-        document.getElementById('dash-ios-count').innerText = approvedCount; // reuse for approved count
-        document.getElementById('dash-android-count').innerText = total - approvedCount; // reuse for pending count
+        if (document.getElementById('dash-total-members')) document.getElementById('dash-total-members').innerText = total;
+        if (document.getElementById('dash-ios-count')) document.getElementById('dash-ios-count').innerText = approvedCount;
+        if (document.getElementById('dash-android-count')) document.getElementById('dash-android-count').innerText = pendingCount;
+
+        // Highlight active stat card filter
+        const cardAll = document.getElementById('stat-card-all');
+        const cardApproved = document.getElementById('stat-card-approved');
+        const cardPending = document.getElementById('stat-card-pending');
+
+        if (cardAll) cardAll.style.border = statusFilter === 'all' ? '2px solid var(--primary)' : '1px solid var(--border-color)';
+        if (cardApproved) cardApproved.style.border = statusFilter === 'approved' ? '2px solid #10b981' : '1px solid var(--border-color)';
+        if (cardPending) cardPending.style.border = statusFilter === 'pending' ? '2px solid #f59e0b' : '1px solid var(--border-color)';
 
         // Sync total approved members count to CMS settings doc in Firestore so anonymous users can read it securely
         if (useFirebase && db && sessionStorage.getItem('admin_logged_in') === 'true') {
@@ -1271,15 +1276,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const currentSettings = getLocalStorageSettings();
                 currentSettings.totalMembers = approvedCount;
                 localStorage.setItem('myk_site_settings', JSON.stringify(currentSettings));
-                console.log("Synced totalMembers count to CMS:", approvedCount);
             }).catch(err => console.error("Failed to sync totalMembers count to CMS:", err));
         }
 
-        // 3. Filter members for search display
+        // 3. Filter members for search display & status filter
         const filtered = dbMembers.filter(m => {
             const matchesText = m.name.toLowerCase().includes(filterText.toLowerCase()) || 
                                 m.email.toLowerCase().includes(filterText.toLowerCase());
-            return matchesText;
+            let matchesStatus = true;
+            if (statusFilter === 'approved') matchesStatus = (m.status === 'approved');
+            else if (statusFilter === 'pending') matchesStatus = (m.status === 'pending');
+
+            return matchesText && matchesStatus;
         });
 
         if (filtered.length === 0) {
@@ -1348,6 +1356,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 const id = elem.getAttribute('data-id');
                 openAdminMemberDetail(id);
             });
+        });
+    }
+
+    // Attach click listeners to Stat Cards for instant status filtering
+    const statCardAll = document.getElementById('stat-card-all');
+    const statCardApproved = document.getElementById('stat-card-approved');
+    const statCardPending = document.getElementById('stat-card-pending');
+
+    if (statCardAll) {
+        statCardAll.addEventListener('click', () => {
+            renderDashboardTable(memberSearch ? memberSearch.value : '', false, 'all');
+        });
+    }
+    if (statCardApproved) {
+        statCardApproved.addEventListener('click', () => {
+            renderDashboardTable(memberSearch ? memberSearch.value : '', false, 'approved');
+        });
+    }
+    if (statCardPending) {
+        statCardPending.addEventListener('click', () => {
+            renderDashboardTable(memberSearch ? memberSearch.value : '', false, 'pending');
         });
     }
 

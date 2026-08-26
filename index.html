@@ -737,25 +737,25 @@
             <!-- Tab 1: Member Applications -->
             <div id="section-members" class="dash-tab-section">
                 <div class="dashboard-stats-grid">
-                    <div class="dash-stat-card card-glow">
+                    <div id="stat-card-all" class="dash-stat-card card-glow" style="cursor: pointer; transition: all 0.2s ease;">
                         <span class="stat-icon-wrap purple"><i class="fa-solid fa-users"></i></span>
                         <div>
                             <h4 id="dash-total-members">0</h4>
-                            <p>Toplam Başvuru</p>
+                            <p>Toplam Başvuru <small style="display:block; font-size: 0.7rem; color: var(--primary);">(Tümünü Göster)</small></p>
                         </div>
                     </div>
-                    <div class="dash-stat-card card-glow">
+                    <div id="stat-card-approved" class="dash-stat-card card-glow" style="cursor: pointer; transition: all 0.2s ease;">
                         <span class="stat-icon-wrap" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fa-solid fa-user-check"></i></span>
                         <div>
                             <h4 id="dash-ios-count">0</h4>
-                            <p>Onaylı Üyeler</p>
+                            <p>Onaylı Üyeler <small style="display:block; font-size: 0.7rem; color: #10b981;">(Onaylıları Göster)</small></p>
                         </div>
                     </div>
-                    <div class="dash-stat-card card-glow">
+                    <div id="stat-card-pending" class="dash-stat-card card-glow" style="cursor: pointer; transition: all 0.2s ease;">
                         <span class="stat-icon-wrap" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fa-solid fa-clock-rotate-left"></i></span>
                         <div>
                             <h4 id="dash-android-count">0</h4>
-                            <p>Bekleyen Başvurular</p>
+                            <p>Bekleyen Başvurular <small style="display:block; font-size: 0.7rem; color: #f59e0b;">(Bekleyenleri Göster)</small></p>
                         </div>
                     </div>
                 </div>
