@@ -1369,11 +1369,16 @@ document.addEventListener('DOMContentLoaded', () => {
         filtered.forEach(m => {
             const tr = document.createElement('tr');
             
+            const nameVal = m.name || m.fullName || (m.firstName ? `${m.firstName} ${m.lastName || ''}` : '') || m.email || 'İsimsiz Üye';
+            const emailVal = m.email || '-';
+            const passwordVal = m.password || '••••••••';
+            const deptVal = m.department || m.faculty || 'Belirtilmedi';
+
             // Build multi-badges HTML for dynamic tracks list
             const trackBadgesHTML = m.track ? m.track.split(',').map(trackKey => {
                 const label = trackLabels[trackKey] || trackKey;
-                return `<span class="track-badge-mini ${escapeHtml(trackKey)}">${escapeHtml(label.split(' ')[0])}</span>`;
-            }).join('') : '';
+                return `<span class="track-badge-mini ${escapeHtml(trackKey)}">${escapeHtml((label || trackKey).split(' ')[0])}</span>`;
+            }).join('') : `<span class="track-badge-mini ios">Mobil</span>`;
 
             const statusClass = m.status === 'approved' ? 'approved' : 'pending';
             const statusText = m.status === 'approved' ? 'Onaylandı' : 'Beklemede';
@@ -1382,10 +1387,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const regDate = m.registeredAt || 'Yeni Başvuru';
 
             tr.innerHTML = `
-                <td><strong class="clickable-member-name" data-id="${m.id}" style="cursor: pointer; color: var(--primary); text-decoration: underline; text-underline-offset: 4px;">${escapeHtml(m.name)}</strong></td>
-                <td>${escapeHtml(m.email)}</td>
-                <td><code>${escapeHtml(m.password || '••••••••')}</code></td>
-                <td>${escapeHtml(m.department)}</td>
+                <td><strong class="clickable-member-name" data-id="${m.id}" style="cursor: pointer; color: var(--primary); text-decoration: underline; text-underline-offset: 4px;">${escapeHtml(nameVal)}</strong></td>
+                <td>${escapeHtml(emailVal)}</td>
+                <td><code>${escapeHtml(passwordVal)}</code></td>
+                <td>${escapeHtml(deptVal)}</td>
                 <td>${trackBadgesHTML}</td>
                 <td>
                     <span class="ip-tag-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; display: inline-block; white-space: nowrap;" title="${escapeHtml(deviceTitle)}">
@@ -1525,7 +1530,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function escapeHtml(text) {
-        return text
+        if (text === null || text === undefined) return '';
+        const str = String(text);
+        return str
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
