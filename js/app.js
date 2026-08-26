@@ -1279,7 +1279,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (filtered.length === 0) {
-            listContainer.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px;">Kayıt bulunamadı.</td></tr>`;
+            listContainer.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 30px;">Kayıt bulunamadı.</td></tr>`;
             return;
         }
 
@@ -1294,8 +1294,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const statusClass = m.status === 'approved' ? 'approved' : 'pending';
             const statusText = m.status === 'approved' ? 'Onaylandı' : 'Beklemede';
-            const ipDisplay = m.ipAddress || m.ip || 'Tespit Edilmedi';
+            const ipDisplay = m.ipAddress || m.ip || 'Tespit Ediliyor...';
             const deviceTitle = m.userAgent || 'Tarayıcı / Cihaz Bilgisi';
+            const regDate = m.registeredAt || 'Yeni Başvuru';
 
             tr.innerHTML = `
                 <td><strong class="clickable-member-name" data-id="${m.id}" style="cursor: pointer; color: var(--primary); text-decoration: underline; text-underline-offset: 4px;">${escapeHtml(m.name)}</strong></td>
@@ -1304,12 +1305,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${escapeHtml(m.department)}</td>
                 <td>${trackBadgesHTML}</td>
                 <td>
-                    <span class="status-badge ${statusClass}">${statusText}</span>
+                    <span class="ip-tag-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; display: inline-block; white-space: nowrap;" title="${escapeHtml(deviceTitle)}">
+                        <i class="fa-solid fa-network-wired"></i> ${escapeHtml(ipDisplay)}
+                    </span>
                     <br/>
-                    <small style="color: var(--text-muted); font-size: 0.72rem; margin-top: 4px; display: inline-block;" title="${escapeHtml(deviceTitle)}">
-                        <i class="fa-solid fa-network-wired"></i> IP: ${escapeHtml(ipDisplay)}
+                    <small style="color: var(--text-muted); font-size: 0.7rem; margin-top: 4px; display: inline-block; white-space: nowrap;">
+                        <i class="fa-regular fa-clock"></i> ${escapeHtml(regDate)}
                     </small>
                 </td>
+                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                 <td>
                     ${m.status === 'pending' ? `<button class="table-btn btn-approve" data-id="${m.id}" title="Onayla"><i class="fa-solid fa-circle-check"></i></button>` : ''}
                     <button class="table-btn btn-delete" data-id="${m.id}" title="Sil"><i class="fa-solid fa-trash-can"></i></button>
