@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadMembers(forceFetch = false) {
         if (dbMembers.length === 0 || forceFetch) {
-            let success = false;
+            let fetchedFromFirestore = false;
             if (useFirebase && db) {
                 try {
                     const fetchPromise = db.collection('applicants').get();
@@ -97,22 +97,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         members.push({ id: doc.id, ...data });
                     });
                     
-                    dbMembers = members;
-                    saveLocalStorageMembers(dbMembers); // Sync to local cache
-                    success = true;
-                    console.log("Members loaded from Firestore successfully:", dbMembers.length);
-                } catch (err) {
-                    console.error("Firestore read failed, falling back to local storage:", err);
-                    // If permissions prevent reading applicants (e.g. anonymous visitor), don't treat it as database failure, treat as lack of access
-                    if (err.code === 'permission-denied' || err.message.includes('permission-denied') || err.message.includes('Permission')) {
-                        dbMembers = [];
-                        success = true; // Mark as success so we don't load default mock data
+                    if (members.length > 0) {
+                        dbMembers = members;
+                        saveLocalStorageMembers(dbMembers); // Sync to local cache
+                        fetchedFromFirestore = true;
+                        console.log("Members loaded from Firestore successfully:", dbMembers.length);
                     }
+                } catch (err) {
+                    console.warn("Firestore applicants read restricted or offline, preserving local storage cache:", err);
                 }
             }
             
-            if (!success) {
-                dbMembers = getLocalStorageMembers();
+            // If Firestore didn't return members, ALWAYS fallback to getLocalStorageMembers()
+            if (!fetchedFromFirestore) {
+                const local = getLocalStorageMembers();
+                if (local && local.length > 0) {
+                    dbMembers = local;
+                }
             }
         }
         return dbMembers;
@@ -772,12 +773,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 7. Admin Panel & Member Management System (Local/Firebase Compatible) ---
 
-    // Initial mock data
+    // Initial mock data with real members and IP tracking fields
     const initialMockMembers = [
-        { id: 101, name: "Ahmet Yılmaz", email: "ahmet.yilmaz@posta.com", password: "123456ahmet", department: "Yazılım Mühendisliği", track: "ios", status: "pending" },
-        { id: 102, name: "Elif Kaya", email: "elif.kaya@outlook.com", password: "elifpasswords", department: "Bilgisayar Mühendisliği", track: "ios", status: "approved" },
-        { id: 103, name: "Can Demir", email: "can.demir@gmail.com", password: "candemirpass", department: "Yönetim Bilişim Sistemleri (YBS)", track: "android", status: "pending" },
-        { id: 104, name: "Selin Öztürk", email: "selin.ozturk@gmail.com", password: "selinozturk1", department: "Endüstri Mühendisliği", track: "android", status: "approved" }
+        { id: "231017034@stu.gedik.edu.tr", name: "burak kaya", email: "231017034@stu.gedik.edu.tr", password: "burak123456", department: "Endüstri Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.12", userAgent: "Chrome 122 / Windows 11", registeredAt: "24 Ağustos 2026, 11:20" },
+        { id: "241047003@stu.gedik.edu.tr", name: "Daghan Aslan", email: "241047003@stu.gedik.edu.tr", password: "furkangelisin", department: "Yazılım Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.15", userAgent: "Safari 17 / macOS", registeredAt: "24 Ağustos 2026, 11:25" },
+        { id: "251017006@stu.gedik.edu.tr", name: "Selin Durdu", email: "251017006@stu.gedik.edu.tr", password: "selin.Dbjk29", department: "Endüstri Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.18", userAgent: "Chrome 122 / Windows 10", registeredAt: "24 Ağustos 2026, 11:30" },
+        { id: "251017017@stu.gedik.edu.tr", name: "melike terzi", email: "251017017@stu.gedik.edu.tr", password: "melike001", department: "Endüstri Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.20", userAgent: "Safari / iOS Mobile", registeredAt: "24 Ağustos 2026, 11:35" },
+        { id: "101", name: "Ahmet Yılmaz", email: "ahmet.yilmaz@posta.com", password: "123456ahmet", department: "Yazılım Mühendisliği", track: "ios", status: "pending", ipAddress: "176.234.12.89", userAgent: "Chrome 121 / Android", registeredAt: "25 Ağustos 2026, 09:15" },
+        { id: "102", name: "Elif Kaya", email: "elif.kaya@outlook.com", password: "elifpasswords", department: "Bilgisayar Mühendisliği", track: "ios", status: "approved", ipAddress: "176.234.12.90", userAgent: "Safari / iPhone", registeredAt: "25 Ağustos 2026, 10:00" },
+        { id: "103", name: "Can Demir", email: "can.demir@gmail.com", password: "candemirpass", department: "Yönetim Bilişim Sistemleri (YBS)", track: "android", status: "pending", ipAddress: "185.220.101.5", userAgent: "Tor Browser / Bot Script", registeredAt: "26 Ağustos 2026, 08:30" }
     ];
 
     function getLocalStorageMembers() {
