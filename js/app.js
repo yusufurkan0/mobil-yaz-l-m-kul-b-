@@ -99,7 +99,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     if (members.length > 0) {
                         dbMembers = members;
-                        saveLocalStorageMembers(dbMembers); // Sync to local cache
+                        // Merge local members that are not in Firestore by email/id
+                        const local = getLocalStorageMembers();
+                        local.forEach(locMem => {
+                            if (!dbMembers.some(m => (m.email && locMem.email && m.email.toLowerCase() === locMem.email.toLowerCase()) || m.id === locMem.id)) {
+                                dbMembers.push(locMem);
+                            }
+                        });
+                        saveLocalStorageMembers(dbMembers);
                         fetchedFromFirestore = true;
                         console.log("Members loaded from Firestore successfully:", dbMembers.length);
                     }
@@ -109,11 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // If Firestore didn't return members, ALWAYS fallback to getLocalStorageMembers()
-            if (!fetchedFromFirestore) {
-                const local = getLocalStorageMembers();
-                if (local && local.length > 0) {
-                    dbMembers = local;
-                }
+            if (!fetchedFromFirestore || dbMembers.length === 0) {
+                dbMembers = getLocalStorageMembers();
             }
         }
         return dbMembers;
@@ -786,11 +790,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getLocalStorageMembers() {
         const stored = localStorage.getItem('myk_members');
-        if (!stored) {
+        if (!stored || stored === '[]') {
             localStorage.setItem('myk_members', JSON.stringify(initialMockMembers));
-            return initialMockMembers;
+            return [...initialMockMembers];
         }
-        return JSON.parse(stored);
+        try {
+            const parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed) || parsed.length === 0) {
+                localStorage.setItem('myk_members', JSON.stringify(initialMockMembers));
+                return [...initialMockMembers];
+            }
+            return parsed;
+        } catch (e) {
+            localStorage.setItem('myk_members', JSON.stringify(initialMockMembers));
+            return [...initialMockMembers];
+        }
     }
 
     function saveLocalStorageMembers(members) {
@@ -1259,7 +1273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.getElementById('dash-ios-count')) document.getElementById('dash-ios-count').innerText = approvedCount;
         if (document.getElementById('dash-android-count')) document.getElementById('dash-android-count').innerText = pendingCount;
 
-        // Highlight active stat card filter
+        // Highlight active stat card & filter buttons
         const cardAll = document.getElementById('stat-card-all');
         const cardApproved = document.getElementById('stat-card-approved');
         const cardPending = document.getElementById('stat-card-pending');
@@ -1267,6 +1281,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cardAll) cardAll.style.border = statusFilter === 'all' ? '2px solid var(--primary)' : '1px solid var(--border-color)';
         if (cardApproved) cardApproved.style.border = statusFilter === 'approved' ? '2px solid #10b981' : '1px solid var(--border-color)';
         if (cardPending) cardPending.style.border = statusFilter === 'pending' ? '2px solid #f59e0b' : '1px solid var(--border-color)';
+
+        const btnAll = document.getElementById('filter-btn-all');
+        const btnApproved = document.getElementById('filter-btn-approved');
+        const btnPending = document.getElementById('filter-btn-pending');
+
+        if (btnAll) {
+            btnAll.style.background = statusFilter === 'all' ? 'var(--primary)' : 'rgba(255, 255, 255, 0.05)';
+            btnAll.style.color = statusFilter === 'all' ? '#fff' : 'var(--text-muted)';
+            btnAll.style.borderColor = statusFilter === 'all' ? 'var(--primary)' : 'var(--border-color)';
+        }
+        if (btnApproved) {
+            btnApproved.style.background = statusFilter === 'approved' ? '#10b981' : 'rgba(16, 185, 129, 0.1)';
+            btnApproved.style.color = statusFilter === 'approved' ? '#fff' : '#10b981';
+            btnApproved.style.borderColor = statusFilter === 'approved' ? '#10b981' : 'rgba(16, 185, 129, 0.3)';
+        }
+        if (btnPending) {
+            btnPending.style.background = statusFilter === 'pending' ? '#f59e0b' : 'rgba(245, 158, 11, 0.1)';
+            btnPending.style.color = statusFilter === 'pending' ? '#fff' : '#f59e0b';
+            btnPending.style.borderColor = statusFilter === 'pending' ? '#f59e0b' : 'rgba(245, 158, 11, 0.3)';
+        }
 
         // Sync total approved members count to CMS settings doc in Firestore so anonymous users can read it securely
         if (useFirebase && db && sessionStorage.getItem('admin_logged_in') === 'true') {
@@ -1359,11 +1393,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Attach robust Event Delegation for Stat Card clicks (catches clicks on icons, text, and subtext)
+    // Attach robust Event Delegation for Stat Card clicks & Filter Buttons (catches clicks on icons, text, subtext, buttons)
     document.addEventListener('click', (e) => {
-        const cardAll = e.target.closest('#stat-card-all');
-        const cardApproved = e.target.closest('#stat-card-approved');
-        const cardPending = e.target.closest('#stat-card-pending');
+        const cardAll = e.target.closest('#stat-card-all, #filter-btn-all');
+        const cardApproved = e.target.closest('#stat-card-approved, #filter-btn-approved');
+        const cardPending = e.target.closest('#stat-card-pending, #filter-btn-pending');
 
         if (cardAll) {
             renderDashboardTable(memberSearch ? memberSearch.value : '', false, 'all');

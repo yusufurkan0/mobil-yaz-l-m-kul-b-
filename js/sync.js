@@ -15,10 +15,8 @@
         document.body.classList.add('dark-theme');
     }
 
-    // Mobile hamburger menu toggle handler for subpages
+    // Mobile hamburger menu toggle handler & Admin Toolbar sync for subpages
     document.addEventListener('DOMContentLoaded', () => {
-
-        // Mobile hamburger menu toggle handler for subpages
         const menuToggle = document.getElementById('menu-toggle');
         const navMenu = document.getElementById('nav-menu');
         if (menuToggle && navMenu) {
@@ -27,6 +25,31 @@
                 navMenu.classList.toggle('open');
                 document.body.classList.toggle('no-scroll');
             });
+        }
+
+        // Admin session handling on subpages
+        if (sessionStorage.getItem('admin_logged_in') === 'true') {
+            const adminToolbar = document.getElementById('admin-toolbar');
+            if (adminToolbar) {
+                adminToolbar.classList.remove('hidden');
+                document.body.classList.add('admin-mode-active');
+            }
+            
+            const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
+            toolbarBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const target = btn.getAttribute('data-target');
+                    window.location.href = `index.html?admin_target=${target}`;
+                });
+            });
+            
+            const logoutBtn = document.getElementById('admin-toolbar-logout');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    sessionStorage.removeItem('admin_logged_in');
+                    window.location.reload();
+                });
+            }
         }
     });
 

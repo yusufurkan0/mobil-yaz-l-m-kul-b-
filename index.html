@@ -761,9 +761,22 @@
                 </div>
 
                 <div class="dashboard-table-card card-glow" style="margin-top: 25px;">
-                    <div class="table-header">
-                        <h3>Başvuru Listesi</h3>
-                        <div class="table-actions">
+                    <div class="table-header" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;">
+                        <div>
+                            <h3 style="margin-bottom: 8px;">Başvuru Listesi</h3>
+                            <div class="member-filter-buttons" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button type="button" class="btn btn-sm member-filter-btn" id="filter-btn-all" data-status="all" style="padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+                                    <i class="fa-solid fa-layer-group"></i> Tüm Başvurular
+                                </button>
+                                <button type="button" class="btn btn-sm member-filter-btn" id="filter-btn-approved" data-status="approved" style="padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
+                                    <i class="fa-solid fa-circle-check"></i> Onaylanan Üyeler
+                                </button>
+                                <button type="button" class="btn btn-sm member-filter-btn" id="filter-btn-pending" data-status="pending" style="padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
+                                    <i class="fa-solid fa-clock-rotate-left"></i> Bekleyen / Onaylanmamış Başvurular
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-actions" style="display: flex; gap: 10px; align-items: center;">
                             <input type="text" id="member-search" placeholder="İsim veya e-posta ile ara...">
                             <button id="clear-data-btn" class="btn btn-outline btn-sm"><i class="fa-solid fa-trash-can"></i> Sıfırla</button>
                         </div>
