@@ -1359,26 +1359,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Attach click listeners to Stat Cards for instant status filtering
-    const statCardAll = document.getElementById('stat-card-all');
-    const statCardApproved = document.getElementById('stat-card-approved');
-    const statCardPending = document.getElementById('stat-card-pending');
+    // Attach robust Event Delegation for Stat Card clicks (catches clicks on icons, text, and subtext)
+    document.addEventListener('click', (e) => {
+        const cardAll = e.target.closest('#stat-card-all');
+        const cardApproved = e.target.closest('#stat-card-approved');
+        const cardPending = e.target.closest('#stat-card-pending');
 
-    if (statCardAll) {
-        statCardAll.addEventListener('click', () => {
+        if (cardAll) {
             renderDashboardTable(memberSearch ? memberSearch.value : '', false, 'all');
-        });
-    }
-    if (statCardApproved) {
-        statCardApproved.addEventListener('click', () => {
+        } else if (cardApproved) {
             renderDashboardTable(memberSearch ? memberSearch.value : '', false, 'approved');
-        });
-    }
-    if (statCardPending) {
-        statCardPending.addEventListener('click', () => {
+        } else if (cardPending) {
             renderDashboardTable(memberSearch ? memberSearch.value : '', false, 'pending');
-        });
-    }
+        }
+    });
 
     // --- Admin Member Detail Modal Logic ---
     const adminMemberDetailModal = document.getElementById('admin-member-detail-modal');
