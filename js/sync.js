@@ -39,7 +39,11 @@
             toolbarBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const target = btn.getAttribute('data-target');
-                    window.location.href = `index.html?admin_target=${target}`;
+                    if (target === 'members') {
+                        window.location.href = 'basvurular.html';
+                    } else {
+                        window.location.href = `index.html?admin_target=${target}`;
+                    }
                 });
             });
             

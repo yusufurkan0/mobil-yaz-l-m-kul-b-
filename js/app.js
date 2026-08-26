@@ -2934,6 +2934,10 @@ document.addEventListener('DOMContentLoaded', () => {
     toolbarBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const targetTab = btn.getAttribute('data-target');
+            if (targetTab === 'members') {
+                window.location.href = 'basvurular.html';
+                return;
+            }
             
             // Trigger tab button click inside dashboard
             const dashboardTabBtn = document.querySelector(`.dash-tab-btn[data-tab="${targetTab}"]`);
