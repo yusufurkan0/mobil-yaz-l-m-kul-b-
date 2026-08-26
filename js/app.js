@@ -644,6 +644,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const grade = document.getElementById('user-grade').value;
                 const birthdate = document.getElementById('user-birthdate').value;
 
+                // Capture IP address and User-Agent metadata for security tracking
+                let clientIP = 'Tespit Ediliyor...';
+                try {
+                    fetch('https://api.ipify.org?format=json')
+                        .then(r => r.json())
+                        .then(d => { if (d && d.ip) pendingMemberData.ipAddress = d.ip; })
+                        .catch(e => console.warn("IP fetch fallback:", e));
+                } catch (e) {}
+
                 // Cache data (Defaults tracks to 'ios' for mobile club classification)
                 pendingMemberData = {
                     id: email.trim().toLowerCase(),
@@ -658,7 +667,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     birthdate: birthdate,
                     password: password,
                     track: 'ios',
-                    status: 'pending'
+                    status: 'pending',
+                    ipAddress: clientIP,
+                    userAgent: navigator.userAgent || 'Bilinmeyen Cihaz',
+                    registeredAt: new Date().toLocaleString('tr-TR')
                 };
 
                 // Generate code
@@ -731,6 +743,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         password: pendingMemberData.password || '',
                         track: pendingMemberData.track,
                         status: pendingMemberData.status,
+                        ipAddress: pendingMemberData.ipAddress || 'Bilinmiyor',
+                        userAgent: pendingMemberData.userAgent || 'Bilinmiyor',
+                        registeredAt: pendingMemberData.registeredAt || new Date().toLocaleString('tr-TR'),
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     }).then(() => {
                         console.log("Background Firestore save succeeded!");
@@ -1279,6 +1294,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const statusClass = m.status === 'approved' ? 'approved' : 'pending';
             const statusText = m.status === 'approved' ? 'Onaylandı' : 'Beklemede';
+            const ipDisplay = m.ipAddress || m.ip || 'Tespit Edilmedi';
+            const deviceTitle = m.userAgent || 'Tarayıcı / Cihaz Bilgisi';
 
             tr.innerHTML = `
                 <td><strong class="clickable-member-name" data-id="${m.id}" style="cursor: pointer; color: var(--primary); text-decoration: underline; text-underline-offset: 4px;">${escapeHtml(m.name)}</strong></td>
@@ -1286,7 +1303,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><code>${escapeHtml(m.password || '••••••••')}</code></td>
                 <td>${escapeHtml(m.department)}</td>
                 <td>${trackBadgesHTML}</td>
-                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                <td>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                    <br/>
+                    <small style="color: var(--text-muted); font-size: 0.72rem; margin-top: 4px; display: inline-block;" title="${escapeHtml(deviceTitle)}">
+                        <i class="fa-solid fa-network-wired"></i> IP: ${escapeHtml(ipDisplay)}
+                    </small>
+                </td>
                 <td>
                     ${m.status === 'pending' ? `<button class="table-btn btn-approve" data-id="${m.id}" title="Onayla"><i class="fa-solid fa-circle-check"></i></button>` : ''}
                     <button class="table-btn btn-delete" data-id="${m.id}" title="Sil"><i class="fa-solid fa-trash-can"></i></button>
