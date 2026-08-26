@@ -603,6 +603,24 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = true;
             submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gönderiliyor...`;
 
+            const emailInputVal = document.getElementById('user-email').value.trim().toLowerCase();
+            const emailCheckRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailCheckRegex.test(emailInputVal)) {
+                alert("Lütfen geçerli bir e-posta adresi giriniz!");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `Hesap Oluştur`;
+                return;
+            }
+
+            const disposableDomains = ['tempmail.com', '10minutemail.com', 'yopmail.com', 'mailinator.com', 'temp-mail.org', 'guerrillamail.com', 'sharklasers.com', 'dispostable.com', 'getairmail.com', 'boun.cr', 'tempmail.net', 'tempmailaddress.com', 'trashmail.com'];
+            const regDomain = emailInputVal.split('@')[1] ? emailInputVal.split('@')[1].toLowerCase() : '';
+            if (disposableDomains.includes(regDomain)) {
+                alert("Geçici veya tek kullanımlık e-posta adresleri kabul edilmemektedir.");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `Hesap Oluştur`;
+                return;
+            }
+
             // Validate passwords match
             const password = document.getElementById('user-password').value.trim();
             const passwordConfirm = document.getElementById('user-password-confirm').value.trim();
@@ -1548,6 +1566,29 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'profil.html';
     }
 
+    // Rate limiter helper for login attempts
+    const AuthRateLimiter = {
+        attempts: {},
+        check: function(key, maxAttempts = 5, windowMs = 180000) {
+            const now = Date.now();
+            if (!this.attempts[key]) this.attempts[key] = [];
+            this.attempts[key] = this.attempts[key].filter(t => now - t < windowMs);
+            if (this.attempts[key].length >= maxAttempts) {
+                const oldest = this.attempts[key][0];
+                const remainingSec = Math.ceil((windowMs - (now - oldest)) / 1000);
+                return { locked: true, remainingSec: remainingSec };
+            }
+            return { locked: false };
+        },
+        record: function(key) {
+            if (!this.attempts[key]) this.attempts[key] = [];
+            this.attempts[key].push(Date.now());
+        },
+        reset: function(key) {
+            delete this.attempts[key];
+        }
+    };
+
     // Member login form submit
     const memberLoginForm = document.getElementById('member-login-form');
     if (memberLoginForm) {
@@ -1557,6 +1598,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('member-password').value.trim();
             const submitBtn = memberLoginForm.querySelector('button[type="submit"]');
             const originalText = submitBtn ? submitBtn.innerHTML : "Giriş Yap";
+
+            // Brute force rate limit check
+            const loginKey = 'member_login_' + email;
+            const rateCheck = AuthRateLimiter.check(loginKey, 5, 180000);
+            if (rateCheck.locked) {
+                alert(`Çok fazla hatalı giriş denemesi yapıldı. Güvenlik nedeniyle lütfen ${rateCheck.remainingSec} saniye bekleyin.`);
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+                return;
+            }
 
             if (submitBtn) {
                 submitBtn.disabled = true;
@@ -1624,6 +1677,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (foundMember) {
+                    AuthRateLimiter.reset(loginKey);
                     loginModal.classList.add('hidden');
                     sessionStorage.setItem('member_logged_in_email', email);
                     
@@ -1634,9 +1688,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     memberLoginForm.reset();
                     showMemberDashboard(foundMember);
                 } else {
+                    AuthRateLimiter.record(loginKey);
                     if (memberLoginError) memberLoginError.classList.remove('hidden');
                 }
             } catch (err) {
+                AuthRateLimiter.record(loginKey);
                 console.error("Login verification failed:", err);
                 if (memberLoginError) memberLoginError.classList.remove('hidden');
             } finally {
@@ -2063,6 +2119,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const email = document.getElementById('admin-email').value.trim();
             const pass = document.getElementById('admin-password').value;
 
+            const adminKey = 'admin_login_attempts';
+            const rateCheck = AuthRateLimiter.check(adminKey, 5, 180000);
+            if (rateCheck.locked) {
+                alert(`Çok fazla hatalı admin girişi yapıldı. Güvenlik nedeniyle lütfen ${rateCheck.remainingSec} saniye bekleyin.`);
+                return;
+            }
+
             // Submit button loading state
             const submitBtn = adminLoginForm.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
@@ -2073,6 +2136,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Secure Firebase Auth Authentication
                 firebase.auth().signInWithEmailAndPassword(email, pass)
                     .then((userCredential) => {
+                        AuthRateLimiter.reset(adminKey);
                         loginModal.classList.add('hidden');
                         sessionStorage.setItem('admin_logged_in', 'true'); // Save session state
                         enableAdminMode();
@@ -2080,6 +2144,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         adminLoginForm.reset();
                     })
                     .catch((error) => {
+                        AuthRateLimiter.record(adminKey);
                         console.error("Firebase Admin Authentication failed:", error);
                         if (loginError) loginError.classList.remove('hidden');
                     })

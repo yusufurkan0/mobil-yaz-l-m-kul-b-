@@ -61,8 +61,9 @@
 
         // 2. Script / HTML Enjeksiyon Koruması
         const scriptPatterns = [
-            /<script/i, /javascript:/i, /onerror=/i, /onload=/i, /onclick=/i,
-            /<iframe/i, /<object/i, /<embed/i, /eval\(/i, /document\.cookie/i
+            /<script/i, /javascript:/i, /onerror=/i, /onload=/i, /onclick=/i, /onmouseover=/i, /onfocus=/i,
+            /<iframe/i, /<object/i, /<embed/i, /eval\(/i, /document\.cookie/i, /localStorage\./i, /sessionStorage\./i,
+            /data:text\/html/i, /srcdoc=/i, /alert\(/i, /fetch\(/i, /xmlhttprequest/i
         ];
         for (const pattern of scriptPatterns) {
             if (pattern.test(input)) {
