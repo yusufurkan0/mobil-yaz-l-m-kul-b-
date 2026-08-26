@@ -119,43 +119,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function loadMembers(forceFetch = false) {
-        if (dbMembers.length === 0 || forceFetch) {
-            let fetchedFromFirestore = false;
-            if (useFirebase && db) {
-                try {
-                    const fetchPromise = db.collection('applicants').get();
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 4000));
-                    
-                    const snapshot = await Promise.race([fetchPromise, timeoutPromise]);
-                    const members = [];
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        members.push({ id: doc.id, ...data });
+    function loadMembers(forceFetch = false) {
+        if (!Array.isArray(dbMembers) || dbMembers.length === 0 || forceFetch) {
+            dbMembers = getLocalStorageMembers();
+        }
+        
+        if (useFirebase && db && forceFetch) {
+            db.collection('applicants').get().then(snapshot => {
+                const members = [];
+                snapshot.forEach(doc => {
+                    members.push({ id: doc.id, ...doc.data() });
+                });
+                if (members.length > 0) {
+                    const local = getLocalStorageMembers();
+                    local.forEach(locMem => {
+                        if (!members.some(m => (m.email && locMem.email && m.email.toLowerCase() === locMem.email.toLowerCase()) || m.id === locMem.id)) {
+                            members.push(locMem);
+                        }
                     });
-                    
-                    if (members.length > 0) {
-                        dbMembers = members;
-                        // Merge local members that are not in Firestore by email/id
-                        const local = getLocalStorageMembers();
-                        local.forEach(locMem => {
-                            if (!dbMembers.some(m => (m.email && locMem.email && m.email.toLowerCase() === locMem.email.toLowerCase()) || m.id === locMem.id)) {
-                                dbMembers.push(locMem);
-                            }
-                        });
-                        saveLocalStorageMembers(dbMembers);
-                        fetchedFromFirestore = true;
-                        console.log("Members loaded from Firestore successfully:", dbMembers.length);
-                    }
-                } catch (err) {
-                    console.warn("Firestore applicants read restricted or offline, preserving local storage cache:", err);
+                    dbMembers = members;
+                    saveLocalStorageMembers(dbMembers);
+                    renderDashboardTable(getSearchText(), false);
                 }
-            }
-            
-            // If Firestore didn't return members, ALWAYS fallback to getLocalStorageMembers()
-            if (!fetchedFromFirestore || dbMembers.length === 0) {
-                dbMembers = getLocalStorageMembers();
-            }
+            }).catch(err => {
+                console.warn("Firestore applicants background sync notice:", err);
+            });
         }
         return dbMembers;
     }
@@ -1285,16 +1273,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentAdminMemberStatusFilter = 'all';
 
-    // Render table rows and stats counters (Supports Asynchronous Firestore fetch)
-    async function renderDashboardTable(filterText = getSearchText(), forceFetch = false, statusFilter = currentAdminMemberStatusFilter) {
+    // Render table rows and stats counters (Synchronous 0ms Instant Render)
+    function renderDashboardTable(filterText = getSearchText(), forceFetch = false, statusFilter = currentAdminMemberStatusFilter) {
         currentAdminMemberStatusFilter = statusFilter;
         const listContainer = document.getElementById('admin-member-list');
         if (!listContainer) return;
 
         listContainer.innerHTML = '';
         
-        // 1. Fetch only if cache is empty or forceFetch is requested
-        await loadMembers(forceFetch);
+        // 1. Fetch instantly (0ms)
+        loadMembers(forceFetch);
         
         // 2. Calculate Dashboard Stats based on ALL members in memory (not just filtered search matches)
         let total = 0;
