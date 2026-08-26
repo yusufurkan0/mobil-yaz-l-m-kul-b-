@@ -2215,6 +2215,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const adminToolbar = document.getElementById('admin-toolbar');
         if (adminToolbar) adminToolbar.classList.remove('hidden');
         
+        // Show in-page admin applications section if present on page
+        const adminBasvurularSec = document.getElementById('section-admin-basvurular');
+        if (adminBasvurularSec) adminBasvurularSec.classList.remove('hidden');
+
+        // DO NOT open floating modal popup automatically!
+        if (adminDashboard) adminDashboard.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        
         // Show in-page edit triggers
         document.querySelectorAll('.admin-edit-trigger').forEach(btn => {
             btn.classList.remove('hidden');
@@ -2229,6 +2237,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const adminToolbar = document.getElementById('admin-toolbar');
         if (adminToolbar) adminToolbar.classList.add('hidden');
         
+        const adminBasvurularSec = document.getElementById('section-admin-basvurular');
+        if (adminBasvurularSec) adminBasvurularSec.classList.add('hidden');
+
         if (adminDashboard) adminDashboard.classList.add('hidden');
         document.body.style.overflow = 'auto'; // Unlock scroll
         
@@ -2935,7 +2946,14 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
             const targetTab = btn.getAttribute('data-target');
             if (targetTab === 'members') {
-                window.location.href = 'basvurular.html';
+                const adminSec = document.getElementById('section-admin-basvurular');
+                if (adminSec) {
+                    adminSec.classList.remove('hidden');
+                    adminSec.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    window.location.href = 'basvurular.html';
+                }
+                if (adminDashboard) adminDashboard.classList.add('hidden');
                 return;
             }
             
@@ -3171,6 +3189,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const adminTarget = urlParams.get('admin_target');
         if (adminTarget) {
             setTimeout(() => {
+                if (adminTarget === 'members') {
+                    const adminSec = document.getElementById('section-admin-basvurular');
+                    if (adminSec) {
+                        adminSec.classList.remove('hidden');
+                        adminSec.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    if (adminDashboard) adminDashboard.classList.add('hidden');
+                    return;
+                }
                 const dashboardTabBtn = document.querySelector(`.dash-tab-btn[data-tab="${adminTarget}"]`);
                 if (dashboardTabBtn) {
                     dashboardTabBtn.click();
