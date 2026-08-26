@@ -1291,12 +1291,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         dbMembers.forEach(m => {
             total++;
-            if (m.status === 'approved') approvedCount++;
+            const st = (m.status || '').toLowerCase();
+            if (st === 'approved' || st === 'onaylandı' || st === 'onaylandi') approvedCount++;
             else pendingCount++;
         });
 
         // Write Stats to UI
         if (document.getElementById('dash-total-members')) document.getElementById('dash-total-members').innerText = total;
+        if (document.getElementById('dash-approved-count')) document.getElementById('dash-approved-count').innerText = approvedCount;
+        if (document.getElementById('dash-pending-count')) document.getElementById('dash-pending-count').innerText = pendingCount;
         if (document.getElementById('dash-ios-count')) document.getElementById('dash-ios-count').innerText = approvedCount;
         if (document.getElementById('dash-android-count')) document.getElementById('dash-android-count').innerText = pendingCount;
 
@@ -1351,8 +1354,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const matchesText = !searchStr || nameStr.includes(searchStr) || emailStr.includes(searchStr) || deptStr.includes(searchStr);
 
             let matchesStatus = true;
-            if (statusFilter === 'approved') matchesStatus = (m.status === 'approved');
-            else if (statusFilter === 'pending') matchesStatus = (m.status === 'pending');
+            const st = (m.status || '').toLowerCase();
+            const isApproved = (st === 'approved' || st === 'onaylandı' || st === 'onaylandi');
+            const isPending = (st === 'pending' || st === 'bekliyor' || st === 'beklemede' || !st);
+
+            if (statusFilter === 'approved') matchesStatus = isApproved;
+            else if (statusFilter === 'pending') matchesStatus = isPending;
 
             return matchesText && matchesStatus;
         });
