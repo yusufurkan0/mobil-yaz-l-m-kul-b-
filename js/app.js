@@ -1278,13 +1278,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminDashboard = document.getElementById('admin-dashboard');
     const logoutBtn = document.getElementById('logout-btn');
     const loginError = document.getElementById('login-error-message');
-    const memberSearch = document.getElementById('member-search');
-    const clearDataBtn = document.getElementById('clear-data-btn');
+    const getSearchText = () => {
+        const input = document.getElementById('member-search');
+        return input ? input.value : '';
+    };
 
     let currentAdminMemberStatusFilter = 'all';
 
     // Render table rows and stats counters (Supports Asynchronous Firestore fetch)
-    async function renderDashboardTable(filterText = '', forceFetch = false, statusFilter = currentAdminMemberStatusFilter) {
+    async function renderDashboardTable(filterText = getSearchText(), forceFetch = false, statusFilter = currentAdminMemberStatusFilter) {
         currentAdminMemberStatusFilter = statusFilter;
         const listContainer = document.getElementById('admin-member-list');
         if (!listContainer) return;
@@ -1351,9 +1353,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 3. Filter members for search display & status filter
+        const searchStr = (typeof filterText === 'string' ? filterText : '').toLowerCase().trim();
         const filtered = dbMembers.filter(m => {
-            const matchesText = m.name.toLowerCase().includes(filterText.toLowerCase()) || 
-                                m.email.toLowerCase().includes(filterText.toLowerCase());
+            if (!m) return false;
+            const nameStr = (m.name || m.fullName || (m.firstName ? `${m.firstName} ${m.lastName || ''}` : '') || '').toLowerCase();
+            const emailStr = (m.email || '').toLowerCase();
+            const deptStr = (m.department || m.faculty || '').toLowerCase();
+
+            const matchesText = !searchStr || nameStr.includes(searchStr) || emailStr.includes(searchStr) || deptStr.includes(searchStr);
+
             let matchesStatus = true;
             if (statusFilter === 'approved') matchesStatus = (m.status === 'approved');
             else if (statusFilter === 'pending') matchesStatus = (m.status === 'pending');
@@ -1558,7 +1566,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 4. Re-render the UI table instantly using cached data
-        renderDashboardTable(memberSearch.value, false);
+        renderDashboardTable(getSearchText(), false);
         updateHomepageStats();
     }
 
@@ -1581,7 +1589,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 4. Re-render the UI table instantly using cached data
-            renderDashboardTable(memberSearch.value, false);
+            renderDashboardTable(getSearchText(), false);
             updateHomepageStats();
         }
     }
@@ -2225,7 +2233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // Render dashboard tables
-        renderDashboardTable(memberSearch.value, true);
+        renderDashboardTable(getSearchText(), true);
     }
 
     function disableAdminMode() {
@@ -2349,7 +2357,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Render corresponding data
                 if (tab === 'members') {
-                    renderDashboardTable(memberSearch.value, false);
+                    renderDashboardTable(getSearchText(), false);
                 } else if (tab === 'events') {
                     renderDashboardEvents();
                 } else if (tab === 'announcements') {
@@ -3048,7 +3056,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 dbMembers = []; // Reset local cache
                 applySiteSettings();
-                await renderDashboardTable(memberSearch.value, true); // Force refetch empty/default list
+                await renderDashboardTable(getSearchText(), true); // Force refetch empty/default list
                 updateHomepageStats();
             }
         });
