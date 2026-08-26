@@ -1,0 +1,18 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "routes": [
+    { "src": "/basvurular", "dest": "/basvurular.html" },
+    { "src": "/basvurular.html", "dest": "/basvurular.html" },
+    { "src": "/duyurular", "dest": "/duyurular.html" },
+    { "src": "/duyurular.html", "dest": "/duyurular.html" },
+    { "src": "/etkinlikler", "dest": "/etkinlikler.html" },
+    { "src": "/etkinlikler.html", "dest": "/etkinlikler.html" },
+    { "src": "/blog", "dest": "/blog.html" },
+    { "src": "/blog.html", "dest": "/blog.html" },
+    { "src": "/iletisim", "dest": "/iletisim.html" },
+    { "src": "/iletisim.html", "dest": "/iletisim.html" },
+    { "src": "/profil", "dest": "/profil.html" },
+    { "src": "/profil.html", "dest": "/profil.html" }
+  ]
+}
