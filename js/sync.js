@@ -133,8 +133,10 @@
             db.collection('announcements').get().then(snapshot => {
                 const announcements = [];
                 snapshot.forEach(doc => announcements.push(doc.data()));
-                localStorage.setItem('myk_announcements', JSON.stringify(announcements));
-                console.log("Announcements synced from Firestore:", announcements.length);
+                if (announcements.length > 0) {
+                    localStorage.setItem('myk_announcements', JSON.stringify(announcements));
+                    console.log("Announcements synced from Firestore:", announcements.length);
+                }
                 if (typeof renderAnnouncements === 'function') renderAnnouncements();
             }).catch(err => console.error("Announcements sync failed:", err));
         } else if (path.includes('blog.html')) {

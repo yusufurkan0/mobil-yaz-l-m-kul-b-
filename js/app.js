@@ -972,11 +972,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getLocalStorageAnnouncements() {
         const stored = localStorage.getItem('myk_announcements');
-        if (!stored) {
+        if (!stored || stored === '[]' || stored === 'null' || stored === 'undefined') {
             localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
             return initialMockAnnouncements;
         }
-        return JSON.parse(stored);
+        try {
+            const parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed) || parsed.length === 0) {
+                localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
+                return initialMockAnnouncements;
+            }
+            return parsed;
+        } catch (e) {
+            localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
+            return initialMockAnnouncements;
+        }
     }
 
     function saveLocalStorageAnnouncements(announcements) {
@@ -2959,14 +2969,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
             const targetTab = btn.getAttribute('data-target');
             if (targetTab === 'members') {
-                const adminSec = document.getElementById('section-admin-basvurular');
-                if (adminSec) {
-                    adminSec.classList.remove('hidden');
-                    adminSec.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                    window.location.href = 'basvurular.html';
-                }
-                if (adminDashboard) adminDashboard.classList.add('hidden');
+                window.location.href = 'basvurular.html';
                 return;
             }
             
