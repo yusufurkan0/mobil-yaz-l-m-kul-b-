@@ -286,24 +286,25 @@
                 if (!list) return;
                 list.innerHTML = '';
                 
-                const announcements = getLocalStorageAnnouncements();
-                if (announcements.length === 0) {
-                    list.innerHTML = `<div class="card-glow" style="padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); text-align: center;"><p style="color: var(--text-muted); margin: 0;">Henüz yayınlanmış bir duyuru bulunmamaktadır.</p></div>`;
-                    return;
+                let announcements = getLocalStorageAnnouncements();
+                if (!Array.isArray(announcements) || announcements.length === 0) {
+                    announcements = initialMockAnnouncements;
+                    localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
                 }
 
                 announcements.forEach(ann => {
+                    if (!ann || !ann.title) return;
                     const card = document.createElement('div');
                     card.className = 'card-glow animate-hover-lift';
                     card.style.cssText = 'padding: 35px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; position: relative;';
                     
                     card.innerHTML = `
                         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                            <span class="ctf-badge ${escapeHtml(ann.badgeClass)}">${escapeHtml(ann.category)}</span>
-                            <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-regular fa-calendar"></i> ${escapeHtml(ann.date)}</span>
+                            <span class="ctf-badge ${escapeHtml(ann.badgeClass || 'kolay')}">${escapeHtml(ann.category || 'Duyuru')}</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-regular fa-calendar"></i> ${escapeHtml(ann.date || 'Bugün')}</span>
                         </div>
                         <h3 style="font-size: 1.3rem; color: var(--headings-color); font-weight: 700; margin: 0;">${escapeHtml(ann.title)}</h3>
-                        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">${escapeHtml(ann.description)}</p>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">${escapeHtml(ann.description || '')}</p>
                     `;
                     list.appendChild(card);
                 });
