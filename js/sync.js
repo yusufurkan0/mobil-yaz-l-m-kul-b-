@@ -81,15 +81,28 @@
         db.collection('settings').doc('cms').get().then(doc => {
             if (doc.exists) {
                 const settingsData = doc.data();
-                localStorage.setItem('myk_site_settings', JSON.stringify(settingsData));
+                const currentSettings = (function() {
+                    try { return JSON.parse(localStorage.getItem('myk_site_settings')) || {}; } catch(e) { return {}; }
+                })();
+                
+                // CRITICAL PROTECTION: Never allow Firestore sync to wipe approved members count to 0
+                const localMembers = (function() {
+                    try { return JSON.parse(localStorage.getItem('myk_members')) || []; } catch(e) { return []; }
+                })();
+                const approvedCount = localMembers.filter(m => (m.status === 'approved' || m.status === 'onaylandı')).length;
+                if (approvedCount > 0) {
+                    settingsData.totalMembers = approvedCount;
+                }
+                
+                localStorage.setItem('myk_site_settings', JSON.stringify({ ...currentSettings, ...settingsData }));
                 applySyncedFooterSettings(settingsData);
                 
                 // Immediately apply stats to the homepage elements if they exist on the page
                 const memberSpan = document.getElementById('homepage-member-count');
                 if (memberSpan) {
-                    const approvedCount = settingsData.totalMembers !== undefined ? settingsData.totalMembers : 0;
-                    memberSpan.setAttribute('data-val', approvedCount);
-                    memberSpan.innerText = approvedCount;
+                    const displayCount = (approvedCount > 0) ? approvedCount : (settingsData.totalMembers !== undefined ? settingsData.totalMembers : 0);
+                    memberSpan.setAttribute('data-val', displayCount);
+                    memberSpan.innerText = displayCount;
                 }
                 const eventSpan = document.getElementById('homepage-event-count');
                 if (eventSpan) {

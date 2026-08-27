@@ -102,8 +102,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const settingsDoc = await db.collection('settings').doc('cms').get();
             if (settingsDoc.exists) {
                 const settingsData = settingsDoc.data();
-                localStorage.setItem('myk_site_settings', JSON.stringify(settingsData));
-                console.log("CMS Settings synced from Firestore.");
+                const localM = getLocalStorageMembers();
+                const approvedCount = localM.filter(m => (m.status === 'approved' || m.status === 'onaylandı')).length;
+                if (approvedCount > 0) {
+                    settingsData.totalMembers = approvedCount;
+                }
+                const currentSettings = getLocalStorageSettings();
+                localStorage.setItem('myk_site_settings', JSON.stringify({ ...currentSettings, ...settingsData }));
+                console.log("CMS Settings synced from Firestore safely.");
                 if (typeof applySiteSettings === 'function') applySiteSettings();
             }
             
