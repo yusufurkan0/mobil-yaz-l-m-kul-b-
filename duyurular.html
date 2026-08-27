@@ -264,11 +264,21 @@
 
             function getLocalStorageAnnouncements() {
                 const stored = localStorage.getItem('myk_announcements');
-                if (!stored) {
+                if (!stored || stored === '[]' || stored === 'null' || stored === 'undefined') {
                     localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
                     return initialMockAnnouncements;
                 }
-                return JSON.parse(stored);
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (!Array.isArray(parsed) || parsed.length === 0) {
+                        localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
+                        return initialMockAnnouncements;
+                    }
+                    return parsed;
+                } catch (e) {
+                    localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
+                    return initialMockAnnouncements;
+                }
             }
 
             function renderAnnouncements() {
@@ -344,6 +354,10 @@
                 toolbarBtns.forEach(btn => {
                     btn.addEventListener('click', () => {
                         const target = btn.getAttribute('data-target');
+                        if (target === 'members') {
+                            window.location.href = 'basvurular.html';
+                            return;
+                        }
                         window.location.href = `index.html?admin_target=${target}`;
                     });
                 });

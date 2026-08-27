@@ -341,11 +341,21 @@
 
             function getLocalStorageBlog() {
                 const stored = localStorage.getItem('myk_blog');
-                if (!stored) {
+                if (!stored || stored === '[]' || stored === 'null' || stored === 'undefined') {
                     localStorage.setItem('myk_blog', JSON.stringify(initialMockBlog));
                     return initialMockBlog;
                 }
-                return JSON.parse(stored);
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (!Array.isArray(parsed) || parsed.length === 0) {
+                        localStorage.setItem('myk_blog', JSON.stringify(initialMockBlog));
+                        return initialMockBlog;
+                    }
+                    return parsed;
+                } catch (e) {
+                    localStorage.setItem('myk_blog', JSON.stringify(initialMockBlog));
+                    return initialMockBlog;
+                }
             }
 
             function renderBlog() {

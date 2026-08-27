@@ -347,11 +347,21 @@
 
             function getLocalStorageEvents() {
                 const stored = localStorage.getItem('myk_events');
-                if (!stored) {
+                if (!stored || stored === '[]' || stored === 'null' || stored === 'undefined') {
                     localStorage.setItem('myk_events', JSON.stringify(initialMockEvents));
                     return initialMockEvents;
                 }
-                return JSON.parse(stored);
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (!Array.isArray(parsed) || parsed.length === 0) {
+                        localStorage.setItem('myk_events', JSON.stringify(initialMockEvents));
+                        return initialMockEvents;
+                    }
+                    return parsed;
+                } catch (e) {
+                    localStorage.setItem('myk_events', JSON.stringify(initialMockEvents));
+                    return initialMockEvents;
+                }
             }
 
             function renderEvents() {
