@@ -384,13 +384,14 @@ body.subpage.dark-theme #main-header {
 .logo-img {
     height: 70px;
     object-fit: contain;
-    transition: var(--transition-fast);
+    transform-origin: center center;
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 #main-header.scrolled .logo-img {
     height: 70px;
 }
 .logo:hover .logo-img {
-    transform: scale(1.05);
+    transform: scale(1.08) rotate(360deg);
 }
 .logo-icon {
     font-size: 1.6rem;
