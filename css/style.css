@@ -47,9 +47,9 @@
 
 /* --- Dark Theme Overrides --- */
 body.dark-theme {
-    --bg-dark: #0f050b;
-    --bg-card: rgba(24, 12, 20, 0.75);
-    --bg-nav: rgba(15, 5, 11, 0.98); /* Increased solidity from 0.85 to 0.98 */
+    --bg-dark: #07090e;
+    --bg-card: rgba(15, 21, 32, 0.85);
+    --bg-nav: rgba(7, 9, 14, 0.98);
     --border-color: rgba(255, 255, 255, 0.08);
     --primary-rgb: 217, 38, 122;
     --border-glow: rgba(var(--primary-rgb), 0.35);
@@ -57,18 +57,18 @@ body.dark-theme {
     /* Colors */
     --primary: #d9267a;
     --primary-glow: rgba(var(--primary-rgb), 0.25);
-    --secondary: #ff66a3;
-    --secondary-glow: rgba(255, 102, 163, 0.25);
+    --secondary: #ff4d94;
+    --secondary-glow: rgba(255, 77, 148, 0.25);
     --headings-color: #ffffff;
-    --text-main: #fcf1f6;
-    --text-muted: #d9b3c4;
-    --text-dark: #8c5a73;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --text-dark: #64748b;
     
     /* Gradients */
     --gradient-purple: linear-gradient(135deg, #d9267a 0%, #8c0b45 100%);
-    --gradient-cyan: linear-gradient(135deg, #ff66a3 0%, #cc0066 100%);
-    --gradient-mixed: linear-gradient(135deg, #d9267a 0%, #ff66a3 100%);
-    --gradient-dark: linear-gradient(180deg, #0f050b 0%, #080206 100%);
+    --gradient-cyan: linear-gradient(135deg, #ff4d94 0%, #cc0066 100%);
+    --gradient-mixed: linear-gradient(135deg, #d9267a 0%, #ff4d94 100%);
+    --gradient-dark: linear-gradient(180deg, #07090e 0%, #030406 100%);
     
     /* Box Shadows */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);

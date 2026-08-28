@@ -27,6 +27,32 @@
             });
         }
 
+        // Member session handling & top right navbar username badge sync
+        const loggedInEmail = sessionStorage.getItem('member_logged_in_email');
+        const loginBtn = document.getElementById('login-trigger');
+        const registerBtn = document.getElementById('register-trigger-nav');
+        const profileBtn = document.getElementById('user-profile-trigger');
+        const profileNameSpan = document.getElementById('user-profile-name');
+
+        if (loggedInEmail) {
+            let displayName = loggedInEmail.split('@')[0];
+            try {
+                const local = JSON.parse(localStorage.getItem('myk_members')) || [];
+                const found = local.find(m => m.email && m.email.toLowerCase() === loggedInEmail.toLowerCase());
+                if (found && (found.fullName || found.name)) {
+                    const fullName = found.fullName || found.name;
+                    displayName = fullName.split(' ')[0];
+                }
+            } catch(e) {}
+
+            if (loginBtn) loginBtn.classList.add('hidden');
+            if (registerBtn) registerBtn.classList.add('hidden');
+            if (profileBtn) {
+                profileBtn.classList.remove('hidden');
+                if (profileNameSpan) profileNameSpan.textContent = displayName;
+            }
+        }
+
         // Admin session handling on subpages
         if (sessionStorage.getItem('admin_logged_in') === 'true') {
             const adminToolbar = document.getElementById('admin-toolbar');
