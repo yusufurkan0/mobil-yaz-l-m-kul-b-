@@ -3075,11 +3075,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Header Auth State Update Helper ---
+    function updateHeaderState(user, isLoggedIn) {
+        const loginBtn = document.getElementById('login-trigger');
+        const registerBtn = document.getElementById('register-trigger-nav');
+        const profileBtn = document.getElementById('user-profile-trigger');
+        const profileNameSpan = document.getElementById('user-profile-name');
+
+        if (isLoggedIn && user) {
+            let displayName = "Profilim";
+            if (user.fullName) {
+                displayName = user.fullName.split(' ')[0];
+            } else if (user.name) {
+                displayName = user.name.split(' ')[0];
+            } else if (user.email) {
+                displayName = user.email.split('@')[0];
+            }
+
+            if (loginBtn) loginBtn.classList.add('hidden');
+            if (registerBtn) registerBtn.classList.add('hidden');
+            if (profileBtn) {
+                profileBtn.classList.remove('hidden');
+                if (profileNameSpan) profileNameSpan.textContent = displayName;
+            }
+        } else {
+            if (loginBtn) loginBtn.classList.remove('hidden');
+            if (registerBtn) registerBtn.classList.remove('hidden');
+            if (profileBtn) profileBtn.classList.add('hidden');
+        }
+    }
+    window.updateHeaderState = updateHeaderState;
+
     // --- 8. Theme Switcher (Toggles dark-theme class on body) ---
     const themeToggle = document.getElementById('theme-toggle');
     
-    // Load stored theme or default to light (no body class)
-    const storedTheme = localStorage.getItem('theme');
+    // Load stored theme or default to dark
+    const storedTheme = localStorage.getItem('theme') || 'dark';
     if (storedTheme === 'dark') {
         document.body.classList.add('dark-theme');
         if (themeToggle) {
@@ -3094,9 +3125,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-theme');
-            
-            if (document.body.classList.contains('dark-theme')) {
+            const isDark = document.body.classList.toggle('dark-theme');
+            if (isDark) {
                 themeToggle.innerHTML = `<i class="fa-solid fa-sun"></i>`;
                 localStorage.setItem('theme', 'dark');
             } else {
