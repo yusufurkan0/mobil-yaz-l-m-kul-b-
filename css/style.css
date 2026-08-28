@@ -387,6 +387,9 @@ body.subpage.dark-theme #main-header {
     border-radius: 8px;
     transition: var(--transition-fast);
 }
+body.dark-theme .logo-img {
+    filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(217, 38, 122, 0.4));
+}
 #main-header.scrolled .logo-img {
     height: 78px; /* Keeps same static height on scroll */
 }
