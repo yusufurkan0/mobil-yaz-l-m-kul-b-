@@ -386,15 +386,11 @@ body.subpage.dark-theme #main-header {
     object-fit: contain;
     transition: var(--transition-fast);
 }
-body.dark-theme .logo-img {
-    filter: drop-shadow(0 0 2px #ffffff) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
-}
 #main-header.scrolled .logo-img {
     height: 70px;
 }
 .logo:hover .logo-img {
     transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.3);
 }
 .logo-icon {
     font-size: 1.6rem;
