@@ -382,16 +382,15 @@ body.subpage.dark-theme #main-header {
     margin-left: 25px; /* Shifts logo slightly to the right */
 }
 .logo-img {
-    height: 78px; /* Increased by 25% and made static */
+    height: 70px;
     object-fit: contain;
-    border-radius: 8px;
     transition: var(--transition-fast);
 }
 body.dark-theme .logo-img {
-    filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(217, 38, 122, 0.4));
+    filter: drop-shadow(0 0 2px #ffffff) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
 }
 #main-header.scrolled .logo-img {
-    height: 78px; /* Keeps same static height on scroll */
+    height: 70px;
 }
 .logo:hover .logo-img {
     transform: scale(1.05);
