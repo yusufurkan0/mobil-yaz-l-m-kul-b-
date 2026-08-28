@@ -418,11 +418,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Real email sender using EmailJS or FormSubmit (Keyless Free Service)
     function sendVerificationEmail(code, email, name) {
+        showToastNotification(code, `${email} (Gelen Kutusu / Spam Klasörünü Kontrol Edin)`);
         if (useEmailJS) {
             const templateParams = {
                 to_email: email,
+                user_email: email,
+                email: email,
                 to_name: name,
-                verification_code: code
+                user_name: name,
+                name: name,
+                verification_code: code,
+                code: code,
+                passcode: code,
+                otp: code,
+                message: `Merhaba ${name},\n\nMobil Yazılım Kulübü üyelik onay kodunuz: ${code}`
             };
             emailjs.send(CONFIG.emailjs.serviceId, CONFIG.emailjs.templateId, templateParams)
                 .then((response) => {
@@ -470,11 +479,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let resetTargetDocId = '';
 
     function sendResetVerificationEmail(code, email, name) {
+        showToastNotification(code, `${email} (Şifre Sıfırlama Kodu)`);
         if (useEmailJS) {
             const templateParams = {
                 to_email: email,
+                user_email: email,
+                email: email,
                 to_name: name,
-                verification_code: code
+                user_name: name,
+                name: name,
+                verification_code: code,
+                code: code,
+                passcode: code,
+                otp: code,
+                message: `Merhaba ${name},\n\nMobil Yazılım Kulübü şifre sıfırlama kodunuz: ${code}`
             };
             // Send email
             emailjs.send(CONFIG.emailjs.serviceId, CONFIG.emailjs.templateId, templateParams)
