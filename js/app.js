@@ -136,8 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 snapshot.forEach(doc => {
                     members.push({ id: doc.id, ...doc.data() });
                 });
+                const local = getLocalStorageMembers();
                 if (members.length > 0) {
-                    const local = getLocalStorageMembers();
                     local.forEach(locMem => {
                         if (!members.some(m => (m.email && locMem.email && m.email.toLowerCase() === locMem.email.toLowerCase()) || m.id === locMem.id)) {
                             members.push(locMem);
@@ -145,10 +145,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     dbMembers = members;
                     saveLocalStorageMembers(dbMembers);
-                    renderDashboardTable(getSearchText(), false);
+                } else {
+                    dbMembers = local;
                 }
+                renderDashboardTable(getSearchText(), false);
             }).catch(err => {
                 console.warn("Firestore applicants background sync notice:", err);
+                dbMembers = getLocalStorageMembers();
             });
         }
         return dbMembers;
@@ -807,40 +810,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 7. Admin Panel & Member Management System (Local/Firebase Compatible) ---
-
-    // Initial mock data with real members and IP tracking fields
-    const initialMockMembers = [
-        { id: "231017034@stu.gedik.edu.tr", name: "burak kaya", email: "231017034@stu.gedik.edu.tr", password: "burak123456", department: "Endüstri Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.12", userAgent: "Chrome 122 / Windows 11", registeredAt: "24 Ağustos 2026, 11:20" },
-        { id: "241047003@stu.gedik.edu.tr", name: "Daghan Aslan", email: "241047003@stu.gedik.edu.tr", password: "furkangelisin", department: "Yazılım Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.15", userAgent: "Safari 17 / macOS", registeredAt: "24 Ağustos 2026, 11:25" },
-        { id: "251017006@stu.gedik.edu.tr", name: "Selin Durdu", email: "251017006@stu.gedik.edu.tr", password: "selin.Dbjk29", department: "Endüstri Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.18", userAgent: "Chrome 122 / Windows 10", registeredAt: "24 Ağustos 2026, 11:30" },
-        { id: "251017017@stu.gedik.edu.tr", name: "melike terzi", email: "251017017@stu.gedik.edu.tr", password: "melike001", department: "Endüstri Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.20", userAgent: "Safari / iOS Mobile", registeredAt: "24 Ağustos 2026, 11:35" },
-        { id: "101", name: "Ahmet Yılmaz", email: "ahmet.yilmaz@posta.com", password: "123456ahmet", department: "Yazılım Mühendisliği", track: "ios", status: "pending", ipAddress: "176.234.12.89", userAgent: "Chrome 121 / Android", registeredAt: "25 Ağustos 2026, 09:15" },
-        { id: "102", name: "Elif Kaya", email: "elif.kaya@outlook.com", password: "elifpasswords", department: "Bilgisayar Mühendisliği", track: "ios", status: "approved", ipAddress: "176.234.12.90", userAgent: "Safari / iPhone", registeredAt: "25 Ağustos 2026, 10:00" },
-        { id: "103", name: "Can Demir", email: "can.demir@gmail.com", password: "candemirpass", department: "Yönetim Bilişim Sistemleri (YBS)", track: "android", status: "pending", ipAddress: "185.220.101.5", userAgent: "Tor Browser / Bot Script", registeredAt: "26 Ağustos 2026, 08:30" }
-    ];
-
-    function getLocalStorageMembers() {
-        const stored = localStorage.getItem('myk_members');
-        if (!stored || stored === '[]') {
-            localStorage.setItem('myk_members', JSON.stringify(initialMockMembers));
-            return [...initialMockMembers];
-        }
-        try {
-            const parsed = JSON.parse(stored);
-            if (!Array.isArray(parsed) || parsed.length === 0) {
-                localStorage.setItem('myk_members', JSON.stringify(initialMockMembers));
-                return [...initialMockMembers];
-            }
-            return parsed;
-        } catch (e) {
-            localStorage.setItem('myk_members', JSON.stringify(initialMockMembers));
-            return [...initialMockMembers];
-        }
-    }
-
-    function saveLocalStorageMembers(members) {
-        localStorage.setItem('myk_members', JSON.stringify(members));
-    }
 
     // --- Events & Announcements Database Helpers & Mock Data ---
     const initialMockEvents = [

@@ -301,9 +301,16 @@
             } else {
                 if (restrictionCard) restrictionCard.classList.add('hidden');
                 if (applicationsContent) applicationsContent.classList.remove('hidden');
-                if (typeof renderDashboardTable === 'function') {
-                    renderDashboardTable('', true, 'all');
-                }
+                
+                const executeRender = () => {
+                    if (typeof renderDashboardTable === 'function') {
+                        renderDashboardTable('', false, 'all');
+                    } else if (typeof window.renderDashboardTable === 'function') {
+                        window.renderDashboardTable('', false, 'all');
+                    }
+                };
+                executeRender();
+                setTimeout(executeRender, 150);
             }
         });
     </script>

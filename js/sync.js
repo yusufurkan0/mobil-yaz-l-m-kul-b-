@@ -100,7 +100,7 @@
                 // Immediately apply stats to the homepage elements if they exist on the page
                 const memberSpan = document.getElementById('homepage-member-count');
                 if (memberSpan) {
-                    const displayCount = (approvedCount > 0) ? approvedCount : (settingsData.totalMembers !== undefined ? settingsData.totalMembers : 0);
+                    const displayCount = (approvedCount > 0) ? approvedCount : ((settingsData.totalMembers && settingsData.totalMembers > 0) ? settingsData.totalMembers : 4);
                     memberSpan.setAttribute('data-val', displayCount);
                     memberSpan.innerText = displayCount;
                 }
