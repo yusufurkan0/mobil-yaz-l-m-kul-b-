@@ -1826,7 +1826,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     if (memberLoginError) memberLoginError.classList.add('hidden');
                     memberLoginForm.reset();
-                    showMemberDashboard(foundMember);
+                    
+                    if (typeof showToastNotification === 'function') {
+                        showToastNotification("Giriş Başarılı! Hoş geldiniz, " + (foundMember.fullName || foundMember.name || "Üye"));
+                    }
+                    setTimeout(() => {
+                        window.location.href = 'profil.html';
+                    }, 400);
                 } else {
                     AuthRateLimiter.record(loginKey);
                     if (memberLoginError) memberLoginError.classList.remove('hidden');
