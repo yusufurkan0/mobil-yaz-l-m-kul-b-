@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dbMembers = getLocalStorageMembers();
         }
         
-        if (useFirebase && db && forceFetch) {
+        if (useFirebase && db) {
             db.collection('applicants').get().then(snapshot => {
                 const members = [];
                 snapshot.forEach(doc => {
@@ -148,7 +148,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     dbMembers = local;
                 }
-                renderDashboardTable(getSearchText(), false);
+                if (typeof renderDashboardTable === 'function') {
+                    renderDashboardTable(getSearchText(), false);
+                }
             }).catch(err => {
                 console.warn("Firestore applicants background sync notice:", err);
                 dbMembers = getLocalStorageMembers();
@@ -3079,8 +3081,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateHeaderState(user, isLoggedIn) {
         const loginBtn = document.getElementById('login-trigger');
         const registerBtn = document.getElementById('register-trigger-nav');
-        const profileBtn = document.getElementById('user-profile-trigger');
-        const profileNameSpan = document.getElementById('user-profile-name');
+        const loginBtnMobile = document.getElementById('register-trigger-mobile');
+        
+        const profileBtns = document.querySelectorAll('#user-profile-trigger, #user-profile-trigger-mobile');
+        const profileNameSpans = document.querySelectorAll('#user-profile-name, #nav-user-name, #nav-user-name-mobile');
 
         if (isLoggedIn && user) {
             let displayName = "Profilim";
@@ -3094,14 +3098,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (loginBtn) loginBtn.classList.add('hidden');
             if (registerBtn) registerBtn.classList.add('hidden');
-            if (profileBtn) {
-                profileBtn.classList.remove('hidden');
-                if (profileNameSpan) profileNameSpan.textContent = displayName;
-            }
+            if (loginBtnMobile) loginBtnMobile.classList.add('hidden');
+
+            profileBtns.forEach(btn => btn.classList.remove('hidden'));
+            profileNameSpans.forEach(span => span.textContent = displayName);
         } else {
             if (loginBtn) loginBtn.classList.remove('hidden');
             if (registerBtn) registerBtn.classList.remove('hidden');
-            if (profileBtn) profileBtn.classList.add('hidden');
+            if (loginBtnMobile) loginBtnMobile.classList.remove('hidden');
+
+            profileBtns.forEach(btn => btn.classList.add('hidden'));
         }
     }
     window.updateHeaderState = updateHeaderState;

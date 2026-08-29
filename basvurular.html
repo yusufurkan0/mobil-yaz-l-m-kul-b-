@@ -309,9 +309,9 @@
                 
                 const executeRender = () => {
                     if (typeof renderDashboardTable === 'function') {
-                        renderDashboardTable('', false, 'all');
+                        renderDashboardTable('', true, 'all');
                     } else if (typeof window.renderDashboardTable === 'function') {
-                        window.renderDashboardTable('', false, 'all');
+                        window.renderDashboardTable('', true, 'all');
                     }
                 };
                 executeRender();
