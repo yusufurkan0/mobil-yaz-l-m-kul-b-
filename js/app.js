@@ -3054,6 +3054,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Reset database action
+    const clearDataBtn = document.getElementById('clear-data-btn');
     if (clearDataBtn) {
         clearDataBtn.addEventListener('click', async () => {
             if (confirm('Tüm başvuru verilerini varsayılan listeye sıfırlamak istiyor musunuz?')) {
