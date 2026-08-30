@@ -3046,9 +3046,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Live search filtering
+    const memberSearch = document.getElementById('member-search');
     if (memberSearch) {
         memberSearch.addEventListener('input', (e) => {
-            renderDashboardTable(e.target.value, false); // Do not force fetch during search typing
+            renderDashboardTable(e.target.value, false);
         });
     }
 
