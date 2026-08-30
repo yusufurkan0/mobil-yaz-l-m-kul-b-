@@ -47,10 +47,12 @@
 
             if (loginBtn) loginBtn.classList.add('hidden');
             if (registerBtn) registerBtn.classList.add('hidden');
-            if (profileBtn) {
-                profileBtn.classList.remove('hidden');
-                if (profileNameSpan) profileNameSpan.textContent = displayName;
-            }
+
+            const profileBtns = document.querySelectorAll('#user-profile-trigger, #user-profile-trigger-mobile');
+            profileBtns.forEach(btn => btn.classList.remove('hidden'));
+
+            const nameSpans = document.querySelectorAll('#user-profile-name, #nav-user-name, #nav-user-name-mobile');
+            nameSpans.forEach(span => span.textContent = displayName);
         }
 
         // Admin session handling on subpages
