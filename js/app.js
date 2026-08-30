@@ -3118,26 +3118,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window.updateHeaderState = updateHeaderState;
 
-    // --- 8. Theme Switcher (Toggles dark-theme class on body) ---
+    // --- 8. Theme Switcher ---
     const themeToggle = document.getElementById('theme-toggle');
     
     // Load stored theme or default to dark
     const storedTheme = localStorage.getItem('theme') || 'dark';
     if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-theme');
         document.body.classList.add('dark-theme');
-        if (themeToggle) {
-            themeToggle.innerHTML = `<i class="fa-solid fa-sun"></i>`;
-        }
+        if (themeToggle) themeToggle.innerHTML = `<i class="fa-solid fa-sun"></i>`;
     } else {
+        document.documentElement.classList.remove('dark-theme');
         document.body.classList.remove('dark-theme');
-        if (themeToggle) {
-            themeToggle.innerHTML = `<i class="fa-solid fa-moon"></i>`;
-        }
+        if (themeToggle) themeToggle.innerHTML = `<i class="fa-solid fa-moon"></i>`;
     }
 
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
             const isDark = document.body.classList.toggle('dark-theme');
+            document.documentElement.classList.toggle('dark-theme', isDark);
             if (isDark) {
                 themeToggle.innerHTML = `<i class="fa-solid fa-sun"></i>`;
                 localStorage.setItem('theme', 'dark');
