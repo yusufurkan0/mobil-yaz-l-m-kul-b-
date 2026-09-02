@@ -1,7 +1,8 @@
 /* ==========================================
    MOBİL YAZILIM KULÜBÜ JAVASCRIPT LOGIC
    ========================================== */
-// Web Crypto API ile SHA-256 + Salt Hashleme Fonksiyonu
+
+// --- 1. Web Crypto API ile SHA-256 + Salt Hashleme Fonksiyonu ---
 async function hashPassword(password, salt = 'mygk_security_salt_2026') {
     if (!password) return '';
     const encoder = new TextEncoder();
@@ -10,6 +11,7 @@ async function hashPassword(password, salt = 'mygk_security_salt_2026') {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 0. Firebase & EmailJS Initialization (with localStorage Fallbacks) ---
@@ -192,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         window.addEventListener('scroll', updateHeaderClass);
-        updateHeaderClass(); // Run once on startup
+        updateHeaderClass();
     }
 
     // --- 2. Hamburger Mobile Menu ---
@@ -206,7 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
             navMenu.classList.toggle('open');
         });
 
-        // Close menu when clicking link
         navLinks.forEach(link => {
             link.addEventListener('click', () => {
                 menuToggle.classList.remove('open');
@@ -214,7 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Close menu when clicking outside
         document.addEventListener('click', (e) => {
             if (!menuToggle.contains(e.target) && !navMenu.contains(e.target)) {
                 menuToggle.classList.remove('open');
@@ -225,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. Scroll Active Link Highlight ---
     const sections = document.querySelectorAll('section');
-    
     const scrollOptions = {
         threshold: 0.3,
         rootMargin: "0px 0px -20% 0px"
@@ -264,8 +263,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             let current = 0;
-            const duration = 2000; // 2 seconds
-            const steps = duration / 30; // 30ms intervals
+            const duration = 2000;
+            const steps = duration / 30;
             const increment = Math.ceil(target / steps);
             
             const timer = setInterval(() => {
@@ -304,7 +303,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function openRegisterModal(e) {
         if (e) e.preventDefault();
         
-        // Auto-close mobile menu
         const menuToggleBtn = document.getElementById('menu-toggle');
         const navMenuDrawer = document.getElementById('nav-menu');
         if (menuToggleBtn && navMenuDrawer) {
@@ -315,21 +313,19 @@ document.addEventListener('DOMContentLoaded', () => {
         registerModal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
         
-        // Reset modal layout back to form entry
         membershipForm.classList.remove('hidden');
         verificationContainer.classList.add('hidden');
         successMsg.classList.add('hidden');
         membershipForm.reset();
 
-        // Generate captcha security question
         generateRegisterCaptcha();
     }
 
     let correctCaptchaAnswer = 0;
 
     function generateRegisterCaptcha() {
-        const num1 = Math.floor(Math.random() * 8) + 2; // 2 to 9
-        const num2 = Math.floor(Math.random() * 8) + 2; // 2 to 9
+        const num1 = Math.floor(Math.random() * 8) + 2;
+        const num2 = Math.floor(Math.random() * 8) + 2;
         correctCaptchaAnswer = num1 + num2;
         const label = document.getElementById('captcha-label');
         if (label) {
@@ -356,7 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshCaptchaBtn.addEventListener('click', generateRegisterCaptcha);
     }
 
-    // Close when clicking backdrop
     if (registerModal) {
         registerModal.addEventListener('click', (e) => {
             if (e.target === registerModal) {
@@ -375,7 +370,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingMemberData = null;
     let countdownInterval = null;
 
-    // Custom Status Toast Notification
     function showStatusToast(title, message, isSuccess = true) {
         const existing = document.querySelector('.status-toast');
         if (existing) existing.remove();
@@ -402,7 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     }
 
-    // Custom Toast Notification Simulator
     function showToastNotification(code, targetEmail) {
         const existing = document.querySelector('.toast-notification');
         if (existing) existing.remove();
@@ -419,14 +412,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         document.body.appendChild(toast);
 
-        // Auto dismiss after 8 seconds
         setTimeout(() => {
             toast.classList.add('hide');
             setTimeout(() => toast.remove(), 400);
         }, 8000);
     }
 
-    // Real email sender using EmailJS or FormSubmit (Keyless Free Service)
     function sendVerificationEmail(code, email, name) {
         showToastNotification(code, `${email} (Gelen Kutusu / Spam Klasörünü Kontrol Edin)`);
         if (useEmailJS) {
@@ -455,11 +446,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Sends real email to the user's inbox using FormSubmit
     function sendFormSubmitEmail(code, email, name) {
         console.log("Sending real verification email via FormSubmit to:", email);
-        
-        // Show local toast simulator too so they can proceed immediately if mail delay happens
         showToastNotification(code, `${email} (İlk kez kullanıyorsanız gelen aktivasyon mailini onaylayın!)`);
         
         fetch(`https://formsubmit.co/ajax/${email}`, {
@@ -476,12 +464,8 @@ document.addEventListener('DOMContentLoaded', () => {
             })
         })
         .then(response => response.json())
-        .then(data => {
-            console.log("FormSubmit response:", data);
-        })
-        .catch(err => {
-            console.error("FormSubmit request failed:", err);
-        });
+        .then(data => console.log("FormSubmit response:", data))
+        .catch(err => console.error("FormSubmit request failed:", err));
     }
 
     let resetVerificationCode = '';
@@ -504,7 +488,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 otp: code,
                 message: `Merhaba ${name},\n\nMobil Yazılım Kulübü şifre sıfırlama kodunuz: ${code}`
             };
-            // Send email
             emailjs.send(CONFIG.emailjs.serviceId, CONFIG.emailjs.templateId, templateParams)
                 .then((response) => {
                     console.log('Reset Password Verification Email sent via EmailJS!', response.status, response.text);
@@ -535,15 +518,10 @@ document.addEventListener('DOMContentLoaded', () => {
             })
         })
         .then(response => response.json())
-        .then(data => {
-            console.log("FormSubmit reset email sent:", data);
-        })
-        .catch(err => {
-            console.error("FormSubmit reset email request failed:", err);
-        });
+        .then(data => console.log("FormSubmit reset email sent:", data))
+        .catch(err => console.error("FormSubmit reset email request failed:", err));
     }
 
-    // Timer Countdown resend code
     function startResendTimer() {
         let seconds = 60;
         resendCountdown.innerText = `Kodu Yeniden Gönder (${seconds}s)`;
@@ -566,12 +544,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    // Traversal digit boxes
     verifyInputs.forEach((input, index) => {
         input.addEventListener('input', (e) => {
             const val = e.target.value;
-            e.target.value = val.replace(/[^0-9]/g, ''); // Digits only
-            
+            e.target.value = val.replace(/[^0-9]/g, '');
             if (e.target.value.length === 1 && index < 5) {
                 verifyInputs[index + 1].focus();
             }
@@ -584,7 +560,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Dynamic Faculty & Department Dropdowns mapping
     const facultySelect = document.getElementById('user-faculty');
     const departmentSelect = document.getElementById('user-department');
 
@@ -639,6 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Kayıt Formu (Şifre Hashleme Entegre Edildi) ---
     if (membershipForm) {
         membershipForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -680,7 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const disposableDomains = ['tempmail.com', '10minutemail.com', 'yopmail.com', 'mailinator.com', 'temp-mail.org', 'guerrillamail.com', 'sharklasers.com', 'dispostable.com', 'getairmail.com', 'boun.cr', 'tempmail.net', 'tempmailaddress.com', 'trashmail.com'];
-            const regDomain = emailInputVal.split('@')[1] ? emailInputVal.split('@')[1].toLowerCase() : '';
+            const regDomain = emailInputVal.split('@') ? emailInputVal.split('@').toLowerCase() : '';
             if (disposableDomains.includes(regDomain)) {
                 alert("Geçici veya tek kullanımlık e-posta adresleri kabul edilmemektedir.");
                 submitBtn.disabled = false;
@@ -688,18 +664,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Validate passwords match
-            const password = document.getElementById('user-password').value.trim();
-            const passwordConfirm = document.getElementById('user-password-confirm').value.trim();
-            if (password !== passwordConfirm) {
+            // Validate passwords match & length
+            const rawPassword = document.getElementById('user-password').value.trim();
+            const rawPasswordConfirm = document.getElementById('user-password-confirm').value.trim();
+            if (rawPassword.length < 6) {
+                alert("Şifreniz en az 6 karakter olmalıdır!");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `Hesap Oluştur`;
+                return;
+            }
+            if (rawPassword !== rawPasswordConfirm) {
                 alert("Şifreler uyuşmuyor!");
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = `Hesap Oluştur`;
                 return;
             }
 
-            // Simulate loader check
-            setTimeout(() => {
+            setTimeout(async () => {
                 const firstName = document.getElementById('first-name').value.trim();
                 const lastName = document.getElementById('last-name').value.trim();
                 const email = document.getElementById('user-email').value.trim().toLowerCase();
@@ -711,7 +692,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const grade = document.getElementById('user-grade').value;
                 const birthdate = document.getElementById('user-birthdate').value;
 
-                // Capture IP address and User-Agent metadata for security tracking
+                // Şifreyi kaydetmeden önce güvenli şekilde hash'le
+                const hashedPassword = await hashPassword(rawPassword);
+
                 let clientIP = 'Tespit Ediliyor...';
                 try {
                     fetch('https://api.ipify.org?format=json')
@@ -720,7 +703,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         .catch(e => console.warn("IP fetch fallback:", e));
                 } catch (e) {}
 
-                // Cache data (Defaults tracks to 'ios' for mobile club classification)
                 pendingMemberData = {
                     id: email.trim().toLowerCase(),
                     name: `${firstName} ${lastName}`,
@@ -732,7 +714,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     department: department,
                     grade: grade,
                     birthdate: birthdate,
-                    password: password,
+                    password: hashedPassword, // HASH SAKLANIYOR
                     track: 'ios',
                     status: 'pending',
                     ipAddress: clientIP,
@@ -740,32 +722,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     registeredAt: new Date().toLocaleString('tr-TR')
                 };
 
-                // Generate code
                 currentVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-                // Trigger real email or email simulation toast
                 sendVerificationEmail(currentVerificationCode, email, `${firstName} ${lastName}`);
 
-                // Show verification step
                 membershipForm.classList.add('hidden');
                 verificationContainer.classList.remove('hidden');
                 verificationError.classList.add('hidden');
 
-                // Clear digit inputs and focus
                 verifyInputs.forEach(inp => inp.value = '');
                 setTimeout(() => verifyInputs[0].focus(), 100);
 
-                // Timer resend
                 startResendTimer();
-                
-                // Reset button
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = `Hesap Oluştur`;
             }, 1200);
         });
     }
 
-    // Resend trigger click
     if (resendCountdown) {
         resendCountdown.addEventListener('click', (e) => {
             e.preventDefault();
@@ -784,17 +757,14 @@ document.addEventListener('DOMContentLoaded', () => {
             verifyInputs.forEach(inp => enteredCode += inp.value);
 
             if (enteredCode === currentVerificationCode) {
-                // Save locally first to guarantee instant UI success response
                 let local = getLocalStorageMembers();
                 local = local.filter(m => m.id.toString() !== pendingMemberData.id.toString());
                 local.push(pendingMemberData);
                 saveLocalStorageMembers(local);
 
-                // Update in-memory array immediately
                 dbMembers = dbMembers.filter(m => m.id.toString() !== pendingMemberData.id.toString());
                 dbMembers.push(pendingMemberData);
 
-                // Write to Firestore asynchronously in background (fire-and-forget)
                 if (useFirebase) {
                     const docId = pendingMemberData.email.toLowerCase();
                     db.collection('applicants').doc(docId).set({
@@ -807,7 +777,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         department: pendingMemberData.department || '',
                         grade: pendingMemberData.grade || '',
                         birthdate: pendingMemberData.birthdate || '',
-                        password: pendingMemberData.password || '',
+                        password: pendingMemberData.password || '', // Hash
                         track: pendingMemberData.track,
                         status: pendingMemberData.status,
                         ipAddress: pendingMemberData.ipAddress || 'Bilinmiyor',
@@ -817,19 +787,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     }).then(() => {
                         console.log("Background Firestore save succeeded!");
                     }).catch(err => {
-                        console.error("Background Firestore save failed (Check if Firestore database is created):", err);
+                        console.error("Background Firestore save failed:", err);
                     });
                 }
 
-                // UI update inside modal (runs instantly!)
                 verificationContainer.classList.add('hidden');
                 successMsg.classList.remove('hidden');
 
-                // Update table dynamic and stats
                 renderDashboardTable(memberSearch ? memberSearch.value : '', false);
                 updateHomepageStats();
             } else {
-                // Error verification code mismatch
                 verificationError.classList.remove('hidden');
                 verifyInputs.forEach(inp => inp.value = '');
                 verifyInputs[0].focus();
@@ -837,9 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 7. Admin Panel & Member Management System (Local/Firebase Compatible) ---
-
-    // --- Events & Announcements Database Helpers & Mock Data ---
+    // --- 7. Admin Panel & Member Management System ---
     const initialMockEvents = [
         {
             id: "ev_1",
@@ -996,7 +961,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Blog Database Helpers & Mock Data ---
     const initialMockBlog = [
         {
             id: "post_1",
@@ -1091,7 +1055,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Site Settings Helpers & Mock Data (CMS) ---
     const defaultSiteSettings = {
         heroTitle: `Geleceğin Mobil <br>\n                    <span class="gradient-text animate-gradient">Geliştiricileri Burada</span>`,
         heroDesc: "Mobil uygulama geliştirmeye odaklanan kulübümüzle mobil yazılım ekosistemine ilk adımını at. Sıfırdan başla, projeler geliştir, sektöre yön ver!",
@@ -1100,10 +1063,9 @@ document.addEventListener('DOMContentLoaded', () => {
         contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
         contactEmail: "gedikmobilyazilimkulubu@gmail.com",
         socialInstagram: "https://www.instagram.com/gedikmygk",
-        socialLinkedin: "https://linkedin.com",
+        socialLinkedin: "https://www.linkedin.com/company/https-l24.im-9ir3fgw",
         socialGithub: "https://github.com/yusufurkan0",
         
-        // Yönetim Kurulu (Ekip)
         teamM1Name: "Yusuf Furkan Yılmaz",
         teamM1Role: "Kulüp Başkanı / Kurucu",
         teamM1Bio: "İstanbul Gedik Üniversitesi Yazılım Mühendisliği Öğrencisi.",
@@ -1114,7 +1076,6 @@ document.addEventListener('DOMContentLoaded', () => {
         teamM3Role: "Android Geliştirme Lead",
         teamM3Bio: "Kotlin ve Jetpack Compose ile Android uygulama eğitimleri koordinatörü.",
 
-        // Kulüp Tüzüğü
         regT1: "Madde 1: Kuruluş ve Amaç",
         regC1: "Topluluğun amacı, İstanbul Gedik Üniversitesi öğrencilerine mobil yazılım (iOS/Android) alanlarında teorik eğitimler vermek, pratik projeler geliştirmek ve öğrencileri teknoloji ekosistemine hazırlamaktır.",
         regT2: "Madde 2: Üyelik ve Katılım Şartları",
@@ -1147,25 +1108,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function applySiteSettings() {
         const settings = getLocalStorageSettings();
         
-        // 1. Hero
         const heroTitle = document.getElementById('dyn-hero-title');
         const heroDesc = document.getElementById('dyn-hero-desc');
         if (heroTitle) heroTitle.innerHTML = settings.heroTitle;
         if (heroDesc) heroDesc.innerText = settings.heroDesc;
 
-        // 2. About
         const aboutP1 = document.getElementById('dyn-about-p1');
         const aboutP2 = document.getElementById('dyn-about-p2');
         if (aboutP1) aboutP1.innerText = settings.aboutText1;
         if (aboutP2) aboutP2.innerText = settings.aboutText2;
 
-        // 3. Contacts
         const contactAddr = document.getElementById('dyn-footer-address');
         const contactEmail = document.getElementById('dyn-footer-email');
         if (contactAddr) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
         if (contactEmail) contactEmail.innerText = settings.contactEmail;
 
-        // 4. Social Links
         const githubLink = document.getElementById('dyn-footer-github');
         const linkedinLink = document.getElementById('dyn-footer-linkedin');
         const instagramLink = document.getElementById('dyn-footer-instagram');
@@ -1173,7 +1130,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (linkedinLink) linkedinLink.href = settings.socialLinkedin;
         if (instagramLink) instagramLink.href = settings.socialInstagram;
 
-        // 5. Team Board
         const m1Name = document.getElementById('dyn-team-m1-name');
         const m1Role = document.getElementById('dyn-team-m1-role');
         const m1Bio = document.getElementById('dyn-team-m1-bio');
@@ -1194,7 +1150,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (m3Role) m3Role.innerText = settings.teamM3Role;
         if (m3Bio) m3Bio.innerText = settings.teamM3Bio;
 
-        // 6. Regulations
         const regT1 = document.getElementById('dyn-reg-t1');
         const regC1 = document.getElementById('dyn-reg-c1');
         const regT2 = document.getElementById('dyn-reg-t2');
@@ -1213,7 +1168,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (regT4) regT4.innerText = settings.regT4;
         if (regC4) regC4.innerText = settings.regC4;
 
-        // 7. Homepage Stats Strip (Dynamically syncs from public settings without permission errors)
         const memberSpan = document.getElementById('homepage-member-count');
         if (memberSpan) {
             const approvedCount = settings.totalMembers !== undefined ? settings.totalMembers : 0;
@@ -1237,7 +1191,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Dynamic homepage stats update (combines local + cloud count)
     async function updateHomepageStats() {
         const settings = getLocalStorageSettings();
         const memberSpan = document.getElementById('homepage-member-count');
@@ -1270,7 +1223,6 @@ document.addEventListener('DOMContentLoaded', () => {
         uiux: "Tasarım (Figma)"
     };
 
-    // UI elements references
     const loginTrigger = document.getElementById('login-trigger');
     const adminTriggerFooter = document.getElementById('admin-trigger-footer');
     const loginModal = document.getElementById('login-modal');
@@ -1286,18 +1238,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentAdminMemberStatusFilter = 'all';
 
-    // Render table rows and stats counters (Synchronous 0ms Instant Render)
+    // --- Admin Başvuru Tablosu (Şifrelerin Güvenli Gösterimi) ---
     function renderDashboardTable(filterText = getSearchText(), forceFetch = false, statusFilter = currentAdminMemberStatusFilter) {
         currentAdminMemberStatusFilter = statusFilter;
         const listContainer = document.getElementById('admin-member-list');
         if (!listContainer) return;
 
         listContainer.innerHTML = '';
-        
-        // 1. Fetch instantly (0ms)
         loadMembers(forceFetch);
         
-        // 2. Calculate Dashboard Stats based on ALL members in memory (not just filtered search matches)
         let total = 0;
         let approvedCount = 0;
         let pendingCount = 0;
@@ -1309,14 +1258,12 @@ document.addEventListener('DOMContentLoaded', () => {
             else pendingCount++;
         });
 
-        // Write Stats to UI
         if (document.getElementById('dash-total-members')) document.getElementById('dash-total-members').innerText = total;
         if (document.getElementById('dash-approved-count')) document.getElementById('dash-approved-count').innerText = approvedCount;
         if (document.getElementById('dash-pending-count')) document.getElementById('dash-pending-count').innerText = pendingCount;
         if (document.getElementById('dash-ios-count')) document.getElementById('dash-ios-count').innerText = approvedCount;
         if (document.getElementById('dash-android-count')) document.getElementById('dash-android-count').innerText = pendingCount;
 
-        // Highlight active stat card & filter buttons
         const cardAll = document.getElementById('stat-card-all');
         const cardApproved = document.getElementById('stat-card-approved');
         const cardPending = document.getElementById('stat-card-pending');
@@ -1345,7 +1292,6 @@ document.addEventListener('DOMContentLoaded', () => {
             btnPending.style.borderColor = statusFilter === 'pending' ? '#f59e0b' : 'rgba(245, 158, 11, 0.3)';
         }
 
-        // Sync total approved members count to CMS settings doc in Firestore so anonymous users can read it securely
         if (useFirebase && db && sessionStorage.getItem('admin_logged_in') === 'true' && approvedCount > 0) {
             db.collection('settings').doc('cms').update({
                 totalMembers: approvedCount
@@ -1356,7 +1302,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }).catch(err => console.error("Failed to sync totalMembers count to CMS:", err));
         }
 
-        // 3. Filter members for search display & status filter
         const searchStr = (typeof filterText === 'string' ? filterText : '').toLowerCase().trim();
         const filtered = dbMembers.filter(m => {
             if (!m) return false;
@@ -1387,10 +1332,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const nameVal = m.name || m.fullName || (m.firstName ? `${m.firstName} ${m.lastName || ''}` : '') || m.email || 'İsimsiz Üye';
             const emailVal = m.email || '-';
-            const passwordVal = m.password || '••••••••';
             const deptVal = m.department || m.faculty || 'Belirtilmedi';
 
-            // Build multi-badges HTML for dynamic tracks list
+            // Şifre yerine korumalı rozet gösterilir
+            const passwordBadge = (m.password && m.password.length === 64)
+                ? `<span class="ip-tag-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem;"><i class="fa-solid fa-shield-halved"></i> SHA-256</span>`
+                : `<span class="ip-tag-badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem;"><i class="fa-solid fa-lock"></i> Korumalı</span>`;
+
             const trackBadgesHTML = m.track ? m.track.split(',').map(trackKey => {
                 const label = trackLabels[trackKey] || trackKey;
                 return `<span class="track-badge-mini ${escapeHtml(trackKey)}">${escapeHtml((label || trackKey).split(' ')[0])}</span>`;
@@ -1405,7 +1353,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.innerHTML = `
                 <td><strong class="clickable-member-name" data-id="${m.id}" style="cursor: pointer; color: var(--primary); text-decoration: underline; text-underline-offset: 4px;">${escapeHtml(nameVal)}</strong></td>
                 <td>${escapeHtml(emailVal)}</td>
-                <td><code>${escapeHtml(passwordVal)}</code></td>
+                <td>${passwordBadge}</td>
                 <td>${escapeHtml(deptVal)}</td>
                 <td>${trackBadgesHTML}</td>
                 <td>
@@ -1427,7 +1375,6 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.appendChild(tr);
         });
 
-        // Attach dynamic button listeners
         listContainer.querySelectorAll('.btn-approve').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-id');
@@ -1442,7 +1389,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Attach click listener to member names to view detailed profile popup
         listContainer.querySelectorAll('.clickable-member-name').forEach(elem => {
             elem.addEventListener('click', () => {
                 const id = elem.getAttribute('data-id');
@@ -1451,7 +1397,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Attach robust Event Delegation for Stat Card clicks & Filter Buttons (catches clicks on icons, text, subtext, buttons)
     document.addEventListener('click', (e) => {
         const cardAll = e.target.closest('#stat-card-all, #filter-btn-all');
         const cardApproved = e.target.closest('#stat-card-approved, #filter-btn-approved');
@@ -1466,7 +1411,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Admin Member Detail Modal Logic ---
+    // --- Admin Member Detail Modal (Şifre Açık Gösterilmez) ---
     const adminMemberDetailModal = document.getElementById('admin-member-detail-modal');
     const closeAdminMemberDetail = document.getElementById('close-admin-member-detail');
     let activeDetailMemberId = null;
@@ -1477,7 +1422,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         activeDetailMemberId = id;
 
-        // Populate fields
         document.getElementById('admin-detail-name').innerText = member.name;
         document.getElementById('admin-detail-email').innerText = member.email;
         document.getElementById('admin-detail-username').innerText = member.username || '-';
@@ -1487,16 +1431,19 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('admin-detail-dept').innerText = member.department || '-';
         document.getElementById('admin-detail-grade').innerText = member.grade || '-';
         document.getElementById('admin-detail-birthdate').innerText = member.birthdate || '-';
-        document.getElementById('admin-detail-password').innerText = member.password || '-';
+        
+        // Açık şifre yerine güvenlik etiketi basılır
+        const pwEl = document.getElementById('admin-detail-password');
+        if (pwEl) {
+            pwEl.innerHTML = '<span style="color: #10b981; font-weight: 600;"><i class="fa-solid fa-shield-halved"></i> SHA-256 Şifreli</span>';
+        }
 
-        // Set status
         const statusSpan = document.getElementById('admin-detail-status');
         const statusClass = member.status === 'approved' ? 'approved' : 'pending';
         const statusText = member.status === 'approved' ? 'Onaylandı' : 'Beklemede';
         statusSpan.className = `status-badge ${statusClass}`;
         statusSpan.innerText = statusText;
 
-        // Configure Action Buttons display state
         const btnApprove = document.getElementById('admin-detail-approve-btn');
         if (member.status === 'approved') {
             if (btnApprove) btnApprove.style.display = 'none';
@@ -1504,13 +1451,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btnApprove) btnApprove.style.display = 'block';
         }
 
-        // Show modal
         if (adminMemberDetailModal) {
             adminMemberDetailModal.classList.remove('hidden');
         }
     }
 
-    // Attach static click handlers once at start
     const btnApproveDetail = document.getElementById('admin-detail-approve-btn');
     if (btnApproveDetail) {
         btnApproveDetail.addEventListener('click', () => {
@@ -1557,56 +1502,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function approveMember(id) {
-        // 1. Update LocalStorage immediately to reflect changes instantly on UI
         const numericId = parseInt(id);
         let local = getLocalStorageMembers();
         local = local.map(m => (m.id === numericId || m.id.toString() === id.toString()) ? { ...m, status: 'approved' } : m);
         saveLocalStorageMembers(local);
 
-        // 2. Update in-memory cache instantly
         dbMembers = dbMembers.map(m => (m.id === numericId || m.id.toString() === id.toString()) ? { ...m, status: 'approved' } : m);
 
-        // 3. Dispatch Firestore update asynchronously in the background
         if (useFirebase) {
             db.collection('applicants').doc(id.toString()).update({ status: 'approved' })
                 .then(() => console.log("Background Firestore approve succeeded!"))
-                .catch(err => console.error("Background Firestore approve failed (Check if Firestore database is created):", err));
+                .catch(err => console.error("Background Firestore approve failed:", err));
         }
 
-        // 4. Re-render the UI table instantly using cached data
         renderDashboardTable(getSearchText(), false);
         updateHomepageStats();
     }
 
     function deleteMember(id) {
         if (confirm('Bu başvuruyu listeden silmek istediğinize emin misiniz?')) {
-            // 1. Update LocalStorage immediately
             const numericId = parseInt(id);
             let local = getLocalStorageMembers();
             local = local.filter(m => (m.id !== numericId && m.id.toString() !== id.toString()));
             saveLocalStorageMembers(local);
 
-            // 2. Update in-memory cache instantly
             dbMembers = dbMembers.filter(m => (m.id !== numericId && m.id.toString() !== id.toString()));
 
-            // 3. Dispatch Firestore delete asynchronously in the background
             if (useFirebase) {
                 db.collection('applicants').doc(id.toString()).delete()
                     .then(() => console.log("Background Firestore delete succeeded!"))
-                    .catch(err => console.error("Background Firestore delete failed (Check if Firestore database is created):", err));
+                    .catch(err => console.error("Background Firestore delete failed:", err));
             }
 
-            // 4. Re-render the UI table instantly using cached data
             renderDashboardTable(getSearchText(), false);
             updateHomepageStats();
         }
     }
 
-    // Modal login triggers
     function openLoginModal(e) {
         if (e) e.preventDefault();
         
-        // Auto-close mobile menu
         const menuToggleBtn = document.getElementById('menu-toggle');
         const navMenuDrawer = document.getElementById('nav-menu');
         if (menuToggleBtn && navMenuDrawer) {
@@ -1637,7 +1572,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Tab switching logic in login modal
     const tabMemberBtn = document.getElementById('tab-member-btn');
     const tabAdminBtn = document.getElementById('tab-admin-btn');
     const memberLoginArea = document.getElementById('member-login-area');
@@ -1664,7 +1598,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Member profile dashboard rendering helper
     const memberDashboardModal = document.getElementById('member-dashboard-modal');
     const closeMemberDash = document.getElementById('close-member-dash');
     const memberLogoutBtn = document.getElementById('member-logout-btn');
@@ -1675,7 +1608,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const memberEditCancelBtn = document.getElementById('member-edit-cancel-btn');
     const memberProfileEditForm = document.getElementById('member-profile-edit-form');
 
-    // Dynamic header navigation switcher (Giriş Yap -> Profilim)
     function updateHeaderState(member, isLoggedIn) {
         const loginTrigger = document.getElementById('login-trigger');
         const registerTriggerNav = document.getElementById('register-trigger-nav');
@@ -1695,7 +1627,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (registerTriggerMobile) registerTriggerMobile.classList.add('hidden');
             if (userProfileTriggerMobile) userProfileTriggerMobile.classList.remove('hidden');
             
-            // Use username if available, otherwise fallback to first name
             const displayName = member.username || member.name.split(' ')[0];
             if (navUserName) navUserName.innerText = displayName;
             if (navUserNameMobile) navUserNameMobile.innerText = displayName;
@@ -1714,7 +1645,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'profil.html';
     }
 
-    // Rate limiter helper for login attempts
     const AuthRateLimiter = {
         attempts: {},
         check: function(key, maxAttempts = 5, windowMs = 180000) {
@@ -1737,17 +1667,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Member login form submit
+    // --- Üye Girişi (Hash Doğrulama & Otomatik Yükseltme Entegre Edildi) ---
     const memberLoginForm = document.getElementById('member-login-form');
     if (memberLoginForm) {
         memberLoginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('member-email').value.trim().toLowerCase();
-            const password = document.getElementById('member-password').value.trim();
+            const rawPassword = document.getElementById('member-password').value.trim();
             const submitBtn = memberLoginForm.querySelector('button[type="submit"]');
             const originalText = submitBtn ? submitBtn.innerHTML : "Giriş Yap";
 
-            // Brute force rate limit check
             const loginKey = 'member_login_' + email;
             const rateCheck = AuthRateLimiter.check(loginKey, 5, 180000);
             if (rateCheck.locked) {
@@ -1766,13 +1695,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 let foundMember = null;
+                const hashedPassword = await hashPassword(rawPassword);
 
-                // 1. First check in Firestore directly (try email query first to match legacy timestamp IDs, fallback to direct doc if restricted)
+                // 1. First check in Firestore directly
                 if (useFirebase && db) {
                     try {
                         let snapshot = await db.collection('applicants').where('email', '==', email).get();
                         
-                        // Fallback to capitalizing first letter
                         if (snapshot.empty) {
                             const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
                             snapshot = await db.collection('applicants').where('email', '==', capitalizedEmail).get();
@@ -1781,10 +1710,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (!snapshot.empty) {
                             const doc = snapshot.docs[0];
                             const fbUser = { id: doc.id, ...doc.data() };
-                            if (fbUser.password && fbUser.password.trim() === password.trim()) {
+                            
+                            // Hash veya Eski Düz Şifre Karşılaştırması
+                            let isMatch = false;
+                            if (fbUser.password === hashedPassword) {
+                                isMatch = true;
+                            } else if (fbUser.password && fbUser.password.trim() === rawPassword) {
+                                // Eski üye düz şifre ile girdi: Hemen hash'e yükselt!
+                                isMatch = true;
+                                fbUser.password = hashedPassword;
+                                db.collection('applicants').doc(doc.id).update({ password: hashedPassword })
+                                    .catch(err => console.error("Hash migration failed:", err));
+                            }
+
+                            if (isMatch) {
                                 foundMember = fbUser;
-                                
-                                // Save to local cache 'myk_members'
                                 const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
                                 const idx = localMembers.findIndex(m => m.email.toLowerCase() === email);
                                 if (idx !== -1) localMembers[idx] = fbUser;
@@ -1794,7 +1734,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     } catch (queryErr) {
                         console.warn("Firestore query failed, using direct doc fetch fallback:", queryErr);
-                        // Fallback to direct document get by email (if list is completely disabled but get is allowed)
                         let doc = await db.collection('applicants').doc(email).get();
                         if (!doc.exists) {
                             const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
@@ -1803,10 +1742,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         if (doc.exists) {
                             const fbUser = { id: doc.id, ...doc.data() };
-                            if (fbUser.password && fbUser.password.trim() === password.trim()) {
+                            let isMatch = false;
+                            if (fbUser.password === hashedPassword) {
+                                isMatch = true;
+                            } else if (fbUser.password && fbUser.password.trim() === rawPassword) {
+                                isMatch = true;
+                                fbUser.password = hashedPassword;
+                                db.collection('applicants').doc(doc.id).update({ password: hashedPassword })
+                                    .catch(err => console.error("Hash migration failed:", err));
+                            }
+
+                            if (isMatch) {
                                 foundMember = fbUser;
-                                
-                                // Save to local cache 'myk_members'
                                 const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
                                 const idx = localMembers.findIndex(m => m.email.toLowerCase() === email);
                                 if (idx !== -1) localMembers[idx] = fbUser;
@@ -1816,11 +1763,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 } else {
-                    // 2. Fallback to local storage cache if offline/no Firebase
+                    // 2. Fallback to local storage cache
                     const localData = localStorage.getItem('myk_members');
                     if (localData) {
                         const localMembers = JSON.parse(localData);
-                        foundMember = localMembers.find(m => m.email.toLowerCase() === email && m.password && m.password.trim() === password.trim());
+                        const candidate = localMembers.find(m => m.email.toLowerCase() === email);
+                        if (candidate) {
+                            if (candidate.password === hashedPassword) {
+                                foundMember = candidate;
+                            } else if (candidate.password && candidate.password.trim() === rawPassword) {
+                                candidate.password = hashedPassword;
+                                foundMember = candidate;
+                                localStorage.setItem('myk_members', JSON.stringify(localMembers));
+                            }
+                        }
                     }
                 }
 
@@ -1829,7 +1785,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     loginModal.classList.add('hidden');
                     sessionStorage.setItem('member_logged_in_email', email);
                     
-                    // Apply header state instantly before redirecting
                     updateHeaderState(foundMember, true);
                     
                     if (memberLoginError) memberLoginError.classList.add('hidden');
@@ -1875,7 +1830,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Go back to login screen
     document.querySelectorAll('.back-to-login').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1884,14 +1838,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (memberLoginArea) memberLoginArea.classList.remove('hidden');
             if (loginTabs) {
                 loginTabs.classList.remove('hidden');
-                // Ensure Member tab is active
                 const tabMemberBtn = document.getElementById('tab-member-btn');
                 if (tabMemberBtn) tabMemberBtn.click();
             }
         });
     });
 
-    // Forgot password form submit
     const forgotPasswordForm = document.getElementById('forgot-password-form');
     const forgotEmailError = document.getElementById('forgot-error-message');
     if (forgotPasswordForm) {
@@ -1910,7 +1862,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 let foundMember = null;
                 let docId = '';
 
-                // Fetch matching member from Firestore safely using query with doc get fallback
                 if (useFirebase && db) {
                     try {
                         let snapshot = await db.collection('applicants').where('email', '==', email).get();
@@ -1950,13 +1901,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (foundMember) {
                     if (forgotEmailError) forgotEmailError.classList.add('hidden');
                     resetVerificationEmail = email;
-                    resetTargetDocId = docId; // Save the exact document ID for password update!
+                    resetTargetDocId = docId;
                     resetVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
                     
-                    // Send email
                     sendResetVerificationEmail(resetVerificationCode, email, foundMember.name);
                     
-                    // Show verification code step
                     if (forgotPasswordArea) forgotPasswordArea.classList.add('hidden');
                     if (passwordResetVerifArea) passwordResetVerifArea.classList.remove('hidden');
                 } else {
@@ -1974,7 +1923,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Password reset verification & update form submit
+    // --- Şifre Sıfırlama Formu (Hashleme Entegre Edildi) ---
     const passwordResetVerifForm = document.getElementById('password-reset-verif-form');
     const resetVerifError = document.getElementById('reset-verif-error');
     if (passwordResetVerifForm) {
@@ -2010,38 +1959,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (resetVerifError) resetVerifError.classList.add('hidden');
 
-            // Success! Let's update the member's password in LocalStorage
+            // Yeni şifreyi hash'leyerek kaydet
+            const hashedNewPassword = await hashPassword(newPassword);
+
             let localMembers = getLocalStorageMembers();
             const idx = localMembers.findIndex(m => m.email.toLowerCase() === resetVerificationEmail.toLowerCase());
             
             if (idx !== -1) {
-                localMembers[idx].password = newPassword;
+                localMembers[idx].password = hashedNewPassword;
                 saveLocalStorageMembers(localMembers);
                 
-                // Update Firestore if active (Non-blocking background update)
                 if (useFirebase) {
                     const targetId = resetTargetDocId || localMembers[idx].id.toString();
                     db.collection('applicants').doc(targetId).update({
-                        password: newPassword
+                        password: hashedNewPassword
                     })
-                    .then(() => {
-                        console.log("Firestore applicant password updated successfully.");
-                    })
-                    .catch(firebaseErr => {
-                        console.error("Firestore password update failed, fallback to local storage only:", firebaseErr);
-                    });
+                    .then(() => console.log("Firestore applicant password updated successfully with hash."))
+                    .catch(firebaseErr => console.error("Firestore password update failed:", firebaseErr));
                 }
                 
-                // Reset cache
                 dbMembers = localMembers;
                 
-                // Reset forms
                 passwordResetVerifForm.reset();
                 if (forgotPasswordForm) forgotPasswordForm.reset();
                 
                 showStatusToast("Şifreniz Güncellendi!", "Yeni şifrenizle hemen giriş yapabilirsiniz.", true);
                 
-                // Switch back to normal login modal view
                 if (passwordResetVerifArea) passwordResetVerifArea.classList.add('hidden');
                 if (memberLoginArea) memberLoginArea.classList.remove('hidden');
                 if (loginTabs) {
@@ -2055,9 +1998,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
-
-    // Member Dashboard Close/Logout handlers
     if (closeMemberDash) {
         closeMemberDash.addEventListener('click', () => {
             if (memberDashboardModal) memberDashboardModal.classList.add('hidden');
@@ -2080,9 +2020,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Member Profile Edit Mode Event Handlers ---
-    
-    // Dynamic mapping for Edit Form
     const editFacultySelect = document.getElementById('edit-faculty');
     const editDepartmentSelect = document.getElementById('edit-department');
 
@@ -2101,7 +2038,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Click Edit button to enter edit mode
     if (memberEditBtn) {
         memberEditBtn.addEventListener('click', () => {
             const memberEmail = sessionStorage.getItem('member_logged_in_email');
@@ -2110,12 +2046,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const member = dbMembers.find(m => m.email.toLowerCase() === memberEmail.toLowerCase());
             if (!member) return;
 
-            // Split name
             const nameParts = member.name.split(' ');
             const firstName = nameParts.slice(0, -1).join(' ') || member.name;
             const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
 
-            // Populate form
             document.getElementById('edit-first-name').value = firstName;
             document.getElementById('edit-last-name').value = lastName;
             document.getElementById('edit-email').value = member.email;
@@ -2124,7 +2058,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('edit-phone').value = member.phone || '';
             document.getElementById('edit-faculty').value = member.faculty || '';
             
-            // Populate department options dynamically
             const departments = facultyDepartments[member.faculty] || [];
             editDepartmentSelect.innerHTML = '<option value="" disabled selected>Bölüm Seçiniz</option>';
             departments.forEach(dept => {
@@ -2137,9 +2070,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             document.getElementById('edit-grade').value = member.grade || '';
             document.getElementById('edit-birthdate').value = member.birthdate || '';
-            document.getElementById('edit-password').value = member.password || '';
+            document.getElementById('edit-password').value = ''; // Güvenlik için boş bırakılır
 
-            // Toggle view
             if (memberViewArea) memberViewArea.classList.add('hidden');
             if (memberEditArea) memberEditArea.classList.remove('hidden');
             
@@ -2148,7 +2080,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Cancel edit
     if (memberEditCancelBtn) {
         memberEditCancelBtn.addEventListener('click', () => {
             if (memberViewArea) memberViewArea.classList.remove('hidden');
@@ -2156,7 +2087,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Submit edited profile form
+    // Profil Güncelleme Formu Submit
     if (memberProfileEditForm) {
         memberProfileEditForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -2176,9 +2107,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const department = document.getElementById('edit-department').value;
             const grade = document.getElementById('edit-grade').value;
             const birthdate = document.getElementById('edit-birthdate').value;
-            const password = document.getElementById('edit-password').value;
+            const passwordInput = document.getElementById('edit-password').value;
 
-            // Update in-memory cache
+            let finalPassword = member.password;
+            if (passwordInput && passwordInput.trim() !== '') {
+                if (passwordInput.length < 6) {
+                    alert("Şifre en az 6 karakter olmalıdır!");
+                    return;
+                }
+                finalPassword = await hashPassword(passwordInput.trim());
+            }
+
             const updatedMember = {
                 ...member,
                 name: `${firstName} ${lastName}`,
@@ -2189,18 +2128,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 department: department,
                 grade: grade,
                 birthdate: birthdate,
-                password: password
+                password: finalPassword
             };
 
-            // Write to local cache
             dbMembers = dbMembers.map(m => m.id === member.id ? updatedMember : m);
 
-            // Save to LocalStorage
             let local = getLocalStorageMembers();
             local = local.map(m => m.id === member.id ? updatedMember : m);
             saveLocalStorageMembers(local);
 
-            // Sync with Firebase Firestore (fire-and-forget in background)
             if (useFirebase) {
                 db.collection('applicants').doc(member.id.toString()).update({
                     name: updatedMember.name,
@@ -2219,17 +2155,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            // Show success message
             const successMsg = document.getElementById('edit-profile-success-message');
             if (successMsg) successMsg.classList.remove('hidden');
 
-            // Update header name
             updateHeaderState(updatedMember, true);
 
-            // Transition back to view mode after 1.2s
             setTimeout(() => {
                 showMemberDashboard(updatedMember);
-                // Refresh dashboard table list for admins
                 renderDashboardTable(memberSearch.value, false);
             }, 1200);
         });
@@ -2241,20 +2173,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const adminToolbar = document.getElementById('admin-toolbar');
         if (adminToolbar) adminToolbar.classList.remove('hidden');
         
-        // Show in-page admin applications section if present on page
         const adminBasvurularSec = document.getElementById('section-admin-basvurular');
         if (adminBasvurularSec) adminBasvurularSec.classList.remove('hidden');
 
-        // DO NOT open floating modal popup automatically!
         if (adminDashboard) adminDashboard.classList.add('hidden');
         document.body.style.overflow = 'auto';
         
-        // Show in-page edit triggers
         document.querySelectorAll('.admin-edit-trigger').forEach(btn => {
             btn.classList.remove('hidden');
         });
         
-        // Render dashboard tables
         renderDashboardTable(getSearchText(), true);
     }
 
@@ -2267,9 +2195,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (adminBasvurularSec) adminBasvurularSec.classList.add('hidden');
 
         if (adminDashboard) adminDashboard.classList.add('hidden');
-        document.body.style.overflow = 'auto'; // Unlock scroll
+        document.body.style.overflow = 'auto';
         
-        // Hide edit triggers
         document.querySelectorAll('.admin-edit-trigger').forEach(btn => {
             btn.classList.add('hidden');
         });
@@ -2277,7 +2204,6 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionStorage.removeItem('admin_logged_in');
     }
 
-    // Admin login form submit
     if (adminLoginForm) {
         adminLoginForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -2291,7 +2217,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Submit button loading state
             const submitBtn = adminLoginForm.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
@@ -2305,18 +2230,16 @@ document.addEventListener('DOMContentLoaded', () => {
             );
 
             if (useFirebase && typeof firebase !== 'undefined' && firebase.auth) {
-                // Secure Firebase Auth Authentication with local fallback for admin user
                 firebase.auth().signInWithEmailAndPassword(email, pass)
                     .then((userCredential) => {
                         AuthRateLimiter.reset(adminKey);
                         loginModal.classList.add('hidden');
-                        sessionStorage.setItem('admin_logged_in', 'true'); // Save session state
+                        sessionStorage.setItem('admin_logged_in', 'true');
                         enableAdminMode();
                         if (loginError) loginError.classList.add('hidden');
                         adminLoginForm.reset();
                     })
                     .catch((error) => {
-                        // Fallback check for admin credentials
                         if (isAdminUser) {
                             AuthRateLimiter.reset(adminKey);
                             loginModal.classList.add('hidden');
@@ -2335,13 +2258,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         submitBtn.innerHTML = originalText;
                     });
             } else {
-                // Offline Local Testing Fallback
                 setTimeout(() => {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
                     if (isAdminUser) {
                         loginModal.classList.add('hidden');
-                        sessionStorage.setItem('admin_logged_in', 'true'); // Save session state
+                        sessionStorage.setItem('admin_logged_in', 'true');
                         enableAdminMode();
                         if (loginError) loginError.classList.add('hidden');
                         adminLoginForm.reset();
@@ -2353,7 +2275,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Admin Dashboard Tabs Switching & CRUD Operations ---
     const tabBtns = document.querySelectorAll('.dash-tab-btn');
     const tabSections = document.querySelectorAll('.dash-tab-section');
 
@@ -2362,7 +2283,6 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => {
                 const tab = btn.getAttribute('data-tab');
                 
-                // Reset active styles
                 tabBtns.forEach(b => {
                     b.classList.remove('active');
                     b.style.borderBottomColor = 'transparent';
@@ -2373,14 +2293,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.style.borderBottomColor = 'var(--primary)';
                 btn.style.color = 'var(--headings-color)';
 
-                // Toggle visibility
                 tabSections.forEach(sec => sec.classList.add('hidden'));
                 const activeSection = document.getElementById(`section-${tab}`);
                 if (activeSection) {
                     activeSection.classList.remove('hidden');
                 }
 
-                // Render corresponding data
                 if (tab === 'members') {
                     renderDashboardTable(getSearchText(), false);
                 } else if (tab === 'events') {
@@ -2396,7 +2314,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Render Events in admin dashboard
     function renderDashboardEvents() {
         const listContainer = document.getElementById('admin-events-list');
         if (!listContainer) return;
@@ -2426,7 +2343,6 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.appendChild(tr);
         });
 
-        // Edit listeners
         listContainer.querySelectorAll('.btn-edit-event').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-id');
@@ -2434,7 +2350,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Delete listeners
         listContainer.querySelectorAll('.btn-delete-event').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-id');
@@ -2443,7 +2358,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Render Announcements in admin dashboard
     function renderDashboardAnnouncements() {
         const listContainer = document.getElementById('admin-announcements-list');
         if (!listContainer) return;
@@ -2471,7 +2385,6 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.appendChild(tr);
         });
 
-        // Edit listeners
         listContainer.querySelectorAll('.btn-edit-ann').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-id');
@@ -2479,7 +2392,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Delete listeners
         listContainer.querySelectorAll('.btn-delete-ann').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-id');
@@ -2488,7 +2400,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Modal opening, saving, deleting handlers ---
     const eventModal = document.getElementById('admin-event-modal');
     const closeEventModalBtn = document.getElementById('close-event-modal');
     const eventForm = document.getElementById('admin-event-form');
@@ -2499,7 +2410,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const announcementForm = document.getElementById('admin-announcement-form');
     const btnAddAnnouncement = document.getElementById('btn-add-announcement');
 
-    // Event Modal Actions
     if (btnAddEvent) {
         btnAddEvent.addEventListener('click', () => {
             if (eventForm) eventForm.reset();
@@ -2530,7 +2440,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const description = document.getElementById('event-description').value.trim();
 
             let events = getLocalStorageEvents();
-
             const statusIcon = status === 'upcoming' ? 'fa-solid fa-circle-play' : 'fa-solid fa-circle-check';
 
             const eventData = {
@@ -2595,7 +2504,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Announcement Modal Actions
     if (btnAddAnnouncement) {
         btnAddAnnouncement.addEventListener('click', () => {
             if (announcementForm) announcementForm.reset();
@@ -2622,7 +2530,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const description = document.getElementById('announcement-description').value.trim();
 
             let announcements = getLocalStorageAnnouncements();
-
             const announcementData = {
                 id: editId || 'ann_' + Date.now(),
                 title,
@@ -2676,7 +2583,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Render Blog posts in admin dashboard
     function renderDashboardBlog() {
         const listContainer = document.getElementById('admin-blog-list');
         if (!listContainer) return;
@@ -2707,7 +2613,6 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.appendChild(tr);
         });
 
-        // Edit listeners
         listContainer.querySelectorAll('.btn-edit-blog').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-id');
@@ -2715,7 +2620,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Delete listeners
         listContainer.querySelectorAll('.btn-delete-blog').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-id');
@@ -2724,7 +2628,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Modal Add/Edit Blog Handlers
     const blogModal = document.getElementById('admin-blog-modal');
     const closeBlogModalBtn = document.getElementById('close-blog-modal');
     const blogForm = document.getElementById('admin-blog-form');
@@ -2760,7 +2663,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const description = document.getElementById('blog-description').value.trim();
 
             let blog = getLocalStorageBlog();
-
             const blogData = {
                 id: editId || 'post_' + Date.now(),
                 title,
@@ -2822,7 +2724,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Settings (CMS) Form Handlers
     function initSettingsTab() {
         const settings = getLocalStorageSettings();
         const heroTitleInput = document.getElementById('set-hero-title');
@@ -2835,7 +2736,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const linkedinInput = document.getElementById('set-social-linkedin');
         const instagramInput = document.getElementById('set-social-instagram');
 
-        // Team
         const teamM1NameInput = document.getElementById('set-team-m1-name');
         const teamM1RoleInput = document.getElementById('set-team-m1-role');
         const teamM1BioInput = document.getElementById('set-team-m1-bio');
@@ -2846,7 +2746,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const teamM3RoleInput = document.getElementById('set-team-m3-role');
         const teamM3BioInput = document.getElementById('set-team-m3-bio');
 
-        // Regs
         const regT1Input = document.getElementById('set-reg-t1');
         const regC1Input = document.getElementById('set-reg-c1');
         const regT2Input = document.getElementById('set-reg-t2');
@@ -2900,7 +2799,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const socialLinkedin = document.getElementById('set-social-linkedin').value.trim();
             const socialInstagram = document.getElementById('set-social-instagram').value.trim();
 
-            // Team
             const teamM1Name = document.getElementById('set-team-m1-name').value.trim();
             const teamM1Role = document.getElementById('set-team-m1-role').value.trim();
             const teamM1Bio = document.getElementById('set-team-m1-bio').value.trim();
@@ -2911,7 +2809,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const teamM3Role = document.getElementById('set-team-m3-role').value.trim();
             const teamM3Bio = document.getElementById('set-team-m3-bio').value.trim();
 
-            // Regs
             const regT1 = document.getElementById('set-reg-t1').value.trim();
             const regC1 = document.getElementById('set-reg-c1').value.trim();
             const regT2 = document.getElementById('set-reg-t2').value.trim();
@@ -2958,7 +2855,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Logout Action
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             disableAdminMode();
@@ -2966,7 +2862,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Admin Toolbar Actions
     const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
     toolbarBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2976,30 +2871,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // Trigger tab button click inside dashboard
             const dashboardTabBtn = document.querySelector(`.dash-tab-btn[data-tab="${targetTab}"]`);
             if (dashboardTabBtn) {
                 dashboardTabBtn.click();
             }
             
-            // Show dashboard popup modal
             if (adminDashboard) {
                 adminDashboard.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Lock scroll
+                document.body.style.overflow = 'hidden';
             }
         });
     });
 
-    // Close dashboard modal popup
     const closeDashboardBtn = document.getElementById('close-dashboard-btn');
     if (closeDashboardBtn) {
         closeDashboardBtn.addEventListener('click', () => {
             if (adminDashboard) adminDashboard.classList.add('hidden');
-            document.body.style.overflow = 'auto'; // Restore scroll
+            document.body.style.overflow = 'auto';
         });
     }
 
-    // Admin Toolbar Logout
     const adminToolbarLogout = document.getElementById('admin-toolbar-logout');
     if (adminToolbarLogout) {
         adminToolbarLogout.addEventListener('click', () => {
@@ -3008,13 +2899,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // In-page Edit Trigger click listeners
     const editTriggers = document.querySelectorAll('.admin-edit-trigger[data-section]');
     editTriggers.forEach(btn => {
         btn.addEventListener('click', () => {
             const section = btn.getAttribute('data-section');
-            
-            // 1. Switch to settings tab and open dashboard modal
             const settingsTabBtn = document.querySelector('.dash-tab-btn[data-tab="settings"]');
             if (settingsTabBtn) {
                 settingsTabBtn.click();
@@ -3022,28 +2910,20 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (adminDashboard) {
                 adminDashboard.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Lock scroll
+                document.body.style.overflow = 'hidden';
             }
             
-            // 2. Focus and scroll settings form to target input field
             setTimeout(() => {
                 let targetInput = null;
-                if (section === 'hero') {
-                    targetInput = document.getElementById('set-hero-title');
-                } else if (section === 'about') {
-                    targetInput = document.getElementById('set-about-p1');
-                } else if (section === 'contact') {
-                    targetInput = document.getElementById('set-contact-address');
-                } else if (section === 'team') {
-                    targetInput = document.getElementById('set-team-m1-name');
-                } else if (section === 'regulations') {
-                    targetInput = document.getElementById('set-reg-t1');
-                }
+                if (section === 'hero') targetInput = document.getElementById('set-hero-title');
+                else if (section === 'about') targetInput = document.getElementById('set-about-p1');
+                else if (section === 'contact') targetInput = document.getElementById('set-contact-address');
+                else if (section === 'team') targetInput = document.getElementById('set-team-m1-name');
+                else if (section === 'regulations') targetInput = document.getElementById('set-reg-t1');
                 
                 if (targetInput) {
                     targetInput.focus();
                     targetInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Highlight input field visually
                     targetInput.style.boxShadow = '0 0 15px rgba(217, 38, 122, 0.8)';
                     setTimeout(() => {
                         targetInput.style.boxShadow = '';
@@ -3053,7 +2933,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Live search filtering
     const memberSearch = document.getElementById('member-search');
     if (memberSearch) {
         memberSearch.addEventListener('input', (e) => {
@@ -3061,7 +2940,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Reset database action
     const clearDataBtn = document.getElementById('clear-data-btn');
     if (clearDataBtn) {
         clearDataBtn.addEventListener('click', async () => {
@@ -3085,53 +2963,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.removeItem('myk_blog');
                     localStorage.removeItem('myk_site_settings');
                 }
-                dbMembers = []; // Reset local cache
+                dbMembers = [];
                 applySiteSettings();
-                await renderDashboardTable(getSearchText(), true); // Force refetch empty/default list
+                await renderDashboardTable(getSearchText(), true);
                 updateHomepageStats();
             }
         });
     }
 
-    // --- Header Auth State Update Helper ---
-    function updateHeaderState(user, isLoggedIn) {
-        const loginBtn = document.getElementById('login-trigger');
-        const registerBtn = document.getElementById('register-trigger-nav');
-        const loginBtnMobile = document.getElementById('register-trigger-mobile');
-        
-        const profileBtns = document.querySelectorAll('#user-profile-trigger, #user-profile-trigger-mobile');
-        const profileNameSpans = document.querySelectorAll('#user-profile-name, #nav-user-name, #nav-user-name-mobile');
-
-        if (isLoggedIn && user) {
-            let displayName = "Profilim";
-            if (user.fullName) {
-                displayName = user.fullName.split(' ')[0];
-            } else if (user.name) {
-                displayName = user.name.split(' ')[0];
-            } else if (user.email) {
-                displayName = user.email.split('@')[0];
-            }
-
-            if (loginBtn) loginBtn.classList.add('hidden');
-            if (registerBtn) registerBtn.classList.add('hidden');
-            if (loginBtnMobile) loginBtnMobile.classList.add('hidden');
-
-            profileBtns.forEach(btn => btn.classList.remove('hidden'));
-            profileNameSpans.forEach(span => span.textContent = displayName);
-        } else {
-            if (loginBtn) loginBtn.classList.remove('hidden');
-            if (registerBtn) registerBtn.classList.remove('hidden');
-            if (loginBtnMobile) loginBtnMobile.classList.remove('hidden');
-
-            profileBtns.forEach(btn => btn.classList.add('hidden'));
-        }
-    }
-    window.updateHeaderState = updateHeaderState;
-
-    // --- 8. Theme Switcher ---
     const themeToggle = document.getElementById('theme-toggle');
-    
-    // Load stored theme or default to dark
     const storedTheme = localStorage.getItem('theme') || 'dark';
     if (storedTheme === 'dark') {
         document.documentElement.classList.add('dark-theme');
@@ -3157,13 +2997,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 9. Initial Load Triggers (Stats & Admin Session Persistence) ---
+    // --- 9. Initial Load Triggers ---
     applySiteSettings();
     updateHomepageStats().then(() => {
-        // Auto-login member if session exists
         const memberEmail = sessionStorage.getItem('member_logged_in_email');
         if (memberEmail) {
-            // First check local cache to show username instantly without waiting for network
             const localData = localStorage.getItem('myk_members');
             let found = null;
             if (localData) {
@@ -3174,9 +3012,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // Sync/Verify with Firestore in the background
             if (useFirebase && db) {
-                // Try query first to find legacy timestamp-ID documents
                 db.collection('applicants').where('email', '==', memberEmail).get().then(snapshot => {
                     if (snapshot.empty) {
                         const capitalizedEmail = memberEmail.charAt(0).toUpperCase() + memberEmail.slice(1);
@@ -3188,7 +3024,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         const doc = snapshot.docs[0];
                         return doc;
                     }
-                    // If query returned empty, try direct doc get (for new email-ID documents under strict rules)
                     return db.collection('applicants').doc(memberEmail).get().then(doc => {
                         if (!doc.exists) {
                             const capitalizedEmail = memberEmail.charAt(0).toUpperCase() + memberEmail.slice(1);
@@ -3199,20 +3034,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }).then(doc => {
                     if (doc && doc.exists) {
                         const fbUser = { id: doc.id, ...doc.data() };
-                        
-                        // Save/update cache
                         const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
                         const idx = localMembers.findIndex(m => m.email.toLowerCase() === memberEmail.toLowerCase());
                         if (idx !== -1) localMembers[idx] = fbUser;
                         else localMembers.push(fbUser);
                         localStorage.setItem('myk_members', JSON.stringify(localMembers));
-                        
-                        // Apply updated header state
                         updateHeaderState(fbUser, true);
                     }
                 }).catch(err => {
                     console.warn("Auto-login Firestore query failed, attempting direct doc get fallback:", err);
-                    // Absolute fallback to direct document get in case query failed due to permission denial
                     db.collection('applicants').doc(memberEmail).get().then(doc => {
                         if (!doc.exists) {
                             const capitalizedEmail = memberEmail.charAt(0).toUpperCase() + memberEmail.slice(1);
@@ -3238,7 +3068,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sessionStorage.getItem('admin_logged_in') === 'true') {
         enableAdminMode();
         
-        // Handle URL parameters for Admin Dashboard tab redirection
         const urlParams = new URLSearchParams(window.location.search);
         const adminTarget = urlParams.get('admin_target');
         if (adminTarget) {
@@ -3258,7 +3087,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (adminDashboard) {
                     adminDashboard.classList.remove('hidden');
-                    document.body.style.overflow = 'hidden'; // Lock scroll
+                    document.body.style.overflow = 'hidden';
                 }
             }, 300);
         }
@@ -3311,7 +3140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!toolModalBody || !toolModal) return;
 
         toolModal.classList.remove('hidden');
-        toolModalBody.innerHTML = ''; // Clear previous
+        toolModalBody.innerHTML = '';
 
         if (toolName === 'cv') {
             loadCVTool(member);
@@ -3326,7 +3155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- CV Builder Tool ---
     function loadCVTool(member) {
         toolModalBody.innerHTML = `
             <div class="tool-header-area">
@@ -3379,7 +3207,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div class="cv-section-title">Eğitim</div>
                         <p id="cv-preview-education" style="white-space: pre-wrap;">Henüz girilmedi...</p>
-                        
                         <div class="cv-section-title">Deneyim & Projeler</div>
                         <p id="cv-preview-experience" style="white-space: pre-wrap;">Henüz girilmedi...</p>
                     </div>
@@ -3417,7 +3244,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (input) input.addEventListener('input', updatePreview);
         });
 
-        updatePreview(); // Initial call
+        updatePreview();
 
         const printBtn = document.getElementById('cv-btn-print');
         if (printBtn) {
@@ -3446,10 +3273,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 E-posta: ${member.email} ${ghIn.value ? ' | GitHub: ' + ghIn.value : ''} ${liIn.value ? ' | LinkedIn: ' + liIn.value : ''}
                             </div>
                         </div>
-                        
                         <div class="section-title">Eğitim</div>
                         <p>${eduIn.value || 'Girilen eğitim bilgisi bulunmamaktadır.'}</p>
-                        
                         <div class="section-title">Deneyim & Projeler</div>
                         <p>${expIn.value || 'Girilen deneyim bilgisi bulunmamaktadır.'}</p>
                     </body>
@@ -3463,7 +3288,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Skills Evaluator Tool ---
     function loadSkillsTool(member) {
         const swiftVal = member.skillSwift || 50;
         const kotlinVal = member.skillKotlin || 50;
@@ -3516,7 +3340,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <input type="range" id="slider-api" min="0" max="100" value="${apiVal}">
                     </div>
-                    
                     <button type="button" id="skills-btn-save" class="btn btn-primary btn-full glow-btn" style="margin-top: 15px;"><i class="fa-solid fa-cloud-arrow-up"></i> Skorumu Kaydet ve Puanla</button>
                 </div>
                 <div class="score-gauge-wrap">
@@ -3617,7 +3440,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Leaderboard Tool ---
     function loadLeaderboardTool(member) {
         dbMembers.forEach(m => {
             if (m.id === 101) {
@@ -3678,7 +3500,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // --- Quiz Tool ---
     function loadQuizTool(member) {
         const quizQuestions = [
             {
@@ -3859,7 +3680,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderWelcome();
     }
 
-    // --- CTF Tool ---
     function loadCTFTool(member) {
         console.log("%c[MYGK CTF SIZINTISI]%c FLAG_SECRET = MYGK{logcat_snoop}", "background: #8c0b45; color: white; font-weight: bold; padding: 4px;", "color: var(--primary); font-weight: bold;");
 
@@ -3879,7 +3699,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 20px;">
-                    
                     <div class="ctf-card ${ctf1Solved ? 'solved' : ''}">
                         <span class="ctf-badge kolay">Kolay | +30 Puan</span>
                         <h4>1. Geliştirici Log Analizi</h4>
@@ -3905,7 +3724,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         </p>
                         <code>func getSecretFlag() -> String {
     let base64Text = "TVlHS3tzd2lmdF9kZWNyeXB0X29reX0="
-    // Base64 dizesini çöz ve geri döndür
     return decodedString
 }</code>
                         ${ctf2Solved ? `
@@ -3939,7 +3757,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div id="ctf-error-3" class="hidden error-text" style="margin-top: 10px; margin-bottom: 0;"><i class="fa-solid fa-circle-xmark"></i> Dize regex desenine uymuyor!</div>
                         `}
                     </div>
-
                 </div>
             `;
 
@@ -4013,7 +3830,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const subject = document.getElementById('contact-subject').value;
             const message = document.getElementById('contact-message').value.trim();
             
-            // 1. Rate limiting / Flood prevention (60 seconds cooldown)
             const lastSubmit = localStorage.getItem('last_contact_submit_time');
             const now = Date.now();
             if (lastSubmit && (now - lastSubmit < 60000)) {
@@ -4024,7 +3840,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 2. Spam Bot Honeypot check
             const honeyPotEl = document.getElementById('contact-hp');
             if (honeyPotEl && honeyPotEl.value) {
                 console.warn("Spam bot submission blocked.");
@@ -4033,7 +3848,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 3. Strict Email Validation Regex
             const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             if (!emailRegex.test(email)) {
                 showStatusToast("Geçersiz E-posta", "Lütfen geçerli bir e-posta adresi giriniz! (Örn: isim@domain.com)", false);
@@ -4042,9 +3856,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 4. Block temporary/disposable email domains
             const tempEmailDomains = ['tempmail.com', '10minutemail.com', 'yopmail.com', 'mailinator.com', 'temp-mail.org', 'guerrillamail.com', 'sharklasers.com', 'dispostable.com', 'getairmail.com', 'boun.cr', 'tempmail.net', 'tempmailaddress.com'];
-            const emailDomain = email.split('@')[1].toLowerCase();
+            const emailDomain = email.split('@').toLowerCase();
             if (tempEmailDomains.includes(emailDomain)) {
                 showStatusToast("Geçersiz E-posta", "Geçici veya tek kullanımlık e-posta adresleri kabul edilmemektedir.", false);
                 submitBtn.disabled = false;
@@ -4052,14 +3865,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 5. Try sending via EmailJS if enabled
             if (useEmailJS) {
                 const templateParams = {
                     name: name,
                     email: email,
-                    title: subject, // Maps to {{title}} in your subject line
-                    message: message, // Maps to {{message}}
-                    time: new Date().toLocaleString('tr-TR') // Maps to {{time}} in your email body
+                    title: subject,
+                    message: message,
+                    time: new Date().toLocaleString('tr-TR')
                 };
 
                 const tId = CONFIG.emailjs.contactTemplateId || "template_contact";
@@ -4078,13 +3890,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         sendViaFormSubmit(name, email, subject, message, submitBtn, originalText);
                     });
             } else {
-                // 6. Fallback directly to FormSubmit
                 sendViaFormSubmit(name, email, subject, message, submitBtn, originalText);
             }
         });
     }
 
-    // FormSubmit sender helper function
     function sendViaFormSubmit(name, email, subject, message, submitBtn, originalText) {
         fetch("https://formsubmit.co/ajax/gedikmobilyazilimkulubu@gmail.com", {
             method: "POST",
@@ -4116,7 +3926,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // URL Hash Modal Checker (Enables index.html#login and #register redirection from subpages)
     function checkUrlHash() {
         const hash = window.location.hash;
         if (hash === '#login') {
@@ -4135,7 +3944,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Run hash checks
     checkUrlHash();
     window.addEventListener('hashchange', checkUrlHash);
 });
