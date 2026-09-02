@@ -1,7 +1,15 @@
 /* ==========================================
    MOBİL YAZILIM KULÜBÜ JAVASCRIPT LOGIC
    ========================================== */
-
+// Web Crypto API ile SHA-256 + Salt Hashleme Fonksiyonu
+async function hashPassword(password, salt = 'mygk_security_salt_2026') {
+    if (!password) return '';
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password + salt);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 0. Firebase & EmailJS Initialization (with localStorage Fallbacks) ---
