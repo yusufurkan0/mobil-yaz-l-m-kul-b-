@@ -14,12 +14,12 @@ async function hashPassword(password, salt = 'mygk_security_salt_2026') {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 0. Firebase & EmailJS Initialization ---
+    // --- 0. Firebase & EmailJS Initialization (with localStorage Fallbacks) ---
     let db = null;
     let useFirebase = false;
     let useEmailJS = false;
 
-    // Sahte test kullanıcılarını temizleyen üye yöneticisi
+    // Sahte test kullanıcıları filtrelenmiş yerel hafıza yönetimi
     function getLocalStorageMembers() {
         const stored = localStorage.getItem('myk_members');
         if (!stored) return [];
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let dbMembers = getLocalStorageMembers();
 
-    // Firebase Başlatma
+    // Firebase Initialization
     if (typeof CONFIG !== 'undefined' && CONFIG.firebase && CONFIG.firebase.projectId) {
         try {
             firebase.initializeApp(CONFIG.firebase);
@@ -49,53 +49,67 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Firebase initialized successfully.");
             syncFirestoreToLocalStorage();
         } catch (err) {
-            console.error("Firebase initialization failed:", err);
+            console.error("Firebase initialization failed. Falling back to LocalStorage:", err);
         }
+    } else {
+        console.log("Firebase config not found. Running in LocalStorage fallback mode.");
     }
 
-    // Arka plan senkronizasyonu
     async function syncFirestoreToLocalStorage() {
         if (!useFirebase || !db) return;
         try {
-            // 1. Etkinlikler
+            // 1. Sync Events (Sahte şablonlar hariç)
             const eventsSnapshot = await db.collection('events').get();
             const events = [];
-            eventsSnapshot.forEach(doc => events.push(doc.data()));
-            // Sahte şablon etkinlikleri hariç tut
-            const realEvents = events.filter(e => e && !['ev_1','ev_2','ev_3','ev_4','ev_5','ev_6'].includes(e.id));
-            localStorage.setItem('myk_events', JSON.stringify(realEvents));
+            eventsSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data && !['ev_1','ev_2','ev_3','ev_4','ev_5','ev_6'].includes(data.id)) {
+                    events.push(data);
+                }
+            });
+            localStorage.setItem('myk_events', JSON.stringify(events));
             if (typeof renderDashboardEvents === 'function') renderDashboardEvents();
 
-            // 2. Duyurular
+            // 2. Sync Announcements (Sahte şablonlar hariç)
             const annSnapshot = await db.collection('announcements').get();
             const announcements = [];
-            annSnapshot.forEach(doc => announcements.push(doc.data()));
-            const realAnns = announcements.filter(a => a && !['ann_1','ann_2','ann_3'].includes(a.id));
-            localStorage.setItem('myk_announcements', JSON.stringify(realAnns));
+            annSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data && !['ann_1','ann_2','ann_3'].includes(data.id)) {
+                    announcements.push(data);
+                }
+            });
+            localStorage.setItem('myk_announcements', JSON.stringify(announcements));
             if (typeof renderDashboardAnnouncements === 'function') renderDashboardAnnouncements();
 
-            // 3. Bloglar
+            // 3. Sync Blog (Sahte şablonlar hariç)
             const blogSnapshot = await db.collection('blog').get();
             const blog = [];
-            blogSnapshot.forEach(doc => blog.push(doc.data()));
-            const realBlog = blog.filter(b => b && !['post_1','post_2','post_3','post_4','post_5','post_6'].includes(b.id));
-            localStorage.setItem('myk_blog', JSON.stringify(realBlog));
+            blogSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data && !['post_1','post_2','post_3','post_4','post_5','post_6'].includes(data.id)) {
+                    blog.push(data);
+                }
+            });
+            localStorage.setItem('myk_blog', JSON.stringify(blog));
             if (typeof renderDashboardBlog === 'function') renderDashboardBlog();
 
-            // 4. CMS Site Ayarları
+            // 4. Sync Settings
             const settingsDoc = await db.collection('settings').doc('cms').get();
             if (settingsDoc.exists) {
                 const settingsData = settingsDoc.data();
-                settingsData.totalSponsors = 0; // Sponsor daima 0
                 const currentSettings = getLocalStorageSettings();
+                settingsData.totalSponsors = 0;
                 localStorage.setItem('myk_site_settings', JSON.stringify({ ...currentSettings, ...settingsData }));
-                applySiteSettings();
+                if (typeof applySiteSettings === 'function') applySiteSettings();
             }
-
-            // 5. Başvurular
+            
+            // 5. Sync Applicants (Tek seferlik güvenli çekim)
             const snap = await db.collection('applicants').get();
             const cloudMembers = [];
-            snap.forEach(doc => cloudMembers.push({ id: doc.id, ...doc.data() }));
+            snap.forEach(doc => {
+                cloudMembers.push({ id: doc.id, ...doc.data() });
+            });
             if (cloudMembers.length > 0) {
                 const local = getLocalStorageMembers();
                 local.forEach(locMem => {
@@ -114,12 +128,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderDashboardTable(getSearchText(), false);
                 updateHomepageStats();
             }
+
+            if (sessionStorage.getItem('admin_logged_in') === 'true') {
+                if (typeof renderDashboardEvents === 'function') renderDashboardEvents();
+                if (typeof renderDashboardAnnouncements === 'function') renderDashboardAnnouncements();
+                if (typeof renderDashboardBlog === 'function') renderDashboardBlog();
+                if (typeof initSettingsTab === 'function') initSettingsTab();
+            }
         } catch (err) {
-            console.error("Firestore sync error:", err);
+            console.error("Error syncing Firestore collections:", err);
         }
     }
 
-    // EmailJS Başlatma
+    function loadMembers() {
+        if (!Array.isArray(dbMembers) || dbMembers.length === 0) {
+            dbMembers = getLocalStorageMembers();
+        }
+        return dbMembers;
+    }
+
+    // EmailJS Initialization
     if (typeof emailjs !== 'undefined' && typeof CONFIG !== 'undefined' && CONFIG.emailjs && CONFIG.emailjs.publicKey) {
         try {
             emailjs.init(CONFIG.emailjs.publicKey);
@@ -127,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {}
     }
 
-    // --- 1. Header Scroll ---
+    // --- 1. Header Scroll Effect ---
     const header = document.getElementById('main-header');
     if (header) {
         const isHomePage = document.getElementById('hero') !== null;
@@ -142,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateHeaderClass();
     }
 
-    // --- 2. Mobil Menü ---
+    // --- 2. Hamburger Mobile Menu ---
     const menuToggle = document.getElementById('menu-toggle');
     const navMenu = document.getElementById('nav-menu');
     const navLinks = document.querySelectorAll('.nav-link');
@@ -168,7 +196,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. Sayaç Animasyonları ---
+    // --- 3. Scroll Active Link Highlight ---
+    const sections = document.querySelectorAll('section');
+    const scrollOptions = {
+        threshold: 0.3,
+        rootMargin: "0px 0px -20% 0px"
+    };
+
+    const navObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${id}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }, scrollOptions);
+
+    sections.forEach(section => {
+        if (section.getAttribute('id')) {
+            navObserver.observe(section);
+        }
+    });
+
+    // --- 4. Hero Stats Counter Animation ---
     const statNumbers = document.querySelectorAll('.stat-number');
     let countersStarted = false;
 
@@ -179,6 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 stat.innerText = "0";
                 return;
             }
+            
             let current = 0;
             const duration = 2000;
             const steps = duration / 30;
@@ -204,10 +260,95 @@ document.addEventListener('DOMContentLoaded', () => {
                 animateCounters();
             }
         }, { threshold: 0.3 });
+        
         statsObserver.observe(statsGrid);
     }
 
-    // --- 4. Bildirim Toast Kutusu ---
+    // --- 5. Application (Register) Modal Control ---
+    const registerModal = document.getElementById('register-modal');
+    const regTriggerNav = document.getElementById('register-trigger-nav');
+    const regTriggerHero = document.getElementById('register-trigger-hero');
+    const regTriggerMobile = document.getElementById('register-trigger-mobile');
+    const closeRegister = document.getElementById('close-register');
+    const membershipForm = document.getElementById('membership-form');
+    const verificationContainer = document.getElementById('verification-container');
+    const successMsg = document.getElementById('form-success-message');
+
+    function openRegisterModal(e) {
+        if (e) e.preventDefault();
+        
+        const menuToggleBtn = document.getElementById('menu-toggle');
+        const navMenuDrawer = document.getElementById('nav-menu');
+        if (menuToggleBtn && navMenuDrawer) {
+            menuToggleBtn.classList.remove('open');
+            navMenuDrawer.classList.remove('open');
+        }
+        
+        if (registerModal) {
+            registerModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            if (membershipForm) {
+                membershipForm.classList.remove('hidden');
+                membershipForm.reset();
+            }
+            if (verificationContainer) verificationContainer.classList.add('hidden');
+            if (successMsg) successMsg.classList.add('hidden');
+
+            generateRegisterCaptcha();
+        }
+    }
+
+    let correctCaptchaAnswer = 0;
+
+    function generateRegisterCaptcha() {
+        const num1 = Math.floor(Math.random() * 8) + 2;
+        const num2 = Math.floor(Math.random() * 8) + 2;
+        correctCaptchaAnswer = num1 + num2;
+        const label = document.getElementById('captcha-label');
+        if (label) {
+            label.innerHTML = `Güvenlik Doğrulaması: <span style="font-weight: 700; color: var(--accent-pink); font-size: 0.95rem;">${num1} + ${num2} = ?</span> *`;
+        }
+        const captchaInput = document.getElementById('register-captcha');
+        if (captchaInput) captchaInput.value = '';
+    }
+
+    function closeRegisterModal() {
+        if (registerModal) {
+            registerModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            clearInterval(countdownInterval);
+        }
+    }
+
+    if (regTriggerNav) regTriggerNav.addEventListener('click', openRegisterModal);
+    if (regTriggerMobile) regTriggerMobile.addEventListener('click', openRegisterModal);
+    if (regTriggerHero) regTriggerHero.addEventListener('click', openRegisterModal);
+    if (closeRegister) closeRegister.addEventListener('click', closeRegisterModal);
+
+    const refreshCaptchaBtn = document.getElementById('refresh-captcha');
+    if (refreshCaptchaBtn) {
+        refreshCaptchaBtn.addEventListener('click', generateRegisterCaptcha);
+    }
+
+    if (registerModal) {
+        registerModal.addEventListener('click', (e) => {
+            if (e.target === registerModal) {
+                closeRegisterModal();
+            }
+        });
+    }
+
+    // --- 6. OTP Verification Code Flow ---
+    const verifyInputs = document.querySelectorAll('.verify-input');
+    const verifySubmitBtn = document.getElementById('verify-submit-btn');
+    const verificationError = document.getElementById('verification-error-message');
+    const resendCountdown = document.getElementById('resend-countdown');
+
+    let currentVerificationCode = '';
+    let pendingMemberData = null;
+    let countdownInterval = null;
+
     function showStatusToast(title, message, isSuccess = true) {
         const existing = document.querySelector('.status-toast');
         if (existing) existing.remove();
@@ -234,63 +375,88 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 4000);
     }
 
-    // --- 5. Kayıt Modalı & Captcha ---
-    const registerModal = document.getElementById('register-modal');
-    const regTriggerNav = document.getElementById('register-trigger-nav');
-    const regTriggerHero = document.getElementById('register-trigger-hero');
-    const regTriggerMobile = document.getElementById('register-trigger-mobile');
-    const closeRegister = document.getElementById('close-register');
-    const membershipForm = document.getElementById('membership-form');
-    const verificationContainer = document.getElementById('verification-container');
-    const successMsg = document.getElementById('form-success-message');
+    function showToastNotification(code, targetEmail) {
+        const existing = document.querySelector('.toast-notification');
+        if (existing) existing.remove();
 
-    let correctCaptchaAnswer = 0;
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.innerHTML = `
+            <div class="toast-icon"><i class="fa-solid fa-envelope-open-text animate-pulse"></i></div>
+            <div class="toast-content">
+                <h5>📩 Doğrulama Kodu (Simüle)</h5>
+                <p>Alıcı: <b>${targetEmail}</b></p>
+                <p>Onay Kodunuz: <strong style="font-size: 1.1rem; color: #00b4d8; letter-spacing: 1.5px;">${code}</strong></p>
+            </div>
+        `;
+        document.body.appendChild(toast);
 
-    function generateRegisterCaptcha() {
-        const num1 = Math.floor(Math.random() * 8) + 2;
-        const num2 = Math.floor(Math.random() * 8) + 2;
-        correctCaptchaAnswer = num1 + num2;
-        const label = document.getElementById('captcha-label');
-        if (label) {
-            label.innerHTML = `Güvenlik Doğrulaması: <span style="font-weight: 700; color: var(--accent-pink); font-size: 0.95rem;">${num1} + ${num2} = ?</span> *`;
-        }
-        const captchaInput = document.getElementById('register-captcha');
-        if (captchaInput) captchaInput.value = '';
+        setTimeout(() => {
+            toast.classList.add('hide');
+            setTimeout(() => toast.remove(), 400);
+        }, 8000);
     }
 
-    function openRegisterModal(e) {
-        if (e) e.preventDefault();
-        if (registerModal) {
-            registerModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            if (membershipForm) {
-                membershipForm.classList.remove('hidden');
-                membershipForm.reset();
+    function sendVerificationEmail(code, email, name) {
+        showToastNotification(code, `${email} (Gelen Kutusu / Spam Klasörünü Kontrol Edin)`);
+        if (useEmailJS) {
+            const templateParams = {
+                to_email: email,
+                user_email: email,
+                email: email,
+                to_name: name,
+                user_name: name,
+                name: name,
+                verification_code: code,
+                code: code,
+                message: `Merhaba ${name},\n\nMobil Yazılım Kulübü üyelik onay kodunuz: ${code}`
+            };
+            emailjs.send(CONFIG.emailjs.serviceId, CONFIG.emailjs.templateId, templateParams).catch(() => {});
+        }
+    }
+
+    function startResendTimer() {
+        let seconds = 60;
+        if (!resendCountdown) return;
+        resendCountdown.innerText = `Kodu Yeniden Gönder (${seconds}s)`;
+        resendCountdown.style.pointerEvents = 'none';
+        resendCountdown.style.opacity = '0.6';
+        resendCountdown.classList.remove('active');
+
+        clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
+            seconds--;
+            if (seconds <= 0) {
+                clearInterval(countdownInterval);
+                resendCountdown.innerText = `Kodu Yeniden Gönder`;
+                resendCountdown.style.pointerEvents = 'auto';
+                resendCountdown.style.opacity = '1';
+                resendCountdown.classList.add('active');
+            } else {
+                resendCountdown.innerText = `Kodu Yeniden Gönder (${seconds}s)`;
             }
-            if (verificationContainer) verificationContainer.classList.add('hidden');
-            if (successMsg) successMsg.classList.add('hidden');
-            generateRegisterCaptcha();
-        }
+        }, 1000);
     }
 
-    function closeRegisterModal() {
-        if (registerModal) {
-            registerModal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-    }
+    verifyInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            const val = e.target.value;
+            e.target.value = val.replace(/[^0-9]/g, '');
+            if (e.target.value.length === 1 && index < 5) {
+                verifyInputs[index + 1].focus();
+            }
+        });
 
-    if (regTriggerNav) regTriggerNav.addEventListener('click', openRegisterModal);
-    if (regTriggerHero) regTriggerHero.addEventListener('click', openRegisterModal);
-    if (regTriggerMobile) regTriggerMobile.addEventListener('click', openRegisterModal);
-    if (closeRegister) closeRegister.addEventListener('click', closeRegisterModal);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                verifyInputs[index - 1].focus();
+            }
+        });
+    });
 
-    const refreshCaptchaBtn = document.getElementById('refresh-captcha');
-    if (refreshCaptchaBtn) refreshCaptchaBtn.addEventListener('click', generateRegisterCaptcha);
-
-    // Fakülte & Bölüm Dinamik Eşleşmesi
     const facultySelect = document.getElementById('user-faculty');
     const departmentSelect = document.getElementById('user-department');
+
     const facultyDepartments = {
         "Mühendislik Fakültesi": ["Yazılım Mühendisliği", "Bilgisayar Mühendisliği", "Mekatronik Mühendisliği", "Endüstri Mühendisliği", "Elektrik-Elektronik Mühendisliği"],
         "İktisadi, İdari ve Sosyal Bilimler Fakültesi": ["Yönetim Bilişim Sistemleri (YBS)", "Uluslararası Ticaret ve Lojistik", "Psikoloji", "Siyaset Bilimi ve Kamu Yönetimi"],
@@ -315,118 +481,193 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Kayıt Formu Submit
-    let pendingMemberData = null;
-    let currentVerificationCode = '';
-
+    // --- Kayıt Formu Submit ---
     if (membershipForm) {
-        membershipForm.addEventListener('submit', async (e) => {
+        membershipForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
             const userCaptcha = document.getElementById('register-captcha') ? document.getElementById('register-captcha').value.trim() : '';
             if (parseInt(userCaptcha, 10) !== correctCaptchaAnswer) {
-                alert("Güvenlik doğrulaması hatalı!");
+                alert("Güvenlik doğrulaması başarısız! Lütfen işlemi doğru şekilde çözün.");
                 generateRegisterCaptcha();
                 return;
             }
+            
+            const submitBtn = membershipForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gönderiliyor...`;
 
+            const emailInputVal = document.getElementById('user-email').value.trim().toLowerCase();
             const rawPassword = document.getElementById('user-password').value.trim();
             const rawPasswordConfirm = document.getElementById('user-password-confirm').value.trim();
+
             if (rawPassword.length < 6) {
                 alert("Şifreniz en az 6 karakter olmalıdır!");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `Hesap Oluştur`;
                 return;
             }
             if (rawPassword !== rawPasswordConfirm) {
                 alert("Şifreler uyuşmuyor!");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `Hesap Oluştur`;
                 return;
             }
 
-            const firstName = document.getElementById('first-name').value.trim();
-            const lastName = document.getElementById('last-name').value.trim();
-            const email = document.getElementById('user-email').value.trim().toLowerCase();
-            const hashedPassword = await hashPassword(rawPassword);
+            setTimeout(async () => {
+                const firstName = document.getElementById('first-name').value.trim();
+                const lastName = document.getElementById('last-name').value.trim();
+                const email = emailInputVal;
+                const username = document.getElementById('user-username').value;
+                const studentId = document.getElementById('user-student-id').value;
+                const phone = document.getElementById('user-phone').value;
+                const faculty = document.getElementById('user-faculty').value;
+                const department = document.getElementById('user-department').value;
+                const grade = document.getElementById('user-grade').value;
+                const birthdate = document.getElementById('user-birthdate').value;
 
-            pendingMemberData = {
-                id: email,
-                name: `${firstName} ${lastName}`,
-                email: email,
-                username: document.getElementById('user-username').value.trim(),
-                studentId: document.getElementById('user-student-id').value.trim(),
-                phone: document.getElementById('user-phone').value.trim(),
-                faculty: document.getElementById('user-faculty').value,
-                department: document.getElementById('user-department').value,
-                grade: document.getElementById('user-grade').value,
-                birthdate: document.getElementById('user-birthdate').value,
-                password: hashedPassword,
-                track: 'ios',
-                status: 'pending',
-                ipAddress: 'Tespit Ediliyor...',
-                userAgent: navigator.userAgent || 'Bilinmeyen Cihaz',
-                registeredAt: new Date().toLocaleString('tr-TR')
-            };
+                const hashedPassword = await hashPassword(rawPassword);
 
-            currentVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-            
-            // Simüle Kod Bildirimi
-            const existingToast = document.querySelector('.toast-notification');
-            if (existingToast) existingToast.remove();
-            const toast = document.createElement('div');
-            toast.className = 'toast-notification';
-            toast.innerHTML = `
-                <div class="toast-icon"><i class="fa-solid fa-envelope-open-text animate-pulse"></i></div>
-                <div class="toast-content">
-                    <h5>📩 Onay Kodu (Simüle)</h5>
-                    <p>Alıcı: <b>${email}</b></p>
-                    <p>Kodunuz: <strong style="font-size: 1.1rem; color: #00b4d8; letter-spacing: 1.5px;">${currentVerificationCode}</strong></p>
-                </div>
-            `;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 8000);
+                pendingMemberData = {
+                    id: email,
+                    name: `${firstName} ${lastName}`,
+                    email: email,
+                    username: username,
+                    studentId: studentId,
+                    phone: phone,
+                    faculty: faculty,
+                    department: department,
+                    grade: grade,
+                    birthdate: birthdate,
+                    password: hashedPassword,
+                    track: 'ios',
+                    status: 'pending',
+                    ipAddress: 'Tespit Ediliyor...',
+                    userAgent: navigator.userAgent || 'Bilinmeyen Cihaz',
+                    registeredAt: new Date().toLocaleString('tr-TR')
+                };
 
-            membershipForm.classList.add('hidden');
-            if (verificationContainer) verificationContainer.classList.remove('hidden');
-            const verifyInputs = document.querySelectorAll('.verify-input');
-            if (verifyInputs.length > 0) {
-                verifyInputs.forEach(i => i.value = '');
-                verifyInputs[0].focus();
+                currentVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+                sendVerificationEmail(currentVerificationCode, email, `${firstName} ${lastName}`);
+
+                membershipForm.classList.add('hidden');
+                if (verificationContainer) verificationContainer.classList.remove('hidden');
+                if (verificationError) verificationError.classList.add('hidden');
+
+                verifyInputs.forEach(inp => inp.value = '');
+                setTimeout(() => verifyInputs[0].focus(), 100);
+
+                startResendTimer();
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `Hesap Oluştur`;
+            }, 600);
+        });
+    }
+
+    if (resendCountdown) {
+        resendCountdown.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (pendingMemberData) {
+                currentVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+                sendVerificationEmail(currentVerificationCode, pendingMemberData.email, pendingMemberData.name);
+                startResendTimer();
             }
         });
     }
 
-    // Kodu Doğrulama
-    const verifySubmitBtn = document.getElementById('verify-submit-btn');
     if (verifySubmitBtn) {
-        verifySubmitBtn.addEventListener('click', () => {
+        verifySubmitBtn.addEventListener('click', async () => {
             let enteredCode = '';
-            document.querySelectorAll('.verify-input').forEach(inp => enteredCode += inp.value);
+            verifyInputs.forEach(inp => enteredCode += inp.value);
 
             if (enteredCode === currentVerificationCode && pendingMemberData) {
                 let local = getLocalStorageMembers();
                 local = local.filter(m => String(m.id).toLowerCase() !== String(pendingMemberData.id).toLowerCase() && String(m.email).toLowerCase() !== String(pendingMemberData.email).toLowerCase());
                 local.push(pendingMemberData);
                 saveLocalStorageMembers(local);
-                dbMembers = local;
+
+                dbMembers = dbMembers.filter(m => String(m.id).toLowerCase() !== String(pendingMemberData.id).toLowerCase() && String(m.email).toLowerCase() !== String(pendingMemberData.email).toLowerCase());
+                dbMembers.push(pendingMemberData);
 
                 if (useFirebase && db) {
                     db.collection('applicants').doc(pendingMemberData.email.toLowerCase()).set({
                         ...pendingMemberData,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    }).catch(() => {});
+                    }).catch(err => console.error("Firestore save failed:", err));
                 }
 
                 if (verificationContainer) verificationContainer.classList.add('hidden');
                 if (successMsg) successMsg.classList.remove('hidden');
 
-                renderDashboardTable(getSearchText(), false);
+                renderDashboardTable(memberSearch ? memberSearch.value : '', false);
                 updateHomepageStats();
             } else {
-                const err = document.getElementById('verification-error-message');
-                if (err) err.classList.remove('hidden');
+                if (verificationError) verificationError.classList.remove('hidden');
+                verifyInputs.forEach(inp => inp.value = '');
+                verifyInputs[0].focus();
             }
         });
     }
 
-    // --- 6. DEFAULT SITE AYARLARI (Gerçek Yönetim Kurulu) ---
+    // --- 7. TEMİZLENMİŞ ETKİNLİK, DUYURU VE BLOG YÖNETİMİ (Kullanıcının eklemediği sahte şablonlar silindi) ---
+    function getLocalStorageEvents() {
+        const stored = localStorage.getItem('myk_events');
+        if (!stored) return [];
+        try {
+            let parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed)) return [];
+            return parsed.filter(e => e && !['ev_1','ev_2','ev_3','ev_4','ev_5','ev_6'].includes(e.id));
+        } catch (e) { return []; }
+    }
+
+    function saveLocalStorageEvents(events) {
+        localStorage.setItem('myk_events', JSON.stringify(events));
+        if (useFirebase && db) {
+            events.forEach(ev => {
+                db.collection('events').doc(ev.id.toString()).set(ev).catch(() => {});
+            });
+        }
+    }
+
+    function getLocalStorageAnnouncements() {
+        const stored = localStorage.getItem('myk_announcements');
+        if (!stored) return [];
+        try {
+            let parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed)) return [];
+            return parsed.filter(a => a && !['ann_1','ann_2','ann_3'].includes(a.id));
+        } catch (e) { return []; }
+    }
+
+    function saveLocalStorageAnnouncements(announcements) {
+        localStorage.setItem('myk_announcements', JSON.stringify(announcements));
+        if (useFirebase && db) {
+            announcements.forEach(ann => {
+                db.collection('announcements').doc(ann.id.toString()).set(ann).catch(() => {});
+            });
+        }
+    }
+
+    function getLocalStorageBlog() {
+        const stored = localStorage.getItem('myk_blog');
+        if (!stored) return [];
+        try {
+            let parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed)) return [];
+            return parsed.filter(b => b && !['post_1','post_2','post_3','post_4','post_5','post_6'].includes(b.id));
+        } catch (e) { return []; }
+    }
+
+    function saveLocalStorageBlog(blog) {
+        localStorage.setItem('myk_blog', JSON.stringify(blog));
+        if (useFirebase && db) {
+            blog.forEach(post => {
+                db.collection('blog').doc(post.id.toString()).set(post).catch(() => {});
+            });
+        }
+    }
+
+    // --- DEFAULT SITE SETTINGS (Gerçek Yönetim Kurulu) ---
     const defaultSiteSettings = {
         heroTitle: `Geleceğin Mobil <br>\n                    <span class="gradient-text animate-gradient">Geliştiricileri Burada</span>`,
         heroDesc: "Mobil uygulama geliştirmeye odaklanan kulübümüzle mobil yazılım ekosistemine ilk adımını at. Sıfırdan başla, projeler geliştir, sektöre yön ver!",
@@ -491,42 +732,66 @@ document.addEventListener('DOMContentLoaded', () => {
     function applySiteSettings() {
         const settings = getLocalStorageSettings();
         
-        const setHtml = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
-        const setText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+        const heroTitle = document.getElementById('dyn-hero-title');
+        const heroDesc = document.getElementById('dyn-hero-desc');
+        if (heroTitle) heroTitle.innerHTML = settings.heroTitle;
+        if (heroDesc) heroDesc.innerText = settings.heroDesc;
 
-        setHtml('dyn-hero-title', settings.heroTitle);
-        setText('dyn-hero-desc', settings.heroDesc);
-        setText('dyn-about-p1', settings.aboutText1);
-        setText('dyn-about-p2', settings.aboutText2);
+        const aboutP1 = document.getElementById('dyn-about-p1');
+        const aboutP2 = document.getElementById('dyn-about-p2');
+        if (aboutP1) aboutP1.innerText = settings.aboutText1;
+        if (aboutP2) aboutP2.innerText = settings.aboutText2;
 
-        setHtml('dyn-footer-address', `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`);
-        setText('dyn-footer-email', settings.contactEmail);
+        const contactAddr = document.getElementById('dyn-footer-address');
+        const contactEmail = document.getElementById('dyn-footer-email');
+        if (contactAddr) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
+        if (contactEmail) contactEmail.innerText = settings.contactEmail;
 
-        const gh = document.getElementById('dyn-footer-github');
-        const li = document.getElementById('dyn-footer-linkedin');
-        const ig = document.getElementById('dyn-footer-instagram');
-        if (gh) gh.href = settings.socialGithub;
-        if (li) li.href = settings.socialLinkedin;
-        if (ig) ig.href = settings.socialInstagram;
+        const githubLink = document.getElementById('dyn-footer-github');
+        const linkedinLink = document.getElementById('dyn-footer-linkedin');
+        const instagramLink = document.getElementById('dyn-footer-instagram');
+        if (githubLink) githubLink.href = settings.socialGithub;
+        if (linkedinLink) linkedinLink.href = settings.socialLinkedin;
+        if (instagramLink) instagramLink.href = settings.socialInstagram;
 
-        // Yönetim Kurulu Ekranı
-        setText('dyn-team-m1-name', settings.teamM1Name);
-        setText('dyn-team-m1-role', settings.teamM1Role);
-        setText('dyn-team-m1-bio', settings.teamM1Bio);
-        setText('dyn-team-m2-name', settings.teamM2Name);
-        setText('dyn-team-m2-role', settings.teamM2Role);
-        setText('dyn-team-m2-bio', settings.teamM2Bio);
-        setText('dyn-team-m3-name', settings.teamM3Name);
-        setText('dyn-team-m3-role', settings.teamM3Role);
-        setText('dyn-team-m3-bio', settings.teamM3Bio);
+        const m1Name = document.getElementById('dyn-team-m1-name');
+        const m1Role = document.getElementById('dyn-team-m1-role');
+        const m1Bio = document.getElementById('dyn-team-m1-bio');
+        const m2Name = document.getElementById('dyn-team-m2-name');
+        const m2Role = document.getElementById('dyn-team-m2-role');
+        const m2Bio = document.getElementById('dyn-team-m2-bio');
+        const m3Name = document.getElementById('dyn-team-m3-name');
+        const m3Role = document.getElementById('dyn-team-m3-role');
+        const m3Bio = document.getElementById('dyn-team-m3-bio');
 
-        // Tüzük
-        setText('dyn-reg-t1', settings.regT1); setText('dyn-reg-c1', settings.regC1);
-        setText('dyn-reg-t2', settings.regT2); setText('dyn-reg-c2', settings.regC2);
-        setText('dyn-reg-t3', settings.regT3); setText('dyn-reg-c3', settings.regC3);
-        setText('dyn-reg-t4', settings.regT4); setText('dyn-reg-c4', settings.regC4);
+        if (m1Name) m1Name.innerText = settings.teamM1Name;
+        if (m1Role) m1Role.innerText = settings.teamM1Role;
+        if (m1Bio) m1Bio.innerText = settings.teamM1Bio;
+        if (m2Name) m2Name.innerText = settings.teamM2Name;
+        if (m2Role) m2Role.innerText = settings.teamM2Role;
+        if (m2Bio) m2Bio.innerText = settings.teamM2Bio;
+        if (m3Name) m3Name.innerText = settings.teamM3Name;
+        if (m3Role) m3Role.innerText = settings.teamM3Role;
+        if (m3Bio) m3Bio.innerText = settings.teamM3Bio;
 
-        // Sponsor Sayacı Daima 0
+        const regT1 = document.getElementById('dyn-reg-t1');
+        const regC1 = document.getElementById('dyn-reg-c1');
+        const regT2 = document.getElementById('dyn-reg-t2');
+        const regC2 = document.getElementById('dyn-reg-c2');
+        const regT3 = document.getElementById('dyn-reg-t3');
+        const regC3 = document.getElementById('dyn-reg-c3');
+        const regT4 = document.getElementById('dyn-reg-t4');
+        const regC4 = document.getElementById('dyn-reg-c4');
+
+        if (regT1) regT1.innerText = settings.regT1;
+        if (regC1) regC1.innerText = settings.regC1;
+        if (regT2) regT2.innerText = settings.regT2;
+        if (regC2) regC2.innerText = settings.regC2;
+        if (regT3) regT3.innerText = settings.regT3;
+        if (regC3) regC3.innerText = settings.regC3;
+        if (regT4) regT4.innerText = settings.regT4;
+        if (regC4) regC4.innerText = settings.regC4;
+
         const sponsorSpan = document.getElementById('homepage-sponsor-count');
         if (sponsorSpan) {
             sponsorSpan.setAttribute('data-val', 0);
@@ -534,7 +799,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateHomepageStats() {
+    async function updateHomepageStats() {
         const approvedCount = dbMembers.filter(m => m && (m.status === 'approved' || m.status === 'onaylandı' || m.status === 'onaylandi')).length;
         const memberSpan = document.getElementById('homepage-member-count');
         if (memberSpan) {
@@ -556,7 +821,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 7. BAŞVURU YÖNETİM TABLOSU (ONAYLA / REDDET / SİL / DETAY) ---
+    const trackLabels = {
+        ios: "iOS (Swift)",
+        android: "Android (Kotlin)",
+        cross: "Hibrit (Flutter)",
+        uiux: "Tasarım (Figma)"
+    };
+
+    const loginTrigger = document.getElementById('login-trigger');
+    const adminTriggerFooter = document.getElementById('admin-trigger-footer');
+    const loginModal = document.getElementById('login-modal');
+    const closeLogin = document.getElementById('close-login');
+    const adminLoginForm = document.getElementById('admin-login-form');
+    const adminDashboard = document.getElementById('admin-dashboard');
+    const logoutBtn = document.getElementById('logout-btn');
+    const loginError = document.getElementById('login-error-message');
     const getSearchText = () => {
         const input = document.getElementById('member-search');
         return input ? input.value : '';
@@ -564,6 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentAdminMemberStatusFilter = 'all';
 
+    // --- 8. Admin Başvuru Tablosu ---
     function renderDashboardTable(filterText = getSearchText(), forceFetch = false, statusFilter = currentAdminMemberStatusFilter) {
         currentAdminMemberStatusFilter = statusFilter;
         const listContainer = document.getElementById('admin-member-list');
@@ -582,10 +862,17 @@ document.addEventListener('DOMContentLoaded', () => {
             else pendingCount++;
         });
 
-        const setT = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
-        setT('dash-total-members', total);
-        setT('dash-approved-count', approvedCount);
-        setT('dash-pending-count', pendingCount);
+        if (document.getElementById('dash-total-members')) document.getElementById('dash-total-members').innerText = total;
+        if (document.getElementById('dash-approved-count')) document.getElementById('dash-approved-count').innerText = approvedCount;
+        if (document.getElementById('dash-pending-count')) document.getElementById('dash-pending-count').innerText = pendingCount;
+
+        const cardAll = document.getElementById('stat-card-all');
+        const cardApproved = document.getElementById('stat-card-approved');
+        const cardPending = document.getElementById('stat-card-pending');
+
+        if (cardAll) cardAll.style.border = statusFilter === 'all' ? '2px solid var(--primary)' : '1px solid var(--border-color)';
+        if (cardApproved) cardApproved.style.border = statusFilter === 'approved' ? '2px solid #10b981' : '1px solid var(--border-color)';
+        if (cardPending) cardPending.style.border = statusFilter === 'pending' ? '2px solid #f59e0b' : '1px solid var(--border-color)';
 
         const searchStr = (typeof filterText === 'string' ? filterText : '').toLowerCase().trim();
         const filtered = dbMembers.filter(m => {
@@ -593,6 +880,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const nameStr = (m.name || m.fullName || (m.firstName ? `${m.firstName} ${m.lastName || ''}` : '') || '').toLowerCase();
             const emailStr = (m.email || '').toLowerCase();
             const deptStr = (m.department || m.faculty || '').toLowerCase();
+
             const matchesText = !searchStr || nameStr.includes(searchStr) || emailStr.includes(searchStr) || deptStr.includes(searchStr);
 
             let matchesStatus = true;
@@ -636,7 +924,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const ipDisplay = m.ipAddress || m.ip || 'Tespit Ediliyor...';
             const regDate = m.registeredAt || 'Yeni Başvuru';
 
-            // İsmin üzerine gelince görünen zengin önizleme ipucu
+            // Zengin Hover Önizlemesi
             const hoverTooltip = `Öğrenci No: ${m.studentId || '-'}\nTelefon: ${m.phone || '-'}\nFakülte: ${m.faculty || '-'}\nBölüm: ${deptVal}\nSınıf: ${m.grade || '-'}\nDoğum Tarihi: ${m.birthdate || '-'}\nDurum: ${statusText}\n(Detayları açmak için tıklayın)`;
 
             tr.innerHTML = `
@@ -678,33 +966,38 @@ document.addEventListener('DOMContentLoaded', () => {
             approveMember(approveBtn.getAttribute('data-id'));
             return;
         }
+
         const rejectBtn = e.target.closest('.btn-reject');
         if (rejectBtn) {
             e.preventDefault(); e.stopPropagation();
             rejectMember(rejectBtn.getAttribute('data-id'));
             return;
         }
+
         const deleteBtn = e.target.closest('.btn-delete');
         if (deleteBtn) {
             e.preventDefault(); e.stopPropagation();
             deleteMember(deleteBtn.getAttribute('data-id'));
             return;
         }
+
         const nameElem = e.target.closest('.clickable-member-name');
         if (nameElem) {
             e.preventDefault(); e.stopPropagation();
             openAdminMemberDetail(nameElem.getAttribute('data-id'));
             return;
         }
+
         const cardAll = e.target.closest('#stat-card-all, #filter-btn-all');
         const cardApproved = e.target.closest('#stat-card-approved, #filter-btn-approved');
         const cardPending = e.target.closest('#stat-card-pending, #filter-btn-pending');
+
         if (cardAll) renderDashboardTable(getSearchText(), false, 'all');
         else if (cardApproved) renderDashboardTable(getSearchText(), false, 'approved');
         else if (cardPending) renderDashboardTable(getSearchText(), false, 'pending');
     });
 
-    // Detay Modalı
+    // --- Admin Member Detail Modal ---
     let activeDetailMemberId = null;
 
     function openAdminMemberDetail(id) {
@@ -725,9 +1018,11 @@ document.addEventListener('DOMContentLoaded', () => {
         setST('admin-detail-dept', member.department);
         setST('admin-detail-grade', member.grade);
         setST('admin-detail-birthdate', member.birthdate);
-
+        
         const pwEl = document.getElementById('admin-detail-password');
-        if (pwEl) pwEl.innerHTML = '<span style="color: #10b981; font-weight: 600;"><i class="fa-solid fa-shield-halved"></i> SHA-256 Şifreli</span>';
+        if (pwEl) {
+            pwEl.innerHTML = '<span style="color: #10b981; font-weight: 600;"><i class="fa-solid fa-shield-halved"></i> SHA-256 Şifreli</span>';
+        }
 
         const st = (member.status || '').toLowerCase();
         const isApp = (st === 'approved' || st === 'onaylandı' || st === 'onaylandi');
@@ -790,6 +1085,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const adminMemberDetailModal = document.getElementById('admin-member-detail-modal');
+    if (adminMemberDetailModal) {
+        adminMemberDetailModal.addEventListener('click', (e) => {
+            if (e.target === adminMemberDetailModal) {
+                adminMemberDetailModal.classList.add('hidden');
+                adminMemberDetailModal.style.display = 'none';
+            }
+        });
+    }
+
+    function escapeHtml(text) {
+        if (text === null || text === undefined) return '';
+        const str = String(text);
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
     function approveMember(id) {
         if (!id) return;
         const target = String(id).toLowerCase().trim();
@@ -818,7 +1134,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         renderDashboardTable(getSearchText(), false);
         updateHomepageStats();
-        showStatusToast("Onaylandı!", "Başvuru onaylandı.", true);
+        showStatusToast("Onaylandı!", "Başvuru başarıyla onaylandı.", true);
     }
 
     function rejectMember(id) {
@@ -881,60 +1197,370 @@ document.addEventListener('DOMContentLoaded', () => {
 
             renderDashboardTable(getSearchText(), false);
             updateHomepageStats();
-            showStatusToast("Silindi", "Başvuru kaldırıldı.", true);
+            showStatusToast("Silindi", "Başvuru kalıcı olarak silindi.", true);
         }
     }
 
-    // --- 8. TEMİZLENMİŞ ETKİNLİK, DUYURU VE BLOG YÖNETİMİ (Sahteler Silindi) ---
-    function getLocalStorageEvents() {
-        const stored = localStorage.getItem('myk_events');
-        if (!stored) return [];
-        try {
-            let parsed = JSON.parse(stored);
-            if (!Array.isArray(parsed)) return [];
-            return parsed.filter(e => e && !['ev_1','ev_2','ev_3','ev_4','ev_5','ev_6'].includes(e.id));
-        } catch(e) { return []; }
-    }
-    function saveLocalStorageEvents(evs) {
-        localStorage.setItem('myk_events', JSON.stringify(evs));
-        if (useFirebase && db) {
-            evs.forEach(ev => db.collection('events').doc(ev.id.toString()).set(ev).catch(() => {}));
+    // --- 9. ÜYE VE YÖNETİCİ GİRİŞ SİSTEMİ (GİRİŞ YAP BUTONLARI VE MODALI) ---
+    function openLoginModal(e) {
+        if (e) e.preventDefault();
+        
+        const menuToggleBtn = document.getElementById('menu-toggle');
+        const navMenuDrawer = document.getElementById('nav-menu');
+        if (menuToggleBtn && navMenuDrawer) {
+            menuToggleBtn.classList.remove('open');
+            navMenuDrawer.classList.remove('open');
+        }
+        
+        if (loginModal) {
+            loginModal.classList.remove('hidden');
+            if (loginError) loginError.classList.add('hidden');
+            document.body.style.overflow = 'hidden';
         }
     }
 
-    function getLocalStorageAnnouncements() {
-        const stored = localStorage.getItem('myk_announcements');
-        if (!stored) return [];
-        try {
-            let parsed = JSON.parse(stored);
-            if (!Array.isArray(parsed)) return [];
-            return parsed.filter(a => a && !['ann_1','ann_2','ann_3'].includes(a.id));
-        } catch(e) { return []; }
+    if (loginTrigger) loginTrigger.addEventListener('click', openLoginModal);
+    const loginTriggerMobile = document.getElementById('login-trigger-mobile');
+    if (loginTriggerMobile) loginTriggerMobile.addEventListener('click', openLoginModal);
+    if (adminTriggerFooter) adminTriggerFooter.addEventListener('click', openLoginModal);
+    
+    if (closeLogin) {
+        closeLogin.addEventListener('click', () => {
+            if (loginModal) {
+                loginModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
     }
-    function saveLocalStorageAnnouncements(anns) {
-        localStorage.setItem('myk_announcements', JSON.stringify(anns));
-        if (useFirebase && db) {
-            anns.forEach(ann => db.collection('announcements').doc(ann.id.toString()).set(ann).catch(() => {}));
+    
+    if (loginModal) {
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
+                loginModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
+
+    const tabMemberBtn = document.getElementById('tab-member-btn');
+    const tabAdminBtn = document.getElementById('tab-admin-btn');
+    const memberLoginArea = document.getElementById('member-login-area');
+    const adminLoginArea = document.getElementById('admin-login-area');
+    const memberLoginError = document.getElementById('member-login-error');
+
+    if (tabMemberBtn && tabAdminBtn && memberLoginArea && adminLoginArea) {
+        tabMemberBtn.addEventListener('click', () => {
+            tabMemberBtn.classList.add('active');
+            tabAdminBtn.classList.remove('active');
+            memberLoginArea.classList.remove('hidden');
+            adminLoginArea.classList.add('hidden');
+            if (memberLoginError) memberLoginError.classList.add('hidden');
+            if (loginError) loginError.classList.add('hidden');
+        });
+
+        tabAdminBtn.addEventListener('click', () => {
+            tabAdminBtn.classList.add('active');
+            tabMemberBtn.classList.remove('active');
+            adminLoginArea.classList.remove('hidden');
+            memberLoginArea.classList.add('hidden');
+            if (memberLoginError) memberLoginError.classList.add('hidden');
+            if (loginError) loginError.classList.add('hidden');
+        });
+    }
+
+    function updateHeaderState(member, isLoggedIn) {
+        const loginTrigger = document.getElementById('login-trigger');
+        const registerTriggerNav = document.getElementById('register-trigger-nav');
+        const userProfileTrigger = document.getElementById('user-profile-trigger');
+        const navUserName = document.getElementById('nav-user-name');
+        
+        const loginTriggerMobile = document.getElementById('login-trigger-mobile');
+        const registerTriggerMobile = document.getElementById('register-trigger-mobile');
+        const userProfileTriggerMobile = document.getElementById('user-profile-trigger-mobile');
+        const navUserNameMobile = document.getElementById('nav-user-name-mobile');
+
+        if (isLoggedIn && member) {
+            if (loginTrigger) loginTrigger.classList.add('hidden');
+            if (registerTriggerNav) registerTriggerNav.classList.add('hidden');
+            if (userProfileTrigger) userProfileTrigger.classList.remove('hidden');
+            
+            if (loginTriggerMobile) loginTriggerMobile.classList.add('hidden');
+            if (registerTriggerMobile) registerTriggerMobile.classList.add('hidden');
+            if (userProfileTriggerMobile) userProfileTriggerMobile.classList.remove('hidden');
+            
+            const displayName = member.username || member.name.split(' ')[0];
+            if (navUserName) navUserName.innerText = displayName;
+            if (navUserNameMobile) navUserNameMobile.innerText = displayName;
+        } else {
+            if (loginTrigger) loginTrigger.classList.remove('hidden');
+            if (registerTriggerNav) registerTriggerNav.classList.remove('hidden');
+            if (userProfileTrigger) userProfileTrigger.classList.add('hidden');
+            
+            if (loginTriggerMobile) loginTriggerMobile.classList.remove('hidden');
+            if (registerTriggerMobile) registerTriggerMobile.classList.remove('hidden');
+            if (userProfileTriggerMobile) userProfileTriggerMobile.classList.add('hidden');
         }
     }
 
-    function getLocalStorageBlog() {
-        const stored = localStorage.getItem('myk_blog');
-        if (!stored) return [];
-        try {
-            let parsed = JSON.parse(stored);
-            if (!Array.isArray(parsed)) return [];
-            return parsed.filter(b => b && !['post_1','post_2','post_3','post_4','post_5','post_6'].includes(b.id));
-        } catch(e) { return []; }
-    }
-    function saveLocalStorageBlog(blg) {
-        localStorage.setItem('myk_blog', JSON.stringify(blg));
-        if (useFirebase && db) {
-            blg.forEach(post => db.collection('blog').doc(post.id.toString()).set(post).catch(() => {}));
-        }
+    // Üye Girişi Form Submit
+    const memberLoginForm = document.getElementById('member-login-form');
+    if (memberLoginForm) {
+        memberLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('member-email').value.trim().toLowerCase();
+            const rawPassword = document.getElementById('member-password').value.trim();
+            const submitBtn = memberLoginForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.innerHTML : "Giriş Yap";
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Giriş Yapılıyor...';
+            }
+
+            try {
+                let foundMember = null;
+                const hashedPassword = await hashPassword(rawPassword);
+
+                if (useFirebase && db) {
+                    let snapshot = await db.collection('applicants').where('email', '==', email).get();
+                    if (snapshot.empty) {
+                        const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
+                        snapshot = await db.collection('applicants').where('email', '==', capitalizedEmail).get();
+                    }
+
+                    if (!snapshot.empty) {
+                        const doc = snapshot.docs[0];
+                        const fbUser = { id: doc.id, ...doc.data() };
+                        
+                        let isMatch = false;
+                        if (fbUser.password === hashedPassword) {
+                            isMatch = true;
+                        } else if (fbUser.password && fbUser.password.trim() === rawPassword) {
+                            isMatch = true;
+                            fbUser.password = hashedPassword;
+                            db.collection('applicants').doc(doc.id).update({ password: hashedPassword }).catch(() => {});
+                        }
+
+                        if (isMatch) {
+                            foundMember = fbUser;
+                            const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
+                            const idx = localMembers.findIndex(m => m.email.toLowerCase() === email);
+                            if (idx !== -1) localMembers[idx] = fbUser;
+                            else localMembers.push(fbUser);
+                            localStorage.setItem('myk_members', JSON.stringify(localMembers));
+                        }
+                    }
+                } else {
+                    const localData = localStorage.getItem('myk_members');
+                    if (localData) {
+                        const localMembers = JSON.parse(localData);
+                        const candidate = localMembers.find(m => m.email.toLowerCase() === email);
+                        if (candidate) {
+                            if (candidate.password === hashedPassword) {
+                                foundMember = candidate;
+                            } else if (candidate.password && candidate.password.trim() === rawPassword) {
+                                candidate.password = hashedPassword;
+                                foundMember = candidate;
+                                localStorage.setItem('myk_members', JSON.stringify(localMembers));
+                            }
+                        }
+                    }
+                }
+
+                if (foundMember) {
+                    loginModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                    sessionStorage.setItem('member_logged_in_email', email);
+                    updateHeaderState(foundMember, true);
+                    if (memberLoginError) memberLoginError.classList.add('hidden');
+                    memberLoginForm.reset();
+                    
+                    showStatusToast("Giriş Başarılı!", "Hoş geldiniz, " + (foundMember.name || "Üye"), true);
+                    setTimeout(() => {
+                        window.location.href = 'profil.html';
+                    }, 400);
+                } else {
+                    if (memberLoginError) memberLoginError.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error("Login verification failed:", err);
+                if (memberLoginError) memberLoginError.classList.remove('hidden');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            }
+        });
     }
 
-    // Etkinlik Listesini Çizme
+    // Şifremi Unuttum Alanı
+    const forgotPasswordTrigger = document.getElementById('forgot-password-trigger');
+    const loginTabs = document.querySelector('.login-tabs');
+    const forgotPasswordArea = document.getElementById('forgot-password-area');
+    const passwordResetVerifArea = document.getElementById('password-reset-verif-area');
+
+    if (forgotPasswordTrigger) {
+        forgotPasswordTrigger.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (memberLoginArea) memberLoginArea.classList.add('hidden');
+            if (adminLoginArea) adminLoginArea.classList.add('hidden');
+            if (loginTabs) loginTabs.classList.add('hidden');
+            if (forgotPasswordArea) forgotPasswordArea.classList.remove('hidden');
+            if (passwordResetVerifArea) passwordResetVerifArea.classList.add('hidden');
+        });
+    }
+
+    document.querySelectorAll('.back-to-login').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (forgotPasswordArea) forgotPasswordArea.classList.add('hidden');
+            if (passwordResetVerifArea) passwordResetVerifArea.classList.add('hidden');
+            if (memberLoginArea) memberLoginArea.classList.remove('hidden');
+            if (loginTabs) {
+                loginTabs.classList.remove('hidden');
+                if (tabMemberBtn) tabMemberBtn.click();
+            }
+        });
+    });
+
+    // --- 10. YÖNETİCİ MODU & CMS PANELİ (Canlı Düzenleme) ---
+    function enableAdminMode() {
+        document.body.classList.add('admin-mode-active');
+        const toolbar = document.getElementById('admin-toolbar');
+        if (toolbar) toolbar.classList.remove('hidden');
+        
+        const adminSec = document.getElementById('section-admin-basvurular');
+        if (adminSec) adminSec.classList.remove('hidden');
+
+        document.querySelectorAll('.admin-edit-trigger').forEach(b => b.classList.remove('hidden'));
+        renderDashboardTable(getSearchText(), false);
+    }
+
+    function disableAdminMode() {
+        document.body.classList.remove('admin-mode-active');
+        const toolbar = document.getElementById('admin-toolbar');
+        if (toolbar) toolbar.classList.add('hidden');
+        
+        const adminSec = document.getElementById('section-admin-basvurular');
+        if (adminSec) adminSec.classList.add('hidden');
+
+        if (adminDashboard) adminDashboard.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+
+        document.querySelectorAll('.admin-edit-trigger').forEach(b => b.classList.add('hidden'));
+        sessionStorage.removeItem('admin_logged_in');
+    }
+
+    if (adminLoginForm) {
+        adminLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('admin-email').value.trim();
+            const pass = document.getElementById('admin-password').value;
+
+            const isAdminUser = (
+                (email.toLowerCase() === 'yusuffurkangek@gmail.com' && (pass === 'Furkan123456?' || pass === 'Furkan123456' || pass === 'admin')) ||
+                (email.toLowerCase() === 'admin@kulup.com' && pass === 'admin') ||
+                (email.toLowerCase().includes('admin')) ||
+                (email.toLowerCase().includes('yusuf') && (pass.includes('123456') || pass === 'Furkan123456?'))
+            );
+
+            if (isAdminUser) {
+                if (loginModal) loginModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                sessionStorage.setItem('admin_logged_in', 'true');
+                enableAdminMode();
+                if (loginError) loginError.classList.add('hidden');
+                adminLoginForm.reset();
+                showStatusToast("Yönetici Girişi", "Yönetici modu aktif edildi.", true);
+            } else {
+                if (loginError) loginError.classList.remove('hidden');
+            }
+        });
+    }
+
+    if (logoutBtn) logoutBtn.addEventListener('click', disableAdminMode);
+    const adminToolbarLogout = document.getElementById('admin-toolbar-logout');
+    if (adminToolbarLogout) adminToolbarLogout.addEventListener('click', disableAdminMode);
+
+    // Toolbar Sekmeleri
+    const tabBtns = document.querySelectorAll('.dash-tab-btn');
+    const tabSections = document.querySelectorAll('.dash-tab-section');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.getAttribute('data-tab');
+            tabBtns.forEach(b => {
+                b.classList.remove('active');
+                b.style.borderBottomColor = 'transparent';
+                b.style.color = 'var(--text-muted)';
+            });
+            btn.classList.add('active');
+            btn.style.borderBottomColor = 'var(--primary)';
+            btn.style.color = 'var(--headings-color)';
+
+            tabSections.forEach(sec => sec.classList.add('hidden'));
+            const activeSection = document.getElementById(`section-${tab}`);
+            if (activeSection) activeSection.classList.remove('hidden');
+
+            if (tab === 'events') renderDashboardEvents();
+            else if (tab === 'announcements') renderDashboardAnnouncements();
+            else if (tab === 'blog') renderDashboardBlog();
+            else if (tab === 'settings') initSettingsTab();
+        });
+    });
+
+    const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
+    toolbarBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.getAttribute('data-target');
+            if (targetTab === 'members') {
+                window.location.href = 'basvurular.html';
+                return;
+            }
+            const dashboardTabBtn = document.querySelector(`.dash-tab-btn[data-tab="${targetTab}"]`);
+            if (dashboardTabBtn) dashboardTabBtn.click();
+            if (adminDashboard) {
+                adminDashboard.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    });
+
+    const closeDashboardBtn = document.getElementById('close-dashboard-btn');
+    if (closeDashboardBtn && adminDashboard) {
+        closeDashboardBtn.addEventListener('click', () => {
+            adminDashboard.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        });
+    }
+
+    // Canlı Düzenleme Butonları
+    document.querySelectorAll('.admin-edit-trigger[data-section]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const section = btn.getAttribute('data-section');
+            const settingsTabBtn = document.querySelector('.dash-tab-btn[data-tab="settings"]');
+            if (settingsTabBtn) settingsTabBtn.click();
+            if (adminDashboard) {
+                adminDashboard.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+            setTimeout(() => {
+                let targetInput = null;
+                if (section === 'hero') targetInput = document.getElementById('set-hero-title');
+                else if (section === 'about') targetInput = document.getElementById('set-about-p1');
+                else if (section === 'contact') targetInput = document.getElementById('set-contact-address');
+                else if (section === 'team') targetInput = document.getElementById('set-team-m1-name');
+                else if (section === 'regulations') targetInput = document.getElementById('set-reg-t1');
+                if (targetInput) {
+                    targetInput.focus();
+                    targetInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 150);
+        });
+    });
+
+    // Dashboard Tablo Çizimleri
     function renderDashboardEvents() {
         const listContainer = document.getElementById('admin-events-list');
         if (!listContainer) return;
@@ -942,7 +1568,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const events = getLocalStorageEvents();
 
         if (events.length === 0) {
-            listContainer.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px;">Kayıtlı etkinlik bulunamadı. Yeni etkinlik ekleyebilirsiniz.</td></tr>`;
+            listContainer.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px;">Kayıtlı etkinlik bulunamadı.</td></tr>`;
             return;
         }
 
@@ -967,7 +1593,6 @@ document.addEventListener('DOMContentLoaded', () => {
         listContainer.querySelectorAll('.btn-delete-event').forEach(b => b.addEventListener('click', () => deleteEvent(b.getAttribute('data-id'))));
     }
 
-    // Duyuru Listesini Çizme
     function renderDashboardAnnouncements() {
         const listContainer = document.getElementById('admin-announcements-list');
         if (!listContainer) return;
@@ -975,7 +1600,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const announcements = getLocalStorageAnnouncements();
 
         if (announcements.length === 0) {
-            listContainer.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px;">Kayıtlı duyuru bulunamadı. Yeni duyuru ekleyebilirsiniz.</td></tr>`;
+            listContainer.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px;">Kayıtlı duyuru bulunamadı.</td></tr>`;
             return;
         }
 
@@ -998,7 +1623,6 @@ document.addEventListener('DOMContentLoaded', () => {
         listContainer.querySelectorAll('.btn-delete-ann').forEach(b => b.addEventListener('click', () => deleteAnnouncement(b.getAttribute('data-id'))));
     }
 
-    // Blog Listesini Çizme
     function renderDashboardBlog() {
         const listContainer = document.getElementById('admin-blog-list');
         if (!listContainer) return;
@@ -1006,7 +1630,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const blogPosts = getLocalStorageBlog();
 
         if (blogPosts.length === 0) {
-            listContainer.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 30px;">Kayıtlı blog yazısı bulunamadı. Yeni blog ekleyebilirsiniz.</td></tr>`;
+            listContainer.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 30px;">Kayıtlı blog yazısı bulunamadı.</td></tr>`;
             return;
         }
 
@@ -1032,7 +1656,7 @@ document.addEventListener('DOMContentLoaded', () => {
         listContainer.querySelectorAll('.btn-delete-blog').forEach(b => b.addEventListener('click', () => deleteBlog(b.getAttribute('data-id'))));
     }
 
-    // Etkinlik Ekle / Düzenle / Sil
+    // Modal & Formlar
     const eventModal = document.getElementById('admin-event-modal');
     const eventForm = document.getElementById('admin-event-form');
     const btnAddEvent = document.getElementById('btn-add-event');
@@ -1043,12 +1667,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (eventForm) eventForm.reset();
             const editId = document.getElementById('event-edit-id');
             if (editId) editId.value = '';
-            const titleEl = document.getElementById('event-modal-title');
-            if (titleEl) titleEl.innerText = 'Yeni Etkinlik Ekle';
+            document.getElementById('event-modal-title').innerText = 'Yeni Etkinlik Ekle';
             if (eventModal) eventModal.classList.remove('hidden');
         });
     }
-
     if (closeEventModalBtn && eventModal) closeEventModalBtn.addEventListener('click', () => eventModal.classList.add('hidden'));
 
     if (eventForm) {
@@ -1107,7 +1729,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Duyuru Ekle / Düzenle / Sil
     const announcementModal = document.getElementById('admin-announcement-modal');
     const announcementForm = document.getElementById('admin-announcement-form');
     const btnAddAnnouncement = document.getElementById('btn-add-announcement');
@@ -1122,7 +1743,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (announcementModal) announcementModal.classList.remove('hidden');
         });
     }
-
     if (closeAnnouncementModalBtn && announcementModal) closeAnnouncementModalBtn.addEventListener('click', () => announcementModal.classList.add('hidden'));
 
     if (announcementForm) {
@@ -1172,7 +1792,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Blog Ekle / Düzenle / Sil
     const blogModal = document.getElementById('admin-blog-modal');
     const blogForm = document.getElementById('admin-blog-form');
     const btnAddBlog = document.getElementById('btn-add-blog');
@@ -1186,7 +1805,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (blogModal) blogModal.classList.remove('hidden');
         });
     }
-
     if (closeBlogModalBtn && blogModal) closeBlogModalBtn.addEventListener('click', () => blogModal.classList.add('hidden'));
 
     if (blogForm) {
@@ -1244,7 +1862,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 9. CMS SİTE AYARLARI FORMU ---
+    // CMS Ayarları Formu
     function initSettingsTab() {
         const settings = getLocalStorageSettings();
         const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
@@ -1312,151 +1930,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             saveLocalStorageSettings(settingsData);
             applySiteSettings();
-            showStatusToast("Kaydedildi!", "Site içerik ayarları güncellendi.", true);
+            showStatusToast("Kaydedildi!", "Site içerik ayarları başarıyla güncellendi.", true);
         });
     }
-
-    // --- 10. YÖNETİCİ GİRİŞİ & PANEL YÖNETİMİ ---
-    const adminDashboard = document.getElementById('admin-dashboard');
-    const adminLoginForm = document.getElementById('admin-login-form');
-    const loginModal = document.getElementById('login-modal');
-    const loginError = document.getElementById('login-error-message');
-
-    function enableAdminMode() {
-        document.body.classList.add('admin-mode-active');
-        const toolbar = document.getElementById('admin-toolbar');
-        if (toolbar) toolbar.classList.remove('hidden');
-        
-        const adminSec = document.getElementById('section-admin-basvurular');
-        if (adminSec) adminSec.classList.remove('hidden');
-
-        document.querySelectorAll('.admin-edit-trigger').forEach(b => b.classList.remove('hidden'));
-        renderDashboardTable(getSearchText(), false);
-    }
-
-    function disableAdminMode() {
-        document.body.classList.remove('admin-mode-active');
-        const toolbar = document.getElementById('admin-toolbar');
-        if (toolbar) toolbar.classList.add('hidden');
-        
-        const adminSec = document.getElementById('section-admin-basvurular');
-        if (adminSec) adminSec.classList.add('hidden');
-
-        if (adminDashboard) adminDashboard.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-
-        document.querySelectorAll('.admin-edit-trigger').forEach(b => b.classList.add('hidden'));
-        sessionStorage.removeItem('admin_logged_in');
-    }
-
-    if (adminLoginForm) {
-        adminLoginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('admin-email').value.trim();
-            const pass = document.getElementById('admin-password').value;
-
-            const isAdminUser = (
-                (email.toLowerCase() === 'yusuffurkangek@gmail.com' && (pass === 'Furkan123456?' || pass === 'Furkan123456' || pass === 'admin')) ||
-                (email.toLowerCase() === 'admin@kulup.com' && pass === 'admin') ||
-                (email.toLowerCase().includes('admin')) ||
-                (email.toLowerCase().includes('yusuf') && (pass.includes('123456') || pass === 'Furkan123456?'))
-            );
-
-            if (isAdminUser) {
-                if (loginModal) loginModal.classList.add('hidden');
-                sessionStorage.setItem('admin_logged_in', 'true');
-                enableAdminMode();
-                if (loginError) loginError.classList.add('hidden');
-                adminLoginForm.reset();
-                showStatusToast("Yönetici Girişi", "Yönetici modu aktif edildi.", true);
-            } else {
-                if (loginError) loginError.classList.remove('hidden');
-            }
-        });
-    }
-
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) logoutBtn.addEventListener('click', disableAdminMode);
-
-    const adminToolbarLogout = document.getElementById('admin-toolbar-logout');
-    if (adminToolbarLogout) adminToolbarLogout.addEventListener('click', disableAdminMode);
-
-    // Toolbar ve Panel Sekmeleri
-    const tabBtns = document.querySelectorAll('.dash-tab-btn');
-    const tabSections = document.querySelectorAll('.dash-tab-section');
-
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tab = btn.getAttribute('data-tab');
-            tabBtns.forEach(b => {
-                b.classList.remove('active');
-                b.style.borderBottomColor = 'transparent';
-                b.style.color = 'var(--text-muted)';
-            });
-            btn.classList.add('active');
-            btn.style.borderBottomColor = 'var(--primary)';
-            btn.style.color = 'var(--headings-color)';
-
-            tabSections.forEach(sec => sec.classList.add('hidden'));
-            const activeSection = document.getElementById(`section-${tab}`);
-            if (activeSection) activeSection.classList.remove('hidden');
-
-            if (tab === 'events') renderDashboardEvents();
-            else if (tab === 'announcements') renderDashboardAnnouncements();
-            else if (tab === 'blog') renderDashboardBlog();
-            else if (tab === 'settings') initSettingsTab();
-        });
-    });
-
-    const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
-    toolbarBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const targetTab = btn.getAttribute('data-target');
-            if (targetTab === 'members') {
-                window.location.href = 'basvurular.html';
-                return;
-            }
-            const dashboardTabBtn = document.querySelector(`.dash-tab-btn[data-tab="${targetTab}"]`);
-            if (dashboardTabBtn) dashboardTabBtn.click();
-            if (adminDashboard) {
-                adminDashboard.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
-        });
-    });
-
-    const closeDashboardBtn = document.getElementById('close-dashboard-btn');
-    if (closeDashboardBtn && adminDashboard) {
-        closeDashboardBtn.addEventListener('click', () => {
-            adminDashboard.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        });
-    }
-
-    // Canlı Düzenleme Kalem Butonları
-    document.querySelectorAll('.admin-edit-trigger[data-section]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const section = btn.getAttribute('data-section');
-            const settingsTabBtn = document.querySelector('.dash-tab-btn[data-tab="settings"]');
-            if (settingsTabBtn) settingsTabBtn.click();
-            if (adminDashboard) {
-                adminDashboard.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
-            setTimeout(() => {
-                let targetInput = null;
-                if (section === 'hero') targetInput = document.getElementById('set-hero-title');
-                else if (section === 'about') targetInput = document.getElementById('set-about-p1');
-                else if (section === 'contact') targetInput = document.getElementById('set-contact-address');
-                else if (section === 'team') targetInput = document.getElementById('set-team-m1-name');
-                else if (section === 'regulations') targetInput = document.getElementById('set-reg-t1');
-                if (targetInput) {
-                    targetInput.focus();
-                    targetInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }, 150);
-        });
-    });
 
     // Arama Kutusu
     const memberSearch = document.getElementById('member-search');
