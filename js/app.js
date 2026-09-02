@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let useFirebase = false;
     let useEmailJS = false;
 
-    // Gerçek üyeler için yerel hafıza yönetimi (Sahte test kullanıcıları temizlendi)
+    // Sahte test kullanıcılarını temizleyen üye yöneticisi
     function getLocalStorageMembers() {
         const stored = localStorage.getItem('myk_members');
         if (!stored) return [];
@@ -61,28 +61,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const eventsSnapshot = await db.collection('events').get();
             const events = [];
             eventsSnapshot.forEach(doc => events.push(doc.data()));
-            if (events.length > 0) {
-                localStorage.setItem('myk_events', JSON.stringify(events));
-                if (typeof renderDashboardEvents === 'function') renderDashboardEvents();
-            }
+            // Sahte şablon etkinlikleri hariç tut
+            const realEvents = events.filter(e => e && !['ev_1','ev_2','ev_3','ev_4','ev_5','ev_6'].includes(e.id));
+            localStorage.setItem('myk_events', JSON.stringify(realEvents));
+            if (typeof renderDashboardEvents === 'function') renderDashboardEvents();
 
             // 2. Duyurular
             const annSnapshot = await db.collection('announcements').get();
             const announcements = [];
             annSnapshot.forEach(doc => announcements.push(doc.data()));
-            if (announcements.length > 0) {
-                localStorage.setItem('myk_announcements', JSON.stringify(announcements));
-                if (typeof renderDashboardAnnouncements === 'function') renderDashboardAnnouncements();
-            }
+            const realAnns = announcements.filter(a => a && !['ann_1','ann_2','ann_3'].includes(a.id));
+            localStorage.setItem('myk_announcements', JSON.stringify(realAnns));
+            if (typeof renderDashboardAnnouncements === 'function') renderDashboardAnnouncements();
 
             // 3. Bloglar
             const blogSnapshot = await db.collection('blog').get();
             const blog = [];
             blogSnapshot.forEach(doc => blog.push(doc.data()));
-            if (blog.length > 0) {
-                localStorage.setItem('myk_blog', JSON.stringify(blog));
-                if (typeof renderDashboardBlog === 'function') renderDashboardBlog();
-            }
+            const realBlog = blog.filter(b => b && !['post_1','post_2','post_3','post_4','post_5','post_6'].includes(b.id));
+            localStorage.setItem('myk_blog', JSON.stringify(realBlog));
+            if (typeof renderDashboardBlog === 'function') renderDashboardBlog();
 
             // 4. CMS Site Ayarları
             const settingsDoc = await db.collection('settings').doc('cms').get();
@@ -94,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 applySiteSettings();
             }
 
-            // 5. Başvurular (Döngüye girmeden tek seferlik çekilir)
+            // 5. Başvurular
             const snap = await db.collection('applicants').get();
             const cloudMembers = [];
             snap.forEach(doc => cloudMembers.push({ id: doc.id, ...doc.data() }));
@@ -428,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 6. DEFAULT SITE AYARLARI (Yönetim Kurulu Gerçek İsimleri) ---
+    // --- 6. DEFAULT SITE AYARLARI (Gerçek Yönetim Kurulu) ---
     const defaultSiteSettings = {
         heroTitle: `Geleceğin Mobil <br>\n                    <span class="gradient-text animate-gradient">Geliştiricileri Burada</span>`,
         heroDesc: "Mobil uygulama geliştirmeye odaklanan kulübümüzle mobil yazılım ekosistemine ilk adımını at. Sıfırdan başla, projeler geliştir, sektöre yön ver!",
@@ -471,7 +469,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         try {
             let parsed = JSON.parse(stored);
-            // Eski sahte şablon isimler kaldıysa gerçek isimlerle yenile
             if (!parsed.teamM1Name || parsed.teamM1Name === 'Yusuf Furkan Yılmaz' || parsed.teamM2Name === 'Ahmet Yılmaz') {
                 parsed = { ...parsed, ...defaultSiteSettings };
                 localStorage.setItem('myk_site_settings', JSON.stringify(parsed));
@@ -529,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setText('dyn-reg-t3', settings.regT3); setText('dyn-reg-c3', settings.regC3);
         setText('dyn-reg-t4', settings.regT4); setText('dyn-reg-c4', settings.regC4);
 
-        // Sponsor Sayacı 0
+        // Sponsor Sayacı Daima 0
         const sponsorSpan = document.getElementById('homepage-sponsor-count');
         if (sponsorSpan) {
             sponsorSpan.setAttribute('data-val', 0);
@@ -545,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
             memberSpan.innerText = approvedCount;
         }
 
-        const events = JSON.parse(localStorage.getItem('myk_events')) || [];
+        const events = getLocalStorageEvents();
         const eventSpan = document.getElementById('homepage-event-count');
         if (eventSpan) {
             eventSpan.setAttribute('data-val', events.length);
@@ -675,35 +672,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Güçlendirilmiş Tıklama Yakalayıcı (Event Delegation)
     document.addEventListener('click', (e) => {
-        // Onayla
         const approveBtn = e.target.closest('.btn-approve');
         if (approveBtn) {
             e.preventDefault(); e.stopPropagation();
             approveMember(approveBtn.getAttribute('data-id'));
             return;
         }
-        // Reddet
         const rejectBtn = e.target.closest('.btn-reject');
         if (rejectBtn) {
             e.preventDefault(); e.stopPropagation();
             rejectMember(rejectBtn.getAttribute('data-id'));
             return;
         }
-        // Sil
         const deleteBtn = e.target.closest('.btn-delete');
         if (deleteBtn) {
             e.preventDefault(); e.stopPropagation();
             deleteMember(deleteBtn.getAttribute('data-id'));
             return;
         }
-        // İsim Tıklama -> Detay Modal
         const nameElem = e.target.closest('.clickable-member-name');
         if (nameElem) {
             e.preventDefault(); e.stopPropagation();
             openAdminMemberDetail(nameElem.getAttribute('data-id'));
             return;
         }
-        // Filtreler
         const cardAll = e.target.closest('#stat-card-all, #filter-btn-all');
         const cardApproved = e.target.closest('#stat-card-approved, #filter-btn-approved');
         const cardPending = e.target.closest('#stat-card-pending, #filter-btn-pending');
@@ -893,9 +885,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 8. ETKİNLİK, DUYURU VE BLOG YÖNETİMİ ---
+    // --- 8. TEMİZLENMİŞ ETKİNLİK, DUYURU VE BLOG YÖNETİMİ (Sahteler Silindi) ---
     function getLocalStorageEvents() {
-        return JSON.parse(localStorage.getItem('myk_events')) || [];
+        const stored = localStorage.getItem('myk_events');
+        if (!stored) return [];
+        try {
+            let parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed)) return [];
+            return parsed.filter(e => e && !['ev_1','ev_2','ev_3','ev_4','ev_5','ev_6'].includes(e.id));
+        } catch(e) { return []; }
     }
     function saveLocalStorageEvents(evs) {
         localStorage.setItem('myk_events', JSON.stringify(evs));
@@ -905,7 +903,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getLocalStorageAnnouncements() {
-        return JSON.parse(localStorage.getItem('myk_announcements')) || [];
+        const stored = localStorage.getItem('myk_announcements');
+        if (!stored) return [];
+        try {
+            let parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed)) return [];
+            return parsed.filter(a => a && !['ann_1','ann_2','ann_3'].includes(a.id));
+        } catch(e) { return []; }
     }
     function saveLocalStorageAnnouncements(anns) {
         localStorage.setItem('myk_announcements', JSON.stringify(anns));
@@ -915,7 +919,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getLocalStorageBlog() {
-        return JSON.parse(localStorage.getItem('myk_blog')) || [];
+        const stored = localStorage.getItem('myk_blog');
+        if (!stored) return [];
+        try {
+            let parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed)) return [];
+            return parsed.filter(b => b && !['post_1','post_2','post_3','post_4','post_5','post_6'].includes(b.id));
+        } catch(e) { return []; }
     }
     function saveLocalStorageBlog(blg) {
         localStorage.setItem('myk_blog', JSON.stringify(blg));
@@ -932,7 +942,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const events = getLocalStorageEvents();
 
         if (events.length === 0) {
-            listContainer.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px;">Kayıtlı etkinlik bulunamadı.</td></tr>`;
+            listContainer.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px;">Kayıtlı etkinlik bulunamadı. Yeni etkinlik ekleyebilirsiniz.</td></tr>`;
             return;
         }
 
@@ -965,7 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const announcements = getLocalStorageAnnouncements();
 
         if (announcements.length === 0) {
-            listContainer.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px;">Kayıtlı duyuru bulunamadı.</td></tr>`;
+            listContainer.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px;">Kayıtlı duyuru bulunamadı. Yeni duyuru ekleyebilirsiniz.</td></tr>`;
             return;
         }
 
@@ -996,7 +1006,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const blogPosts = getLocalStorageBlog();
 
         if (blogPosts.length === 0) {
-            listContainer.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 30px;">Kayıtlı blog yazısı bulunamadı.</td></tr>`;
+            listContainer.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 30px;">Kayıtlı blog yazısı bulunamadı. Yeni blog ekleyebilirsiniz.</td></tr>`;
             return;
         }
 
@@ -1402,6 +1412,10 @@ document.addEventListener('DOMContentLoaded', () => {
     toolbarBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const targetTab = btn.getAttribute('data-target');
+            if (targetTab === 'members') {
+                window.location.href = 'basvurular.html';
+                return;
+            }
             const dashboardTabBtn = document.querySelector(`.dash-tab-btn[data-tab="${targetTab}"]`);
             if (dashboardTabBtn) dashboardTabBtn.click();
             if (adminDashboard) {
