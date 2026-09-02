@@ -28,6 +28,7 @@
 </head>
 <body class="dark-theme">
     <script>
+        // Apply stored theme immediately to prevent flash
         (function() {
             const theme = localStorage.getItem('theme') || 'dark';
             if (theme === 'light') {
@@ -391,7 +392,7 @@
         </div>
     </section>
 
-    <!-- İstatistikler Bölümü (Stats Strip) -->
+    <!-- İstatistikler Bölümü (Sponsor Sayacı 0 Yapıldı) -->
     <section id="stats-strip" class="stats-strip-section">
         <div class="container">
             <div class="stats-grid card-glow">
@@ -411,7 +412,7 @@
                 <div class="stat-divider"></div>
                 <div class="stat-box">
                     <div class="stat-number-wrapper">
-                        <span class="stat-number" id="homepage-sponsor-count" data-val="5">5</span>
+                        <span class="stat-number" id="homepage-sponsor-count" data-val="0">0</span>
                     </div>
                     <span class="stat-label">Destekçi & Sponsor</span>
                 </div>
@@ -419,18 +420,14 @@
         </div>
     </section>
 
-    <!-- Sponsorlarımız -->
+    <!-- Sponsorlarımız Bölümü (Sahte Logolar Temizlendi) -->
     <section id="sponsors" class="sponsors-section-modern">
         <div class="container text-center">
             <span class="subtitle">Destekçilerimiz</span>
             <h3>Sponsorlarımız & Ortaklarımız</h3>
-            <div class="sponsors-slider-modern">
-                <div class="sponsor-logo-modern"><i class="fa-brands fa-google"></i> Google Developers</div>
-                <div class="sponsor-logo-modern"><i class="fa-brands fa-apple"></i> Apple Academy</div>
-                <div class="sponsor-logo-modern"><i class="fa-brands fa-github"></i> GitHub Campus</div>
-                <div class="sponsor-logo-modern"><i class="fa-brands fa-microsoft"></i> Microsoft Tech</div>
-                <div class="sponsor-logo-modern"><i class="fa-brands fa-aws"></i> AWS Academy</div>
-            </div>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 15px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                Kulübümüz yeni dönem etkinlik ve projeleri için sponsorluk ve iş birliği görüşmelerine devam etmektedir.
+            </p>
         </div>
     </section>
 
@@ -725,7 +722,7 @@
         </div>
     </div>
 
-    <!-- MODAL: Member Detail Modal (Şifre Güvenli Gösterim) -->
+    <!-- MODAL: Member Detail Modal (Şifre Güvenli ve Reddet Butonu Eklendi) -->
     <div id="admin-member-detail-modal" class="modal hidden">
         <div class="modal-content card-glow animate-zoom-in" style="max-width: 500px;">
             <button class="modal-close" id="close-admin-member-detail">&times;</button>
@@ -779,6 +776,7 @@
             
             <div class="admin-detail-actions" style="margin-top: 24px; display: flex; gap: 12px;">
                 <button class="btn btn-primary btn-full" id="admin-detail-approve-btn"><i class="fa-solid fa-circle-check"></i> Onayla</button>
+                <button class="btn btn-secondary btn-full" id="admin-detail-reject-btn" style="color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);"><i class="fa-solid fa-ban"></i> Reddet</button>
                 <button class="btn btn-outline btn-full" id="admin-detail-delete-btn" style="color: var(--accent-pink); border-color: rgba(255, 77, 148, 0.3);"><i class="fa-solid fa-trash-can"></i> Sil</button>
             </div>
         </div>
@@ -964,7 +962,6 @@
                         <div style="border-top: 1px solid var(--border-color); padding-top: 15px;">
                             <h4 style="font-size: 1rem; color: var(--primary); margin-bottom: 12px; font-weight: 700;">Kulüp Ekibi (Yönetim Kurulu)</h4>
                             <div style="display: flex; flex-direction: column; gap: 15px;">
-                                <!-- Member 1 -->
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px;">
                                     <div class="form-group" style="margin-bottom: 0; grid-column: 1/-1;"><span style="font-weight:700; color: var(--headings-color); font-size: 0.85rem;">1. Ekip Üyesi (Başkan)</span></div>
                                     <div class="form-group" style="margin-bottom: 0;">
@@ -981,7 +978,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Member 2 -->
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px;">
                                     <div class="form-group" style="margin-bottom: 0; grid-column: 1/-1;"><span style="font-weight:700; color: var(--headings-color); font-size: 0.85rem;">2. Ekip Üyesi (iOS Lead)</span></div>
                                     <div class="form-group" style="margin-bottom: 0;">
@@ -998,7 +994,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Member 3 -->
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px;">
                                     <div class="form-group" style="margin-bottom: 0; grid-column: 1/-1;"><span style="font-weight:700; color: var(--headings-color); font-size: 0.85rem;">3. Ekip Üyesi (Android Lead)</span></div>
                                     <div class="form-group" style="margin-bottom: 0;">
