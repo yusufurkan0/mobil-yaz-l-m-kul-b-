@@ -30,25 +30,18 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: "103", name: "Can Demir", email: "can.demir@gmail.com", password: "candemirpass", department: "Yönetim Bilişim Sistemleri (YBS)", track: "android", status: "pending", ipAddress: "185.220.101.5", userAgent: "Tor Browser / Bot Script", registeredAt: "26 Ağustos 2026, 08:30" }
     ];
 
-    function getLocalStorageMembers() {
+  function getLocalStorageMembers() {
         const stored = localStorage.getItem('myk_members');
-        if (!stored || stored === '[]' || stored === 'null' || stored === 'undefined') {
-            localStorage.setItem('myk_members', JSON.stringify(initialMockMembers));
-            return [...initialMockMembers];
-        }
+        if (!stored) return [];
         try {
-            const parsed = JSON.parse(stored);
-            if (!Array.isArray(parsed) || parsed.length === 0) {
-                localStorage.setItem('myk_members', JSON.stringify(initialMockMembers));
-                return [...initialMockMembers];
-            }
-            return parsed;
+            let parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed)) return [];
+            // Sahte test kullanıcılarını temizle, yalnızca gerçek üyeleri tut
+            return parsed.filter(m => m && m.id !== '101' && m.id !== '102' && m.id !== '103' && m.email !== 'ahmet.yilmaz@posta.com' && m.email !== 'elif.kaya@outlook.com' && m.email !== 'can.demir@gmail.com');
         } catch (e) {
-            localStorage.setItem('myk_members', JSON.stringify(initialMockMembers));
-            return [...initialMockMembers];
+            return [];
         }
     }
-
     function saveLocalStorageMembers(members) {
         if (Array.isArray(members)) {
             localStorage.setItem('myk_members', JSON.stringify(members));
@@ -753,47 +746,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return JSON.parse(stored);
     }
+const defaultSiteSettings = {
+        heroTitle: `Geleceğin Mobil <br>\n                    <span class="gradient-text animate-gradient">Geliştiricileri Burada</span>`,
+        heroDesc: "Mobil uygulama geliştirmeye odaklanan kulübümüzle mobil yazılım ekosistemine ilk adımını at. Sıfırdan başla, projeler geliştir, sektöre yön ver!",
+        aboutText1: "Mobil Yazılım Kulübü, geleceğin mobil uygulama ekosistemini inşa edecek geliştiricileri ve tasarımcıları bir araya getiren dinamik bir öğrenci topluluğudur. Mobil platformların gücünü keşfederek, teorik bilgiyi pratik projelerle pekiştiriyor ve üyelerimizi sektöre hazır hale getiriyoruz.",
+        aboutText2: "Yeni kurulan kulübümüzle birlikte hedeflerimiz arasında; sıfırdan başlayanlar için atölyeler düzenlemek, ortak çalışma gruplarıyla App Store ve Google Play'e uygulamalar yüklemek ve hackathonlarda kampüsümüzü temsil etmek yer almaktadır.",
+        contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
+        contactEmail: "gedikmobilyazilimkulubu@gmail.com",
+        socialInstagram: "https://www.instagram.com/gedikmygk",
+        socialLinkedin: "https://www.linkedin.com/company/https-l24.im-9ir3fgw",
+        socialGithub: "https://github.com/yusufurkan0",
+        
+        totalSponsors: 0,
 
-    function saveLocalStorageSettings(settings) {
-        const current = getLocalStorageSettings();
-        const merged = { ...current, ...settings };
-        localStorage.setItem('myk_site_settings', JSON.stringify(merged));
-        if (useFirebase && db) {
-            db.collection('settings').doc('cms').set(merged).catch(() => {});
+        // GERÇEK YÖNETİM KURULU BİLGİLERİ
+        teamM1Name: "Burak Kaya",
+        teamM1Role: "Kulüp Başkanı",
+        teamM1Bio: "İstanbul Gedik Üniversitesi Endüstri Mühendisliği Öğrencisi.",
+        teamM2Name: "Yusuf Furkan Gelişin",
+        teamM2Role: "Kulüp Başkan Yardımcısı / Kurucu",
+        teamM2Bio: "İstanbul Gedik Üniversitesi Bilgisayar Mühendisliği Öğrencisi.",
+        teamM3Name: "Selin Durdu",
+        teamM3Role: "Kulüp Başkan Yardımcısı",
+        teamM3Bio: "İstanbul Gedik Üniversitesi Endüstri Mühendisliği Öğrencisi.",
+
+        regT1: "Madde 1: Kuruluş ve Amaç",
+        regC1: "Topluluğun amacı, İstanbul Gedik Üniversitesi öğrencilerine mobil yazılım (iOS/Android) alanlarında teorik eğitimler vermek, pratik projeler geliştirmek ve öğrencileri teknoloji ekosistemine hazırlamaktır.",
+        regT2: "Madde 2: Üyelik ve Katılım Şartları",
+        regC2: "Topluluğa üye olmak tamamen ücretsizdir. Mobil uygulama geliştirmeye ve tasarıma ilgi duyan, kendini geliştirmek isteyen tüm Gedik Üniversitesi öğrencileri üye olabilir.",
+        regT3: "Madde 3: Proje ve Eğitim Esasları",
+        regC3: "Eğitimler açık kaynaklı ve paylaşımcı kültür esasına göre yürütülür. Çalışma grupları kurularak App Store ve Google Play platformlarına uygulama yüklenmesi hedeflenir.",
+        regT4: "Madde 4: Yönetim ve Temsil",
+        regC4: "Yönetim kurulu, kulüp başkanı ve odak koordinatörlerinden oluşur. Üniversite içindeki etkinlik planlamaları ve hackathon katılım organizasyonları yönetim kurulu tarafından kararlaştırılır."
+    };
+
+    function getLocalStorageSettings() {
+        const stored = localStorage.getItem('myk_site_settings');
+        if (!stored) {
+            localStorage.setItem('myk_site_settings', JSON.stringify(defaultSiteSettings));
+            return defaultSiteSettings;
+        }
+        try {
+            let parsed = JSON.parse(stored);
+            if (!parsed.teamM1Name || parsed.teamM1Name === 'Yusuf Furkan Yılmaz' || parsed.teamM2Name === 'Ahmet Yılmaz') {
+                parsed = { ...parsed, ...defaultSiteSettings };
+                localStorage.setItem('myk_site_settings', JSON.stringify(parsed));
+            }
+            return parsed;
+        } catch(e) {
+            return defaultSiteSettings;
         }
     }
-
-    function applySiteSettings() {
-        const settings = getLocalStorageSettings();
-        
-        const heroTitle = document.getElementById('dyn-hero-title');
-        const heroDesc = document.getElementById('dyn-hero-desc');
-        if (heroTitle) heroTitle.innerHTML = settings.heroTitle;
-        if (heroDesc) heroDesc.innerText = settings.heroDesc;
-
-        const aboutP1 = document.getElementById('dyn-about-p1');
-        const aboutP2 = document.getElementById('dyn-about-p2');
-        if (aboutP1) aboutP1.innerText = settings.aboutText1;
-        if (aboutP2) aboutP2.innerText = settings.aboutText2;
-
-        const contactAddr = document.getElementById('dyn-footer-address');
-        const contactEmail = document.getElementById('dyn-footer-email');
-        if (contactAddr) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
-        if (contactEmail) contactEmail.innerText = settings.contactEmail;
-
-        const githubLink = document.getElementById('dyn-footer-github');
-        const linkedinLink = document.getElementById('dyn-footer-linkedin');
-        const instagramLink = document.getElementById('dyn-footer-instagram');
-        if (githubLink) githubLink.href = settings.socialGithub;
-        if (linkedinLink) linkedinLink.href = settings.socialLinkedin;
-        if (instagramLink) instagramLink.href = settings.socialInstagram;
-
-        const memberSpan = document.getElementById('homepage-member-count');
-        if (memberSpan) {
-            const approvedCount = settings.totalMembers !== undefined ? settings.totalMembers : 0;
-            memberSpan.setAttribute('data-val', approvedCount);
-            memberSpan.innerText = approvedCount;
-        }
 
         const eventSpan = document.getElementById('homepage-event-count');
         if (eventSpan) {
