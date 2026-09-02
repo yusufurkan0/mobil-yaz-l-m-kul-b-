@@ -14,34 +14,24 @@ async function hashPassword(password, salt = 'mygk_security_salt_2026') {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 0. Firebase & EmailJS Initialization (with localStorage Fallbacks) ---
+    // --- 0. Firebase & EmailJS Initialization ---
     let db = null;
     let useFirebase = false;
     let useEmailJS = false;
 
-    // Initial mock data with real members and IP tracking fields
-    const initialMockMembers = [
-        { id: "231017034@stu.gedik.edu.tr", name: "burak kaya", email: "231017034@stu.gedik.edu.tr", password: "burak123456", department: "Endüstri Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.12", userAgent: "Chrome 122 / Windows 11", registeredAt: "24 Ağustos 2026, 11:20" },
-        { id: "241047003@stu.gedik.edu.tr", name: "Daghan Aslan", email: "241047003@stu.gedik.edu.tr", password: "furkangelisin", department: "Yazılım Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.15", userAgent: "Safari 17 / macOS", registeredAt: "24 Ağustos 2026, 11:25" },
-        { id: "251017006@stu.gedik.edu.tr", name: "Selin Durdu", email: "251017006@stu.gedik.edu.tr", password: "selin.Dbjk29", department: "Endüstri Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.18", userAgent: "Chrome 122 / Windows 10", registeredAt: "24 Ağustos 2026, 11:30" },
-        { id: "251017017@stu.gedik.edu.tr", name: "melike terzi", email: "251017017@stu.gedik.edu.tr", password: "melike001", department: "Endüstri Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.20", userAgent: "Safari / iOS Mobile", registeredAt: "24 Ağustos 2026, 11:35" },
-        { id: "101", name: "Ahmet Yılmaz", email: "ahmet.yilmaz@posta.com", password: "123456ahmet", department: "Yazılım Mühendisliği", track: "ios", status: "pending", ipAddress: "176.234.12.89", userAgent: "Chrome 121 / Android", registeredAt: "25 Ağustos 2026, 09:15" },
-        { id: "102", name: "Elif Kaya", email: "elif.kaya@outlook.com", password: "elifpasswords", department: "Bilgisayar Mühendisliği", track: "ios", status: "approved", ipAddress: "176.234.12.90", userAgent: "Safari / iPhone", registeredAt: "25 Ağustos 2026, 10:00" },
-        { id: "103", name: "Can Demir", email: "can.demir@gmail.com", password: "candemirpass", department: "Yönetim Bilişim Sistemleri (YBS)", track: "android", status: "pending", ipAddress: "185.220.101.5", userAgent: "Tor Browser / Bot Script", registeredAt: "26 Ağustos 2026, 08:30" }
-    ];
-
-  function getLocalStorageMembers() {
+    // Gerçek üyeler için yerel hafıza yönetimi (Sahte test kullanıcıları temizlendi)
+    function getLocalStorageMembers() {
         const stored = localStorage.getItem('myk_members');
         if (!stored) return [];
         try {
             let parsed = JSON.parse(stored);
             if (!Array.isArray(parsed)) return [];
-            // Sahte test kullanıcılarını temizle, yalnızca gerçek üyeleri tut
             return parsed.filter(m => m && m.id !== '101' && m.id !== '102' && m.id !== '103' && m.email !== 'ahmet.yilmaz@posta.com' && m.email !== 'elif.kaya@outlook.com' && m.email !== 'can.demir@gmail.com');
         } catch (e) {
             return [];
         }
     }
+
     function saveLocalStorageMembers(members) {
         if (Array.isArray(members)) {
             localStorage.setItem('myk_members', JSON.stringify(members));
@@ -50,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let dbMembers = getLocalStorageMembers();
 
-    // Firebase Initialization
+    // Firebase Başlatma
     if (typeof CONFIG !== 'undefined' && CONFIG.firebase && CONFIG.firebase.projectId) {
         try {
             firebase.initializeApp(CONFIG.firebase);
@@ -59,64 +49,55 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Firebase initialized successfully.");
             syncFirestoreToLocalStorage();
         } catch (err) {
-            console.error("Firebase initialization failed. Falling back to LocalStorage:", err);
+            console.error("Firebase initialization failed:", err);
         }
-    } else {
-        console.log("Firebase config not found. Running in LocalStorage fallback mode.");
     }
 
+    // Arka plan senkronizasyonu
     async function syncFirestoreToLocalStorage() {
         if (!useFirebase || !db) return;
         try {
-            // 1. Sync Events
+            // 1. Etkinlikler
             const eventsSnapshot = await db.collection('events').get();
             const events = [];
-            eventsSnapshot.forEach(doc => {
-                events.push(doc.data());
-            });
-            localStorage.setItem('myk_events', JSON.stringify(events));
-            if (typeof dbEvents !== 'undefined') dbEvents = events;
-            if (typeof renderEvents === 'function') renderEvents();
+            eventsSnapshot.forEach(doc => events.push(doc.data()));
+            if (events.length > 0) {
+                localStorage.setItem('myk_events', JSON.stringify(events));
+                if (typeof renderDashboardEvents === 'function') renderDashboardEvents();
+            }
 
-            // 2. Sync Announcements
+            // 2. Duyurular
             const annSnapshot = await db.collection('announcements').get();
             const announcements = [];
-            annSnapshot.forEach(doc => {
-                announcements.push(doc.data());
-            });
-            localStorage.setItem('myk_announcements', JSON.stringify(announcements));
-            if (typeof dbAnnouncements !== 'undefined') dbAnnouncements = announcements;
-            if (typeof renderAnnouncements === 'function') renderAnnouncements();
+            annSnapshot.forEach(doc => announcements.push(doc.data()));
+            if (announcements.length > 0) {
+                localStorage.setItem('myk_announcements', JSON.stringify(announcements));
+                if (typeof renderDashboardAnnouncements === 'function') renderDashboardAnnouncements();
+            }
 
-            // 3. Sync Blog
+            // 3. Bloglar
             const blogSnapshot = await db.collection('blog').get();
             const blog = [];
-            blogSnapshot.forEach(doc => {
-                blog.push(doc.data());
-            });
-            localStorage.setItem('myk_blog', JSON.stringify(blog));
-            if (typeof dbBlog !== 'undefined') dbBlog = blog;
-            if (typeof renderBlog === 'function') renderBlog();
+            blogSnapshot.forEach(doc => blog.push(doc.data()));
+            if (blog.length > 0) {
+                localStorage.setItem('myk_blog', JSON.stringify(blog));
+                if (typeof renderDashboardBlog === 'function') renderDashboardBlog();
+            }
 
-            // 4. Sync Settings
+            // 4. CMS Site Ayarları
             const settingsDoc = await db.collection('settings').doc('cms').get();
             if (settingsDoc.exists) {
                 const settingsData = settingsDoc.data();
-                const localM = getLocalStorageMembers();
-                const approvedCount = localM.filter(m => (m.status === 'approved' || m.status === 'onaylandı')).length;
-                settingsData.totalMembers = approvedCount;
                 settingsData.totalSponsors = 0; // Sponsor daima 0
                 const currentSettings = getLocalStorageSettings();
                 localStorage.setItem('myk_site_settings', JSON.stringify({ ...currentSettings, ...settingsData }));
-                if (typeof applySiteSettings === 'function') applySiteSettings();
+                applySiteSettings();
             }
-            
-            // 5. Initial fetch of members from Firestore (only once, non-looping)
+
+            // 5. Başvurular (Döngüye girmeden tek seferlik çekilir)
             const snap = await db.collection('applicants').get();
             const cloudMembers = [];
-            snap.forEach(doc => {
-                cloudMembers.push({ id: doc.id, ...doc.data() });
-            });
+            snap.forEach(doc => cloudMembers.push({ id: doc.id, ...doc.data() }));
             if (cloudMembers.length > 0) {
                 const local = getLocalStorageMembers();
                 local.forEach(locMem => {
@@ -133,40 +114,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 dbMembers = cloudMembers;
                 saveLocalStorageMembers(dbMembers);
                 renderDashboardTable(getSearchText(), false);
-            }
-            
-            if (sessionStorage.getItem('admin_logged_in') === 'true') {
-                if (typeof renderDashboardEvents === 'function') renderDashboardEvents();
-                if (typeof renderDashboardAnnouncements === 'function') renderDashboardAnnouncements();
-                if (typeof renderDashboardBlog === 'function') renderDashboardBlog();
-                if (typeof initSettingsTab === 'function') initSettingsTab();
+                updateHomepageStats();
             }
         } catch (err) {
-            console.error("Error syncing Firestore collections:", err);
+            console.error("Firestore sync error:", err);
         }
     }
 
-    function loadMembers() {
-        if (!Array.isArray(dbMembers) || dbMembers.length === 0) {
-            dbMembers = getLocalStorageMembers();
-        }
-        return dbMembers;
-    }
-
-    // EmailJS Initialization
+    // EmailJS Başlatma
     if (typeof emailjs !== 'undefined' && typeof CONFIG !== 'undefined' && CONFIG.emailjs && CONFIG.emailjs.publicKey) {
         try {
             emailjs.init(CONFIG.emailjs.publicKey);
             useEmailJS = true;
-            console.log("EmailJS initialized successfully.");
-        } catch (err) {
-            console.error("EmailJS initialization failed. Falling back to Toast simulator:", err);
-        }
-    } else {
-        console.log("EmailJS config not found. Running in Toast simulator fallback mode.");
+        } catch (err) {}
     }
 
-    // --- 1. Header Scroll Effect ---
+    // --- 1. Header Scroll ---
     const header = document.getElementById('main-header');
     if (header) {
         const isHomePage = document.getElementById('hero') !== null;
@@ -181,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateHeaderClass();
     }
 
-    // --- 2. Hamburger Mobile Menu ---
+    // --- 2. Mobil Menü ---
     const menuToggle = document.getElementById('menu-toggle');
     const navMenu = document.getElementById('nav-menu');
     const navLinks = document.querySelectorAll('.nav-link');
@@ -207,34 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. Scroll Active Link Highlight ---
-    const sections = document.querySelectorAll('section');
-    const scrollOptions = {
-        threshold: 0.3,
-        rootMargin: "0px 0px -20% 0px"
-    };
-
-    const navObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const id = entry.target.getAttribute('id');
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === `#${id}`) {
-                        link.classList.add('active');
-                    }
-                });
-            }
-        });
-    }, scrollOptions);
-
-    sections.forEach(section => {
-        if (section.getAttribute('id')) {
-            navObserver.observe(section);
-        }
-    });
-
-    // --- 4. Hero Stats Counter Animation ---
+    // --- 3. Sayaç Animasyonları ---
     const statNumbers = document.querySelectorAll('.stat-number');
     let countersStarted = false;
 
@@ -245,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 stat.innerText = "0";
                 return;
             }
-            
             let current = 0;
             const duration = 2000;
             const steps = duration / 30;
@@ -271,89 +206,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 animateCounters();
             }
         }, { threshold: 0.3 });
-        
         statsObserver.observe(statsGrid);
     }
 
-    // --- 5. Application (Register) Modal Control ---
-    const registerModal = document.getElementById('register-modal');
-    const regTriggerNav = document.getElementById('register-trigger-nav');
-    const regTriggerHero = document.getElementById('register-trigger-hero');
-    const closeRegister = document.getElementById('close-register');
-    const membershipForm = document.getElementById('membership-form');
-    const verificationContainer = document.getElementById('verification-container');
-    const successMsg = document.getElementById('form-success-message');
-
-    function openRegisterModal(e) {
-        if (e) e.preventDefault();
-        
-        const menuToggleBtn = document.getElementById('menu-toggle');
-        const navMenuDrawer = document.getElementById('nav-menu');
-        if (menuToggleBtn && navMenuDrawer) {
-            menuToggleBtn.classList.remove('open');
-            navMenuDrawer.classList.remove('open');
-        }
-        
-        registerModal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        
-        membershipForm.classList.remove('hidden');
-        verificationContainer.classList.add('hidden');
-        successMsg.classList.add('hidden');
-        membershipForm.reset();
-
-        generateRegisterCaptcha();
-    }
-
-    let correctCaptchaAnswer = 0;
-
-    function generateRegisterCaptcha() {
-        const num1 = Math.floor(Math.random() * 8) + 2;
-        const num2 = Math.floor(Math.random() * 8) + 2;
-        correctCaptchaAnswer = num1 + num2;
-        const label = document.getElementById('captcha-label');
-        if (label) {
-            label.innerHTML = `Güvenlik Doğrulaması: <span style="font-weight: 700; color: var(--accent-pink); font-size: 0.95rem;">${num1} + ${num2} = ?</span> *`;
-        }
-        const captchaInput = document.getElementById('register-captcha');
-        if (captchaInput) captchaInput.value = '';
-    }
-
-    function closeRegisterModal() {
-        registerModal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        clearInterval(countdownInterval);
-    }
-
-    if (regTriggerNav) regTriggerNav.addEventListener('click', openRegisterModal);
-    const regTriggerMobile = document.getElementById('register-trigger-mobile');
-    if (regTriggerMobile) regTriggerMobile.addEventListener('click', openRegisterModal);
-    if (regTriggerHero) regTriggerHero.addEventListener('click', openRegisterModal);
-    if (closeRegister) closeRegister.addEventListener('click', closeRegisterModal);
-
-    const refreshCaptchaBtn = document.getElementById('refresh-captcha');
-    if (refreshCaptchaBtn) {
-        refreshCaptchaBtn.addEventListener('click', generateRegisterCaptcha);
-    }
-
-    if (registerModal) {
-        registerModal.addEventListener('click', (e) => {
-            if (e.target === registerModal) {
-                closeRegisterModal();
-            }
-        });
-    }
-
-    // --- 6. OTP Verification Code Flow ---
-    const verifyInputs = document.querySelectorAll('.verify-input');
-    const verifySubmitBtn = document.getElementById('verify-submit-btn');
-    const verificationError = document.getElementById('verification-error-message');
-    const resendCountdown = document.getElementById('resend-countdown');
-
-    let currentVerificationCode = '';
-    let pendingMemberData = null;
-    let countdownInterval = null;
-
+    // --- 4. Bildirim Toast Kutusu ---
     function showStatusToast(title, message, isSuccess = true) {
         const existing = document.querySelector('.status-toast');
         if (existing) existing.remove();
@@ -380,170 +236,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 4000);
     }
 
-    function showToastNotification(code, targetEmail) {
-        const existing = document.querySelector('.toast-notification');
-        if (existing) existing.remove();
+    // --- 5. Kayıt Modalı & Captcha ---
+    const registerModal = document.getElementById('register-modal');
+    const regTriggerNav = document.getElementById('register-trigger-nav');
+    const regTriggerHero = document.getElementById('register-trigger-hero');
+    const regTriggerMobile = document.getElementById('register-trigger-mobile');
+    const closeRegister = document.getElementById('close-register');
+    const membershipForm = document.getElementById('membership-form');
+    const verificationContainer = document.getElementById('verification-container');
+    const successMsg = document.getElementById('form-success-message');
 
-        const toast = document.createElement('div');
-        toast.className = 'toast-notification';
-        toast.innerHTML = `
-            <div class="toast-icon"><i class="fa-solid fa-envelope-open-text animate-pulse"></i></div>
-            <div class="toast-content">
-                <h5>📩 Doğrulama Kodu (Simüle)</h5>
-                <p>Alıcı: <b>${targetEmail}</b></p>
-                <p>Onay Kodunuz: <strong style="font-size: 1.1rem; color: #00b4d8; letter-spacing: 1.5px;">${code}</strong></p>
-            </div>
-        `;
-        document.body.appendChild(toast);
+    let correctCaptchaAnswer = 0;
 
-        setTimeout(() => {
-            toast.classList.add('hide');
-            setTimeout(() => toast.remove(), 400);
-        }, 8000);
+    function generateRegisterCaptcha() {
+        const num1 = Math.floor(Math.random() * 8) + 2;
+        const num2 = Math.floor(Math.random() * 8) + 2;
+        correctCaptchaAnswer = num1 + num2;
+        const label = document.getElementById('captcha-label');
+        if (label) {
+            label.innerHTML = `Güvenlik Doğrulaması: <span style="font-weight: 700; color: var(--accent-pink); font-size: 0.95rem;">${num1} + ${num2} = ?</span> *`;
+        }
+        const captchaInput = document.getElementById('register-captcha');
+        if (captchaInput) captchaInput.value = '';
     }
 
-    function sendVerificationEmail(code, email, name) {
-        showToastNotification(code, `${email} (Gelen Kutusu / Spam Klasörünü Kontrol Edin)`);
-        if (useEmailJS) {
-            const templateParams = {
-                to_email: email,
-                user_email: email,
-                email: email,
-                to_name: name,
-                user_name: name,
-                name: name,
-                verification_code: code,
-                code: code,
-                passcode: code,
-                otp: code,
-                message: `Merhaba ${name},\n\nMobil Yazılım Kulübü üyelik onay kodunuz: ${code}`
-            };
-            emailjs.send(CONFIG.emailjs.serviceId, CONFIG.emailjs.templateId, templateParams)
-                .then((response) => {
-                    console.log('Verification Email sent successfully via EmailJS!', response.status);
-                }, (error) => {
-                    console.error('EmailJS failed. Falling back to FormSubmit...', error);
-                    sendFormSubmitEmail(code, email, name);
-                });
-        } else {
-            sendFormSubmitEmail(code, email, name);
+    function openRegisterModal(e) {
+        if (e) e.preventDefault();
+        if (registerModal) {
+            registerModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            if (membershipForm) {
+                membershipForm.classList.remove('hidden');
+                membershipForm.reset();
+            }
+            if (verificationContainer) verificationContainer.classList.add('hidden');
+            if (successMsg) successMsg.classList.add('hidden');
+            generateRegisterCaptcha();
         }
     }
 
-    function sendFormSubmitEmail(code, email, name) {
-        fetch(`https://formsubmit.co/ajax/${email}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Accept": "application/json" },
-            body: JSON.stringify({
-                _subject: "🔑 Mobil Yazılım Kulübü - Üyelik Doğrulama Kodu",
-                Ad_Soyad: name,
-                Onay_Kodu: code,
-                Mesaj: `Merhaba ${name},\n\nMobil Yazılım Kulübü üyelik başvurunuz için 6 haneli onay kodunuz: ${code}`
-            })
-        }).catch(err => console.error("FormSubmit failed:", err));
-    }
-
-    let resetVerificationCode = '';
-    let resetVerificationEmail = '';
-    let resetTargetDocId = '';
-
-    function sendResetVerificationEmail(code, email, name) {
-        showToastNotification(code, `${email} (Şifre Sıfırlama Kodu)`);
-        if (useEmailJS) {
-            const templateParams = {
-                to_email: email,
-                user_email: email,
-                email: email,
-                to_name: name,
-                verification_code: code,
-                code: code,
-                message: `Merhaba ${name},\n\nMobil Yazılım Kulübü şifre sıfırlama kodunuz: ${code}`
-            };
-            emailjs.send(CONFIG.emailjs.serviceId, CONFIG.emailjs.templateId, templateParams).catch(() => {});
+    function closeRegisterModal() {
+        if (registerModal) {
+            registerModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
         }
     }
 
-    function startResendTimer() {
-        let seconds = 60;
-        resendCountdown.innerText = `Kodu Yeniden Gönder (${seconds}s)`;
-        resendCountdown.style.pointerEvents = 'none';
-        resendCountdown.style.opacity = '0.6';
-        resendCountdown.classList.remove('active');
+    if (regTriggerNav) regTriggerNav.addEventListener('click', openRegisterModal);
+    if (regTriggerHero) regTriggerHero.addEventListener('click', openRegisterModal);
+    if (regTriggerMobile) regTriggerMobile.addEventListener('click', openRegisterModal);
+    if (closeRegister) closeRegister.addEventListener('click', closeRegisterModal);
 
-        clearInterval(countdownInterval);
-        countdownInterval = setInterval(() => {
-            seconds--;
-            if (seconds <= 0) {
-                clearInterval(countdownInterval);
-                resendCountdown.innerText = `Kodu Yeniden Gönder`;
-                resendCountdown.style.pointerEvents = 'auto';
-                resendCountdown.style.opacity = '1';
-                resendCountdown.classList.add('active');
-            } else {
-                resendCountdown.innerText = `Kodu Yeniden Gönder (${seconds}s)`;
-            }
-        }, 1000);
-    }
+    const refreshCaptchaBtn = document.getElementById('refresh-captcha');
+    if (refreshCaptchaBtn) refreshCaptchaBtn.addEventListener('click', generateRegisterCaptcha);
 
-    verifyInputs.forEach((input, index) => {
-        input.addEventListener('input', (e) => {
-            const val = e.target.value;
-            e.target.value = val.replace(/[^0-9]/g, '');
-            if (e.target.value.length === 1 && index < 5) {
-                verifyInputs[index + 1].focus();
-            }
-        });
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
-                verifyInputs[index - 1].focus();
-            }
-        });
-    });
-
+    // Fakülte & Bölüm Dinamik Eşleşmesi
     const facultySelect = document.getElementById('user-faculty');
     const departmentSelect = document.getElementById('user-department');
-
     const facultyDepartments = {
-        "Mühendislik Fakültesi": [
-            "Yazılım Mühendisliği",
-            "Bilgisayar Mühendisliği",
-            "Mekatronik Mühendisliği",
-            "Endüstri Mühendisliği",
-            "Elektrik-Elektronik Mühendisliği"
-        ],
-        "İktisadi, İdari ve Sosyal Bilimler Fakültesi": [
-            "Yönetim Bilişim Sistemleri (YBS)",
-            "Uluslararası Ticaret ve Lojistik",
-            "Psikoloji",
-            "Siyaset Bilimi ve Kamu Yönetimi"
-        ],
-        "Güzel Sanatlar ve Mimarlık Fakültesi": [
-            "İç Mimarlık ve Çevre Tasarımı",
-            "Görsel İletişim Tasarımı",
-            "Mimarlık"
-        ],
-        "Sağlık Bilimleri Fakültesi": [
-            "Fizyoterapi ve Rehabilitasyon",
-            "Beslenme ve Diyetetik",
-            "Hemşirelik"
-        ],
-        "Spor Bilimleri Fakültesi": [
-            "Antrenörlük Eğitimi",
-            "Spor Yöneticiliği"
-        ],
-        "Meslek Yüksekokulu (MYO)": [
-            "Bilgisayar Programcılığı",
-            "Mekatronik",
-            "Grafik Tasarımı"
-        ]
+        "Mühendislik Fakültesi": ["Yazılım Mühendisliği", "Bilgisayar Mühendisliği", "Mekatronik Mühendisliği", "Endüstri Mühendisliği", "Elektrik-Elektronik Mühendisliği"],
+        "İktisadi, İdari ve Sosyal Bilimler Fakültesi": ["Yönetim Bilişim Sistemleri (YBS)", "Uluslararası Ticaret ve Lojistik", "Psikoloji", "Siyaset Bilimi ve Kamu Yönetimi"],
+        "Güzel Sanatlar ve Mimarlık Fakültesi": ["İç Mimarlık ve Çevre Tasarımı", "Görsel İletişim Tasarımı", "Mimarlık"],
+        "Sağlık Bilimleri Fakültesi": ["Fizyoterapi ve Rehabilitasyon", "Beslenme ve Diyetetik", "Hemşirelik"],
+        "Spor Bilimleri Fakültesi": ["Antrenörlük Eğitimi", "Spor Yöneticiliği"],
+        "Meslek Yüksekokulu (MYO)": ["Bilgisayar Programcılığı", "Mekatronik", "Grafik Tasarımı"]
     };
 
     if (facultySelect && departmentSelect) {
         facultySelect.addEventListener('change', () => {
             const selectedFaculty = facultySelect.value;
             const departments = facultyDepartments[selectedFaculty] || [];
-            
             departmentSelect.innerHTML = '<option value="" disabled selected>Bölüm Seçiniz</option>';
             departments.forEach(dept => {
                 const opt = document.createElement('option');
@@ -555,198 +317,119 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Kayıt Formu ---
+    // Kayıt Formu Submit
+    let pendingMemberData = null;
+    let currentVerificationCode = '';
+
     if (membershipForm) {
-        membershipForm.addEventListener('submit', (e) => {
+        membershipForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const userCaptcha = document.getElementById('register-captcha') ? document.getElementById('register-captcha').value.trim() : '';
             if (parseInt(userCaptcha, 10) !== correctCaptchaAnswer) {
-                alert("Güvenlik doğrulaması başarısız! Lütfen işlemi doğru şekilde çözün.");
+                alert("Güvenlik doğrulaması hatalı!");
                 generateRegisterCaptcha();
                 return;
             }
-            
-            const submitBtn = membershipForm.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gönderiliyor...`;
 
-            const emailInputVal = document.getElementById('user-email').value.trim().toLowerCase();
             const rawPassword = document.getElementById('user-password').value.trim();
             const rawPasswordConfirm = document.getElementById('user-password-confirm').value.trim();
-
             if (rawPassword.length < 6) {
                 alert("Şifreniz en az 6 karakter olmalıdır!");
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `Hesap Oluştur`;
                 return;
             }
             if (rawPassword !== rawPasswordConfirm) {
                 alert("Şifreler uyuşmuyor!");
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `Hesap Oluştur`;
                 return;
             }
 
-            setTimeout(async () => {
-                const firstName = document.getElementById('first-name').value.trim();
-                const lastName = document.getElementById('last-name').value.trim();
-                const email = emailInputVal;
-                const username = document.getElementById('user-username').value;
-                const studentId = document.getElementById('user-student-id').value;
-                const phone = document.getElementById('user-phone').value;
-                const faculty = document.getElementById('user-faculty').value;
-                const department = document.getElementById('user-department').value;
-                const grade = document.getElementById('user-grade').value;
-                const birthdate = document.getElementById('user-birthdate').value;
+            const firstName = document.getElementById('first-name').value.trim();
+            const lastName = document.getElementById('last-name').value.trim();
+            const email = document.getElementById('user-email').value.trim().toLowerCase();
+            const hashedPassword = await hashPassword(rawPassword);
 
-                const hashedPassword = await hashPassword(rawPassword);
+            pendingMemberData = {
+                id: email,
+                name: `${firstName} ${lastName}`,
+                email: email,
+                username: document.getElementById('user-username').value.trim(),
+                studentId: document.getElementById('user-student-id').value.trim(),
+                phone: document.getElementById('user-phone').value.trim(),
+                faculty: document.getElementById('user-faculty').value,
+                department: document.getElementById('user-department').value,
+                grade: document.getElementById('user-grade').value,
+                birthdate: document.getElementById('user-birthdate').value,
+                password: hashedPassword,
+                track: 'ios',
+                status: 'pending',
+                ipAddress: 'Tespit Ediliyor...',
+                userAgent: navigator.userAgent || 'Bilinmeyen Cihaz',
+                registeredAt: new Date().toLocaleString('tr-TR')
+            };
 
-                let clientIP = 'Tespit Ediliyor...';
-                try {
-                    fetch('https://api.ipify.org?format=json')
-                        .then(r => r.json())
-                        .then(d => { if (d && d.ip) pendingMemberData.ipAddress = d.ip; })
-                        .catch(() => {});
-                } catch (e) {}
+            currentVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // Simüle Kod Bildirimi
+            const existingToast = document.querySelector('.toast-notification');
+            if (existingToast) existingToast.remove();
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fa-solid fa-envelope-open-text animate-pulse"></i></div>
+                <div class="toast-content">
+                    <h5>📩 Onay Kodu (Simüle)</h5>
+                    <p>Alıcı: <b>${email}</b></p>
+                    <p>Kodunuz: <strong style="font-size: 1.1rem; color: #00b4d8; letter-spacing: 1.5px;">${currentVerificationCode}</strong></p>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 8000);
 
-                pendingMemberData = {
-                    id: email,
-                    name: `${firstName} ${lastName}`,
-                    email: email,
-                    username: username,
-                    studentId: studentId,
-                    phone: phone,
-                    faculty: faculty,
-                    department: department,
-                    grade: grade,
-                    birthdate: birthdate,
-                    password: hashedPassword,
-                    track: 'ios',
-                    status: 'pending',
-                    ipAddress: clientIP,
-                    userAgent: navigator.userAgent || 'Bilinmeyen Cihaz',
-                    registeredAt: new Date().toLocaleString('tr-TR')
-                };
-
-                currentVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-                sendVerificationEmail(currentVerificationCode, email, `${firstName} ${lastName}`);
-
-                membershipForm.classList.add('hidden');
-                verificationContainer.classList.remove('hidden');
-                verificationError.classList.add('hidden');
-
-                verifyInputs.forEach(inp => inp.value = '');
-                setTimeout(() => verifyInputs[0].focus(), 100);
-
-                startResendTimer();
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `Hesap Oluştur`;
-            }, 600);
-        });
-    }
-
-    if (resendCountdown) {
-        resendCountdown.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (pendingMemberData) {
-                currentVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-                sendVerificationEmail(currentVerificationCode, pendingMemberData.email, pendingMemberData.name);
-                startResendTimer();
+            membershipForm.classList.add('hidden');
+            if (verificationContainer) verificationContainer.classList.remove('hidden');
+            const verifyInputs = document.querySelectorAll('.verify-input');
+            if (verifyInputs.length > 0) {
+                verifyInputs.forEach(i => i.value = '');
+                verifyInputs[0].focus();
             }
         });
     }
 
+    // Kodu Doğrulama
+    const verifySubmitBtn = document.getElementById('verify-submit-btn');
     if (verifySubmitBtn) {
-        verifySubmitBtn.addEventListener('click', async () => {
+        verifySubmitBtn.addEventListener('click', () => {
             let enteredCode = '';
-            verifyInputs.forEach(inp => enteredCode += inp.value);
+            document.querySelectorAll('.verify-input').forEach(inp => enteredCode += inp.value);
 
-            if (enteredCode === currentVerificationCode) {
+            if (enteredCode === currentVerificationCode && pendingMemberData) {
                 let local = getLocalStorageMembers();
                 local = local.filter(m => String(m.id).toLowerCase() !== String(pendingMemberData.id).toLowerCase() && String(m.email).toLowerCase() !== String(pendingMemberData.email).toLowerCase());
                 local.push(pendingMemberData);
                 saveLocalStorageMembers(local);
                 dbMembers = local;
 
-                if (useFirebase) {
-                    const docId = pendingMemberData.email.toLowerCase();
-                    db.collection('applicants').doc(docId).set({
-                        name: pendingMemberData.name,
-                        email: pendingMemberData.email,
-                        username: pendingMemberData.username || '',
-                        studentId: pendingMemberData.studentId || '',
-                        phone: pendingMemberData.phone || '',
-                        faculty: pendingMemberData.faculty || '',
-                        department: pendingMemberData.department || '',
-                        grade: pendingMemberData.grade || '',
-                        birthdate: pendingMemberData.birthdate || '',
-                        password: pendingMemberData.password || '',
-                        track: pendingMemberData.track,
-                        status: pendingMemberData.status,
-                        ipAddress: pendingMemberData.ipAddress || 'Bilinmiyor',
-                        userAgent: pendingMemberData.userAgent || 'Bilinmiyor',
-                        registeredAt: pendingMemberData.registeredAt || new Date().toLocaleString('tr-TR'),
+                if (useFirebase && db) {
+                    db.collection('applicants').doc(pendingMemberData.email.toLowerCase()).set({
+                        ...pendingMemberData,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    }).catch(err => console.error("Firestore save failed:", err));
+                    }).catch(() => {});
                 }
 
-                verificationContainer.classList.add('hidden');
-                successMsg.classList.remove('hidden');
+                if (verificationContainer) verificationContainer.classList.add('hidden');
+                if (successMsg) successMsg.classList.remove('hidden');
 
-                renderDashboardTable(memberSearch ? memberSearch.value : '', false);
+                renderDashboardTable(getSearchText(), false);
                 updateHomepageStats();
             } else {
-                verificationError.classList.remove('hidden');
-                verifyInputs.forEach(inp => inp.value = '');
-                verifyInputs[0].focus();
+                const err = document.getElementById('verification-error-message');
+                if (err) err.classList.remove('hidden');
             }
         });
     }
 
-    // --- Sponsor Sayısı Varsayılanı 0 Yapıldı ---
+    // --- 6. DEFAULT SITE AYARLARI (Yönetim Kurulu Gerçek İsimleri) ---
     const defaultSiteSettings = {
-        heroTitle: `Geleceğin Mobil <br>\n                    <span class="gradient-text animate-gradient">Geliştiricileri Burada</span>`,
-        heroDesc: "Mobil uygulama geliştirmeye odaklanan kulübümüzle mobil yazılım ekosistemine ilk adımını at. Sıfırdan başla, projeler geliştir, sektöre yön ver!",
-        aboutText1: "Mobil Yazılım Kulübü, geleceğin mobil uygulama ekosistemini inşa edecek geliştiricileri ve tasarımcıları bir araya getiren dinamik bir öğrenci topluluğudur. Mobil platformların gücünü keşfederek, teorik bilgiyi pratik projelerle pekiştiriyor ve üyelerimizi sektöre hazır hale getiriyoruz.",
-        aboutText2: "Yeni kurulan kulübümüzle birlikte hedeflerimiz arasında; sıfırdan başlayanlar için atölyeler düzenlemek, ortak çalışma gruplarıyla App Store ve Google Play'e uygulamalar yüklemek ve hackathonlarda kampüsümüzü temsil etmek yer almaktadır.",
-        contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
-        contactEmail: "gedikmobilyazilimkulubu@gmail.com",
-        socialInstagram: "https://www.instagram.com/gedikmygk",
-        socialLinkedin: "https://www.linkedin.com/company/https-l24.im-9ir3fgw",
-        socialGithub: "https://github.com/yusufurkan0",
-        
-        totalSponsors: 0, // Sponsor sayısı 0
-
-        teamM1Name: "Yusuf Furkan Yılmaz",
-        teamM1Role: "Kulüp Başkanı / Kurucu",
-        teamM1Bio: "İstanbul Gedik Üniversitesi Yazılım Mühendisliği Öğrencisi.",
-        teamM2Name: "Ahmet Yılmaz",
-        teamM2Role: "iOS Geliştirme Lead",
-        teamM2Bio: "Swift ve SwiftUI ile iOS uygulama geliştirme eğitimleri koordinatörü.",
-        teamM3Name: "Elif Kaya",
-        teamM3Role: "Android Geliştirme Lead",
-        teamM3Bio: "Kotlin ve Jetpack Compose ile Android uygulama eğitimleri koordinatörü.",
-
-        regT1: "Madde 1: Kuruluş ve Amaç",
-        regC1: "Topluluğun amacı, İstanbul Gedik Üniversitesi öğrencilerine mobil yazılım (iOS/Android) alanlarında teorik eğitimler vermek, pratik projeler geliştirmek ve öğrencileri teknoloji ekosistemine hazırlamaktır.",
-        regT2: "Madde 2: Üyelik ve Katılım Şartları",
-        regC2: "Topluluğa üye olmak tamamen ücretsizdir. Mobil uygulama geliştirmeye ve tasarıma ilgi duyan, kendini geliştirmek isteyen tüm Gedik Üniversitesi öğrencileri üye olabilir.",
-        regT3: "Madde 3: Proje ve Eğitim Esasları",
-        regC3: "Eğitimler açık kaynaklı ve paylaşımcı kültür esasına göre yürütülür. Çalışma grupları kurularak App Store ve Google Play platformlarına uygulama yüklenmesi hedeflenir.",
-        regT4: "Madde 4: Yönetim ve Temsil",
-        regC4: "Yönetim kurulu, kulüp başkanı ve odak koordinatörlerinden oluşur. Üniversite içindeki etkinlik planlamaları ve hackathon katılım organizasyonları yönetim kurulu tarafından kararlaştırılır."
-    };
-
-    function getLocalStorageSettings() {
-        const stored = localStorage.getItem('myk_site_settings');
-        if (!stored) {
-            localStorage.setItem('myk_site_settings', JSON.stringify(defaultSiteSettings));
-            return defaultSiteSettings;
-        }
-        return JSON.parse(stored);
-    }
-const defaultSiteSettings = {
         heroTitle: `Geleceğin Mobil <br>\n                    <span class="gradient-text animate-gradient">Geliştiricileri Burada</span>`,
         heroDesc: "Mobil uygulama geliştirmeye odaklanan kulübümüzle mobil yazılım ekosistemine ilk adımını at. Sıfırdan başla, projeler geliştir, sektöre yön ver!",
         aboutText1: "Mobil Yazılım Kulübü, geleceğin mobil uygulama ekosistemini inşa edecek geliştiricileri ve tasarımcıları bir araya getiren dinamik bir öğrenci topluluğudur. Mobil platformların gücünü keşfederek, teorik bilgiyi pratik projelerle pekiştiriyor ve üyelerimizi sektöre hazır hale getiriyoruz.",
@@ -788,72 +471,95 @@ const defaultSiteSettings = {
         }
         try {
             let parsed = JSON.parse(stored);
+            // Eski sahte şablon isimler kaldıysa gerçek isimlerle yenile
             if (!parsed.teamM1Name || parsed.teamM1Name === 'Yusuf Furkan Yılmaz' || parsed.teamM2Name === 'Ahmet Yılmaz') {
                 parsed = { ...parsed, ...defaultSiteSettings };
                 localStorage.setItem('myk_site_settings', JSON.stringify(parsed));
             }
             return parsed;
-        } catch(e) {
+        } catch (e) {
             return defaultSiteSettings;
         }
     }
 
-        const eventSpan = document.getElementById('homepage-event-count');
-        if (eventSpan) {
-            const events = JSON.parse(localStorage.getItem('myk_events')) || [];
-            const eventCount = events.length || (settings.totalEvents !== undefined ? settings.totalEvents : 0);
-            eventSpan.setAttribute('data-val', eventCount);
-            eventSpan.innerText = eventCount;
-        }
-
-        const sponsorSpan = document.getElementById('homepage-sponsor-count');
-        if (sponsorSpan) {
-            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 0;
-            sponsorSpan.setAttribute('data-val', sponsorCount);
-            sponsorSpan.innerText = sponsorCount;
+    function saveLocalStorageSettings(settings) {
+        const current = getLocalStorageSettings();
+        const merged = { ...current, ...settings };
+        localStorage.setItem('myk_site_settings', JSON.stringify(merged));
+        if (useFirebase && db) {
+            db.collection('settings').doc('cms').set(merged).catch(() => {});
         }
     }
 
-    async function updateHomepageStats() {
+    function applySiteSettings() {
         const settings = getLocalStorageSettings();
+        
+        const setHtml = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
+        const setText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+
+        setHtml('dyn-hero-title', settings.heroTitle);
+        setText('dyn-hero-desc', settings.heroDesc);
+        setText('dyn-about-p1', settings.aboutText1);
+        setText('dyn-about-p2', settings.aboutText2);
+
+        setHtml('dyn-footer-address', `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`);
+        setText('dyn-footer-email', settings.contactEmail);
+
+        const gh = document.getElementById('dyn-footer-github');
+        const li = document.getElementById('dyn-footer-linkedin');
+        const ig = document.getElementById('dyn-footer-instagram');
+        if (gh) gh.href = settings.socialGithub;
+        if (li) li.href = settings.socialLinkedin;
+        if (ig) ig.href = settings.socialInstagram;
+
+        // Yönetim Kurulu Ekranı
+        setText('dyn-team-m1-name', settings.teamM1Name);
+        setText('dyn-team-m1-role', settings.teamM1Role);
+        setText('dyn-team-m1-bio', settings.teamM1Bio);
+        setText('dyn-team-m2-name', settings.teamM2Name);
+        setText('dyn-team-m2-role', settings.teamM2Role);
+        setText('dyn-team-m2-bio', settings.teamM2Bio);
+        setText('dyn-team-m3-name', settings.teamM3Name);
+        setText('dyn-team-m3-role', settings.teamM3Role);
+        setText('dyn-team-m3-bio', settings.teamM3Bio);
+
+        // Tüzük
+        setText('dyn-reg-t1', settings.regT1); setText('dyn-reg-c1', settings.regC1);
+        setText('dyn-reg-t2', settings.regT2); setText('dyn-reg-c2', settings.regC2);
+        setText('dyn-reg-t3', settings.regT3); setText('dyn-reg-c3', settings.regC3);
+        setText('dyn-reg-t4', settings.regT4); setText('dyn-reg-c4', settings.regC4);
+
+        // Sponsor Sayacı 0
+        const sponsorSpan = document.getElementById('homepage-sponsor-count');
+        if (sponsorSpan) {
+            sponsorSpan.setAttribute('data-val', 0);
+            sponsorSpan.innerText = 0;
+        }
+    }
+
+    function updateHomepageStats() {
+        const approvedCount = dbMembers.filter(m => m && (m.status === 'approved' || m.status === 'onaylandı' || m.status === 'onaylandi')).length;
         const memberSpan = document.getElementById('homepage-member-count');
         if (memberSpan) {
-            const approvedCount = settings.totalMembers !== undefined ? settings.totalMembers : 0;
             memberSpan.setAttribute('data-val', approvedCount);
             memberSpan.innerText = approvedCount;
         }
 
+        const events = JSON.parse(localStorage.getItem('myk_events')) || [];
         const eventSpan = document.getElementById('homepage-event-count');
         if (eventSpan) {
-            const events = JSON.parse(localStorage.getItem('myk_events')) || [];
-            const eventCount = events.length || (settings.totalEvents !== undefined ? settings.totalEvents : 0);
-            eventSpan.setAttribute('data-val', eventCount);
-            eventSpan.innerText = eventCount;
+            eventSpan.setAttribute('data-val', events.length);
+            eventSpan.innerText = events.length;
         }
 
         const sponsorSpan = document.getElementById('homepage-sponsor-count');
         if (sponsorSpan) {
-            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 0;
-            sponsorSpan.setAttribute('data-val', sponsorCount);
-            sponsorSpan.innerText = sponsorCount;
+            sponsorSpan.setAttribute('data-val', 0);
+            sponsorSpan.innerText = 0;
         }
     }
 
-    const trackLabels = {
-        ios: "iOS (Swift)",
-        android: "Android (Kotlin)",
-        cross: "Hibrit (Flutter)",
-        uiux: "Tasarım (Figma)"
-    };
-
-    const loginTrigger = document.getElementById('login-trigger');
-    const adminTriggerFooter = document.getElementById('admin-trigger-footer');
-    const loginModal = document.getElementById('login-modal');
-    const closeLogin = document.getElementById('close-login');
-    const adminLoginForm = document.getElementById('admin-login-form');
-    const adminDashboard = document.getElementById('admin-dashboard');
-    const logoutBtn = document.getElementById('logout-btn');
-    const loginError = document.getElementById('login-error-message');
+    // --- 7. BAŞVURU YÖNETİM TABLOSU (ONAYLA / REDDET / SİL / DETAY) ---
     const getSearchText = () => {
         const input = document.getElementById('member-search');
         return input ? input.value : '';
@@ -861,7 +567,6 @@ const defaultSiteSettings = {
 
     let currentAdminMemberStatusFilter = 'all';
 
-    // --- Admin Başvuru Tablosu ---
     function renderDashboardTable(filterText = getSearchText(), forceFetch = false, statusFilter = currentAdminMemberStatusFilter) {
         currentAdminMemberStatusFilter = statusFilter;
         const listContainer = document.getElementById('admin-member-list');
@@ -880,17 +585,10 @@ const defaultSiteSettings = {
             else pendingCount++;
         });
 
-        if (document.getElementById('dash-total-members')) document.getElementById('dash-total-members').innerText = total;
-        if (document.getElementById('dash-approved-count')) document.getElementById('dash-approved-count').innerText = approvedCount;
-        if (document.getElementById('dash-pending-count')) document.getElementById('dash-pending-count').innerText = pendingCount;
-
-        const cardAll = document.getElementById('stat-card-all');
-        const cardApproved = document.getElementById('stat-card-approved');
-        const cardPending = document.getElementById('stat-card-pending');
-
-        if (cardAll) cardAll.style.border = statusFilter === 'all' ? '2px solid var(--primary)' : '1px solid var(--border-color)';
-        if (cardApproved) cardApproved.style.border = statusFilter === 'approved' ? '2px solid #10b981' : '1px solid var(--border-color)';
-        if (cardPending) cardPending.style.border = statusFilter === 'pending' ? '2px solid #f59e0b' : '1px solid var(--border-color)';
+        const setT = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+        setT('dash-total-members', total);
+        setT('dash-approved-count', approvedCount);
+        setT('dash-pending-count', pendingCount);
 
         const searchStr = (typeof filterText === 'string' ? filterText : '').toLowerCase().trim();
         const filtered = dbMembers.filter(m => {
@@ -898,7 +596,6 @@ const defaultSiteSettings = {
             const nameStr = (m.name || m.fullName || (m.firstName ? `${m.firstName} ${m.lastName || ''}` : '') || '').toLowerCase();
             const emailStr = (m.email || '').toLowerCase();
             const deptStr = (m.department || m.faculty || '').toLowerCase();
-
             const matchesText = !searchStr || nameStr.includes(searchStr) || emailStr.includes(searchStr) || deptStr.includes(searchStr);
 
             let matchesStatus = true;
@@ -928,11 +625,6 @@ const defaultSiteSettings = {
                 ? `<span class="ip-tag-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem;"><i class="fa-solid fa-shield-halved"></i> SHA-256</span>`
                 : `<span class="ip-tag-badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem;"><i class="fa-solid fa-lock"></i> Korumalı</span>`;
 
-            const trackBadgesHTML = m.track ? m.track.split(',').map(trackKey => {
-                const label = trackLabels[trackKey] || trackKey;
-                return `<span class="track-badge-mini ${escapeHtml(trackKey)}">${escapeHtml((label || trackKey).split(' ')[0])}</span>`;
-            }).join('') : `<span class="track-badge-mini ios">Mobil</span>`;
-
             const st = (m.status || '').toLowerCase();
             let statusClass = 'pending';
             let statusText = 'Beklemede';
@@ -945,10 +637,9 @@ const defaultSiteSettings = {
             }
 
             const ipDisplay = m.ipAddress || m.ip || 'Tespit Ediliyor...';
-            const deviceTitle = m.userAgent || 'Tarayıcı / Cihaz Bilgisi';
             const regDate = m.registeredAt || 'Yeni Başvuru';
 
-            // Zengin Hover Bilgisi (İsmin üzerine gelince görünen ipucu)
+            // İsmin üzerine gelince görünen zengin önizleme ipucu
             const hoverTooltip = `Öğrenci No: ${m.studentId || '-'}\nTelefon: ${m.phone || '-'}\nFakülte: ${m.faculty || '-'}\nBölüm: ${deptVal}\nSınıf: ${m.grade || '-'}\nDoğum Tarihi: ${m.birthdate || '-'}\nDurum: ${statusText}\n(Detayları açmak için tıklayın)`;
 
             tr.innerHTML = `
@@ -960,13 +651,13 @@ const defaultSiteSettings = {
                 <td>${escapeHtml(emailVal)}</td>
                 <td>${passwordBadge}</td>
                 <td>${escapeHtml(deptVal)}</td>
-                <td>${trackBadgesHTML}</td>
+                <td><span class="track-badge-mini ios">Mobil</span></td>
                 <td>
-                    <span class="ip-tag-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; display: inline-block; white-space: nowrap;" title="${escapeHtml(deviceTitle)}">
+                    <span class="ip-tag-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600;">
                         <i class="fa-solid fa-network-wired"></i> ${escapeHtml(ipDisplay)}
                     </span>
                     <br/>
-                    <small style="color: var(--text-muted); font-size: 0.7rem; margin-top: 4px; display: inline-block; white-space: nowrap;">
+                    <small style="color: var(--text-muted); font-size: 0.7rem; margin-top: 4px; display: inline-block;">
                         <i class="fa-regular fa-clock"></i> ${escapeHtml(regDate)}
                     </small>
                 </td>
@@ -982,121 +673,82 @@ const defaultSiteSettings = {
         });
     }
 
-    // --- Sağlamlaştırılmış Tekil Tıklama Dinleyicisi (Event Delegation) ---
+    // Güçlendirilmiş Tıklama Yakalayıcı (Event Delegation)
     document.addEventListener('click', (e) => {
-        // 1. Onayla Butonu Tıklaması
+        // Onayla
         const approveBtn = e.target.closest('.btn-approve');
         if (approveBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            const id = approveBtn.getAttribute('data-id');
-            approveMember(id);
+            e.preventDefault(); e.stopPropagation();
+            approveMember(approveBtn.getAttribute('data-id'));
             return;
         }
-
-        // 2. Reddet Butonu Tıklaması
+        // Reddet
         const rejectBtn = e.target.closest('.btn-reject');
         if (rejectBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            const id = rejectBtn.getAttribute('data-id');
-            rejectMember(id);
+            e.preventDefault(); e.stopPropagation();
+            rejectMember(rejectBtn.getAttribute('data-id'));
             return;
         }
-
-        // 3. Sil Butonu Tıklaması
+        // Sil
         const deleteBtn = e.target.closest('.btn-delete');
         if (deleteBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            const id = deleteBtn.getAttribute('data-id');
-            deleteMember(id);
+            e.preventDefault(); e.stopPropagation();
+            deleteMember(deleteBtn.getAttribute('data-id'));
             return;
         }
-
-        // 4. İsim Tıklaması (Detay Modalı Açma)
+        // İsim Tıklama -> Detay Modal
         const nameElem = e.target.closest('.clickable-member-name');
         if (nameElem) {
-            e.preventDefault();
-            e.stopPropagation();
-            const id = nameElem.getAttribute('data-id');
-            openAdminMemberDetail(id);
+            e.preventDefault(); e.stopPropagation();
+            openAdminMemberDetail(nameElem.getAttribute('data-id'));
             return;
         }
-
-        // 5. Filtre Kartları
+        // Filtreler
         const cardAll = e.target.closest('#stat-card-all, #filter-btn-all');
         const cardApproved = e.target.closest('#stat-card-approved, #filter-btn-approved');
         const cardPending = e.target.closest('#stat-card-pending, #filter-btn-pending');
-
-        if (cardAll) {
-            renderDashboardTable(getSearchText(), false, 'all');
-        } else if (cardApproved) {
-            renderDashboardTable(getSearchText(), false, 'approved');
-        } else if (cardPending) {
-            renderDashboardTable(getSearchText(), false, 'pending');
-        }
+        if (cardAll) renderDashboardTable(getSearchText(), false, 'all');
+        else if (cardApproved) renderDashboardTable(getSearchText(), false, 'approved');
+        else if (cardPending) renderDashboardTable(getSearchText(), false, 'pending');
     });
 
-    // --- Admin Member Detail Modal Açma Fonksiyonu ---
+    // Detay Modalı
     let activeDetailMemberId = null;
 
     function openAdminMemberDetail(id) {
         if (!id) return;
         const targetStr = String(id).toLowerCase().trim();
-        const member = dbMembers.find(m => 
-            String(m.id || '').toLowerCase().trim() === targetStr || 
-            String(m.email || '').toLowerCase().trim() === targetStr
-        );
-        if (!member) {
-            console.warn("Üye bulunamadı:", id);
-            return;
-        }
+        const member = dbMembers.find(m => String(m.id || '').toLowerCase().trim() === targetStr || String(m.email || '').toLowerCase().trim() === targetStr);
+        if (!member) return;
 
         activeDetailMemberId = member.id || member.email;
 
-        const setSafeText = (elemId, text) => {
-            const el = document.getElementById(elemId);
-            if (el) el.innerText = text || '-';
-        };
+        const setST = (eid, t) => { const el = document.getElementById(eid); if (el) el.innerText = t || '-'; };
+        setST('admin-detail-name', member.name || member.fullName);
+        setST('admin-detail-email', member.email);
+        setST('admin-detail-username', member.username);
+        setST('admin-detail-student-id', member.studentId);
+        setST('admin-detail-phone', member.phone);
+        setST('admin-detail-faculty', member.faculty);
+        setST('admin-detail-dept', member.department);
+        setST('admin-detail-grade', member.grade);
+        setST('admin-detail-birthdate', member.birthdate);
 
-        setSafeText('admin-detail-name', member.fullName || member.name);
-        setSafeText('admin-detail-email', member.email);
-        setSafeText('admin-detail-username', member.username);
-        setSafeText('admin-detail-student-id', member.studentId);
-        setSafeText('admin-detail-phone', member.phone);
-        setSafeText('admin-detail-faculty', member.faculty);
-        setSafeText('admin-detail-dept', member.department);
-        setSafeText('admin-detail-grade', member.grade);
-        setSafeText('admin-detail-birthdate', member.birthdate);
-        
         const pwEl = document.getElementById('admin-detail-password');
-        if (pwEl) {
-            pwEl.innerHTML = '<span style="color: #10b981; font-weight: 600;"><i class="fa-solid fa-shield-halved"></i> SHA-256 Şifreli</span>';
-        }
+        if (pwEl) pwEl.innerHTML = '<span style="color: #10b981; font-weight: 600;"><i class="fa-solid fa-shield-halved"></i> SHA-256 Şifreli</span>';
 
         const st = (member.status || '').toLowerCase();
-        let statusClass = 'pending';
-        let statusText = 'Beklemede';
-        if (st === 'approved' || st === 'onaylandı' || st === 'onaylandi') {
-            statusClass = 'approved';
-            statusText = 'Onaylandı';
-        } else if (st === 'rejected' || st === 'reddedildi') {
-            statusClass = 'pending';
-            statusText = 'Reddedildi';
-        }
-
+        const isApp = (st === 'approved' || st === 'onaylandı' || st === 'onaylandi');
         const statusSpan = document.getElementById('admin-detail-status');
         if (statusSpan) {
-            statusSpan.className = `status-badge ${statusClass}`;
-            statusSpan.innerText = statusText;
+            statusSpan.className = `status-badge ${isApp ? 'approved' : 'pending'}`;
+            statusSpan.innerText = isApp ? 'Onaylandı' : (st === 'rejected' ? 'Reddedildi' : 'Beklemede');
         }
 
-        const btnApprove = document.getElementById('admin-detail-approve-btn');
-        const btnReject = document.getElementById('admin-detail-reject-btn');
-        
-        if (btnApprove) btnApprove.style.display = (statusClass === 'approved') ? 'none' : 'block';
-        if (btnReject) btnReject.style.display = (st === 'rejected' || st === 'reddedildi') ? 'none' : 'block';
+        const btnApp = document.getElementById('admin-detail-approve-btn');
+        const btnRej = document.getElementById('admin-detail-reject-btn');
+        if (btnApp) btnApp.style.display = isApp ? 'none' : 'block';
+        if (btnRej) btnRej.style.display = (st === 'rejected') ? 'none' : 'block';
 
         const modal = document.getElementById('admin-member-detail-modal');
         if (modal) {
@@ -1111,10 +763,7 @@ const defaultSiteSettings = {
             if (activeDetailMemberId) {
                 approveMember(activeDetailMemberId);
                 const modal = document.getElementById('admin-member-detail-modal');
-                if (modal) {
-                    modal.classList.add('hidden');
-                    modal.style.display = 'none';
-                }
+                if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
             }
         });
     }
@@ -1125,10 +774,7 @@ const defaultSiteSettings = {
             if (activeDetailMemberId) {
                 rejectMember(activeDetailMemberId);
                 const modal = document.getElementById('admin-member-detail-modal');
-                if (modal) {
-                    modal.classList.add('hidden');
-                    modal.style.display = 'none';
-                }
+                if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
             }
         });
     }
@@ -1139,10 +785,7 @@ const defaultSiteSettings = {
             if (activeDetailMemberId) {
                 deleteMember(activeDetailMemberId);
                 const modal = document.getElementById('admin-member-detail-modal');
-                if (modal) {
-                    modal.classList.add('hidden');
-                    modal.style.display = 'none';
-                }
+                if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
             }
         });
     }
@@ -1151,42 +794,16 @@ const defaultSiteSettings = {
     if (closeAdminMemberDetail) {
         closeAdminMemberDetail.addEventListener('click', () => {
             const modal = document.getElementById('admin-member-detail-modal');
-            if (modal) {
-                modal.classList.add('hidden');
-                modal.style.display = 'none';
-            }
+            if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
         });
     }
 
-    const adminMemberDetailModal = document.getElementById('admin-member-detail-modal');
-    if (adminMemberDetailModal) {
-        adminMemberDetailModal.addEventListener('click', (e) => {
-            if (e.target === adminMemberDetailModal) {
-                adminMemberDetailModal.classList.add('hidden');
-                adminMemberDetailModal.style.display = 'none';
-            }
-        });
-    }
-
-    function escapeHtml(text) {
-        if (text === null || text === undefined) return '';
-        const str = String(text);
-        return str
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    // --- Kesin Onaylama Fonksiyonu ---
     function approveMember(id) {
         if (!id) return;
         const target = String(id).toLowerCase().trim();
-
-        let local = getLocalStorageMembers();
         let targetDocId = target;
 
+        let local = getLocalStorageMembers();
         local = local.map(m => {
             const mId = String(m.id || '').toLowerCase().trim();
             const mEmail = String(m.email || '').toLowerCase().trim();
@@ -1200,27 +817,24 @@ const defaultSiteSettings = {
         dbMembers = local;
 
         if (useFirebase && db) {
-            db.collection('applicants').doc(targetDocId).update({ status: 'approved' })
-                .catch(() => {
-                    db.collection('applicants').where('email', '==', targetDocId).get().then(snap => {
-                        snap.forEach(doc => doc.ref.update({ status: 'approved' }));
-                    }).catch(err => console.error("Firestore onay hatası:", err));
-                });
+            db.collection('applicants').doc(targetDocId).update({ status: 'approved' }).catch(() => {
+                db.collection('applicants').where('email', '==', targetDocId).get().then(snap => {
+                    snap.forEach(doc => doc.ref.update({ status: 'approved' }));
+                }).catch(() => {});
+            });
         }
 
         renderDashboardTable(getSearchText(), false);
         updateHomepageStats();
-        showStatusToast("Onaylandı!", "Başvuru onaylandı ve aktif üyeler arasına alındı.", true);
+        showStatusToast("Onaylandı!", "Başvuru onaylandı.", true);
     }
 
-    // --- Kesin Reddetme Fonksiyonu ---
     function rejectMember(id) {
         if (!id) return;
         const target = String(id).toLowerCase().trim();
-
-        let local = getLocalStorageMembers();
         let targetDocId = target;
 
+        let local = getLocalStorageMembers();
         local = local.map(m => {
             const mId = String(m.id || '').toLowerCase().trim();
             const mEmail = String(m.email || '').toLowerCase().trim();
@@ -1234,12 +848,11 @@ const defaultSiteSettings = {
         dbMembers = local;
 
         if (useFirebase && db) {
-            db.collection('applicants').doc(targetDocId).update({ status: 'rejected' })
-                .catch(() => {
-                    db.collection('applicants').where('email', '==', targetDocId).get().then(snap => {
-                        snap.forEach(doc => doc.ref.update({ status: 'rejected' }));
-                    }).catch(err => console.error("Firestore red hatası:", err));
-                });
+            db.collection('applicants').doc(targetDocId).update({ status: 'rejected' }).catch(() => {
+                db.collection('applicants').where('email', '==', targetDocId).get().then(snap => {
+                    snap.forEach(doc => doc.ref.update({ status: 'rejected' }));
+                }).catch(() => {});
+            });
         }
 
         renderDashboardTable(getSearchText(), false);
@@ -1247,15 +860,13 @@ const defaultSiteSettings = {
         showStatusToast("Reddedildi", "Başvuru reddedildi.", false);
     }
 
-    // --- Kesin Silme Fonksiyonu ---
     function deleteMember(id) {
         if (!id) return;
         if (confirm('Bu başvuruyu silmek istediğinize emin misiniz?')) {
             const target = String(id).toLowerCase().trim();
-
-            let local = getLocalStorageMembers();
             let targetDocId = target;
 
+            let local = getLocalStorageMembers();
             local = local.filter(m => {
                 const mId = String(m.id || '').toLowerCase().trim();
                 const mEmail = String(m.email || '').toLowerCase().trim();
@@ -1269,270 +880,462 @@ const defaultSiteSettings = {
             dbMembers = local;
 
             if (useFirebase && db) {
-                db.collection('applicants').doc(targetDocId).delete()
-                    .catch(() => {
-                        db.collection('applicants').where('email', '==', targetDocId).get().then(snap => {
-                            snap.forEach(doc => doc.ref.delete());
-                        }).catch(err => console.error("Firestore silme hatası:", err));
-                    });
+                db.collection('applicants').doc(targetDocId).delete().catch(() => {
+                    db.collection('applicants').where('email', '==', targetDocId).get().then(snap => {
+                        snap.forEach(doc => doc.ref.delete());
+                    }).catch(() => {});
+                });
             }
 
             renderDashboardTable(getSearchText(), false);
             updateHomepageStats();
-            showStatusToast("Silindi", "Başvuru listeden kaldırıldı.", true);
+            showStatusToast("Silindi", "Başvuru kaldırıldı.", true);
         }
     }
 
-    function openLoginModal(e) {
-        if (e) e.preventDefault();
-        
-        const menuToggleBtn = document.getElementById('menu-toggle');
-        const navMenuDrawer = document.getElementById('nav-menu');
-        if (menuToggleBtn && navMenuDrawer) {
-            menuToggleBtn.classList.remove('open');
-            navMenuDrawer.classList.remove('open');
-        }
-        
-        loginModal.classList.remove('hidden');
-        loginError.classList.add('hidden');
+    // --- 8. ETKİNLİK, DUYURU VE BLOG YÖNETİMİ ---
+    function getLocalStorageEvents() {
+        return JSON.parse(localStorage.getItem('myk_events')) || [];
     }
-
-    if (loginTrigger) loginTrigger.addEventListener('click', openLoginModal);
-    const loginTriggerMobile = document.getElementById('login-trigger-mobile');
-    if (loginTriggerMobile) loginTriggerMobile.addEventListener('click', openLoginModal);
-    if (adminTriggerFooter) adminTriggerFooter.addEventListener('click', openLoginModal);
-    
-    if (closeLogin) {
-        closeLogin.addEventListener('click', () => {
-            loginModal.classList.add('hidden');
-        });
-    }
-    
-    if (loginModal) {
-        loginModal.addEventListener('click', (e) => {
-            if (e.target === loginModal) {
-                loginModal.classList.add('hidden');
-            }
-        });
-    }
-
-    const tabMemberBtn = document.getElementById('tab-member-btn');
-    const tabAdminBtn = document.getElementById('tab-admin-btn');
-    const memberLoginArea = document.getElementById('member-login-area');
-    const adminLoginArea = document.getElementById('admin-login-area');
-    const memberLoginError = document.getElementById('member-login-error');
-
-    if (tabMemberBtn && tabAdminBtn && memberLoginArea && adminLoginArea) {
-        tabMemberBtn.addEventListener('click', () => {
-            tabMemberBtn.classList.add('active');
-            tabAdminBtn.classList.remove('active');
-            memberLoginArea.classList.remove('hidden');
-            adminLoginArea.classList.add('hidden');
-            if (memberLoginError) memberLoginError.classList.add('hidden');
-            if (loginError) loginError.classList.add('hidden');
-        });
-
-        tabAdminBtn.addEventListener('click', () => {
-            tabAdminBtn.classList.add('active');
-            tabMemberBtn.classList.remove('active');
-            adminLoginArea.classList.remove('hidden');
-            memberLoginArea.classList.add('hidden');
-            if (memberLoginError) memberLoginError.classList.add('hidden');
-            if (loginError) loginError.classList.add('hidden');
-        });
-    }
-
-    function updateHeaderState(member, isLoggedIn) {
-        const loginTrigger = document.getElementById('login-trigger');
-        const registerTriggerNav = document.getElementById('register-trigger-nav');
-        const userProfileTrigger = document.getElementById('user-profile-trigger');
-        const navUserName = document.getElementById('nav-user-name');
-        
-        const loginTriggerMobile = document.getElementById('login-trigger-mobile');
-        const registerTriggerMobile = document.getElementById('register-trigger-mobile');
-        const userProfileTriggerMobile = document.getElementById('user-profile-trigger-mobile');
-        const navUserNameMobile = document.getElementById('nav-user-name-mobile');
-
-        if (isLoggedIn && member) {
-            if (loginTrigger) loginTrigger.classList.add('hidden');
-            if (registerTriggerNav) registerTriggerNav.classList.add('hidden');
-            if (userProfileTrigger) userProfileTrigger.classList.remove('hidden');
-            
-            if (loginTriggerMobile) loginTriggerMobile.classList.add('hidden');
-            if (registerTriggerMobile) registerTriggerMobile.classList.add('hidden');
-            if (userProfileTriggerMobile) userProfileTriggerMobile.classList.remove('hidden');
-            
-            const displayName = member.username || member.name.split(' ')[0];
-            if (navUserName) navUserName.innerText = displayName;
-            if (navUserNameMobile) navUserNameMobile.innerText = displayName;
-        } else {
-            if (loginTrigger) loginTrigger.classList.remove('hidden');
-            if (registerTriggerNav) registerTriggerNav.classList.remove('hidden');
-            if (userProfileTrigger) userProfileTrigger.classList.add('hidden');
-            
-            if (loginTriggerMobile) loginTriggerMobile.classList.remove('hidden');
-            if (registerTriggerMobile) registerTriggerMobile.classList.remove('hidden');
-            if (userProfileTriggerMobile) userProfileTriggerMobile.classList.add('hidden');
+    function saveLocalStorageEvents(evs) {
+        localStorage.setItem('myk_events', JSON.stringify(evs));
+        if (useFirebase && db) {
+            evs.forEach(ev => db.collection('events').doc(ev.id.toString()).set(ev).catch(() => {}));
         }
     }
 
-    const AuthRateLimiter = {
-        attempts: {},
-        check: function(key, maxAttempts = 5, windowMs = 180000) {
-            const now = Date.now();
-            if (!this.attempts[key]) this.attempts[key] = [];
-            this.attempts[key] = this.attempts[key].filter(t => now - t < windowMs);
-            if (this.attempts[key].length >= maxAttempts) {
-                const oldest = this.attempts[key][0];
-                const remainingSec = Math.ceil((windowMs - (now - oldest)) / 1000);
-                return { locked: true, remainingSec: remainingSec };
-            }
-            return { locked: false };
-        },
-        record: function(key) {
-            if (!this.attempts[key]) this.attempts[key] = [];
-            this.attempts[key].push(Date.now());
-        },
-        reset: function(key) {
-            delete this.attempts[key];
+    function getLocalStorageAnnouncements() {
+        return JSON.parse(localStorage.getItem('myk_announcements')) || [];
+    }
+    function saveLocalStorageAnnouncements(anns) {
+        localStorage.setItem('myk_announcements', JSON.stringify(anns));
+        if (useFirebase && db) {
+            anns.forEach(ann => db.collection('announcements').doc(ann.id.toString()).set(ann).catch(() => {}));
         }
-    };
+    }
 
-    // --- Üye Girişi ---
-    const memberLoginForm = document.getElementById('member-login-form');
-    if (memberLoginForm) {
-        memberLoginForm.addEventListener('submit', async (e) => {
+    function getLocalStorageBlog() {
+        return JSON.parse(localStorage.getItem('myk_blog')) || [];
+    }
+    function saveLocalStorageBlog(blg) {
+        localStorage.setItem('myk_blog', JSON.stringify(blg));
+        if (useFirebase && db) {
+            blg.forEach(post => db.collection('blog').doc(post.id.toString()).set(post).catch(() => {}));
+        }
+    }
+
+    // Etkinlik Listesini Çizme
+    function renderDashboardEvents() {
+        const listContainer = document.getElementById('admin-events-list');
+        if (!listContainer) return;
+        listContainer.innerHTML = '';
+        const events = getLocalStorageEvents();
+
+        if (events.length === 0) {
+            listContainer.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px;">Kayıtlı etkinlik bulunamadı.</td></tr>`;
+            return;
+        }
+
+        events.forEach(ev => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${escapeHtml(ev.title)}</strong></td>
+                <td>${escapeHtml(ev.category)}</td>
+                <td><span class="ctf-badge ${escapeHtml(ev.badgeClass)}">${escapeHtml(ev.badgeClass.toUpperCase())}</span></td>
+                <td><span class="status-badge ${ev.status === 'upcoming' ? 'approved' : 'pending'}">${escapeHtml(ev.status.toUpperCase())}</span></td>
+                <td>${escapeHtml(ev.date)}</td>
+                <td>${escapeHtml(ev.location)}</td>
+                <td>
+                    <button class="table-btn btn-edit-event" data-id="${ev.id}" title="Düzenle"><i class="fa-solid fa-pen-to-square" style="color: #00b4d8;"></i></button>
+                    <button class="table-btn btn-delete-event" data-id="${ev.id}" title="Sil"><i class="fa-solid fa-trash-can"></i></button>
+                </td>
+            `;
+            listContainer.appendChild(tr);
+        });
+
+        listContainer.querySelectorAll('.btn-edit-event').forEach(b => b.addEventListener('click', () => openEditEventModal(b.getAttribute('data-id'))));
+        listContainer.querySelectorAll('.btn-delete-event').forEach(b => b.addEventListener('click', () => deleteEvent(b.getAttribute('data-id'))));
+    }
+
+    // Duyuru Listesini Çizme
+    function renderDashboardAnnouncements() {
+        const listContainer = document.getElementById('admin-announcements-list');
+        if (!listContainer) return;
+        listContainer.innerHTML = '';
+        const announcements = getLocalStorageAnnouncements();
+
+        if (announcements.length === 0) {
+            listContainer.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px;">Kayıtlı duyuru bulunamadı.</td></tr>`;
+            return;
+        }
+
+        announcements.forEach(ann => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${escapeHtml(ann.title)}</strong></td>
+                <td>${escapeHtml(ann.category)}</td>
+                <td><span class="ctf-badge ${escapeHtml(ann.badgeClass)}">${escapeHtml(ann.badgeClass.toUpperCase())}</span></td>
+                <td>${escapeHtml(ann.date)}</td>
+                <td>
+                    <button class="table-btn btn-edit-ann" data-id="${ann.id}" title="Düzenle"><i class="fa-solid fa-pen-to-square" style="color: #00b4d8;"></i></button>
+                    <button class="table-btn btn-delete-ann" data-id="${ann.id}" title="Sil"><i class="fa-solid fa-trash-can"></i></button>
+                </td>
+            `;
+            listContainer.appendChild(tr);
+        });
+
+        listContainer.querySelectorAll('.btn-edit-ann').forEach(b => b.addEventListener('click', () => openEditAnnouncementModal(b.getAttribute('data-id'))));
+        listContainer.querySelectorAll('.btn-delete-ann').forEach(b => b.addEventListener('click', () => deleteAnnouncement(b.getAttribute('data-id'))));
+    }
+
+    // Blog Listesini Çizme
+    function renderDashboardBlog() {
+        const listContainer = document.getElementById('admin-blog-list');
+        if (!listContainer) return;
+        listContainer.innerHTML = '';
+        const blogPosts = getLocalStorageBlog();
+
+        if (blogPosts.length === 0) {
+            listContainer.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 30px;">Kayıtlı blog yazısı bulunamadı.</td></tr>`;
+            return;
+        }
+
+        blogPosts.forEach(post => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${escapeHtml(post.title)}</strong></td>
+                <td>${escapeHtml(post.category)}</td>
+                <td><span class="ctf-badge ${escapeHtml(post.badgeClass)}">${escapeHtml(post.badgeClass.toUpperCase())}</span></td>
+                <td>${escapeHtml(post.author)}</td>
+                <td><span class="status-badge approved">${escapeHtml(post.status.toUpperCase())}</span></td>
+                <td>${escapeHtml(post.readTime || '-')}</td>
+                <td>${escapeHtml(post.date)}</td>
+                <td>
+                    <button class="table-btn btn-edit-blog" data-id="${post.id}" title="Düzenle"><i class="fa-solid fa-pen-to-square" style="color: #00b4d8;"></i></button>
+                    <button class="table-btn btn-delete-blog" data-id="${post.id}" title="Sil"><i class="fa-solid fa-trash-can"></i></button>
+                </td>
+            `;
+            listContainer.appendChild(tr);
+        });
+
+        listContainer.querySelectorAll('.btn-edit-blog').forEach(b => b.addEventListener('click', () => openEditBlogModal(b.getAttribute('data-id'))));
+        listContainer.querySelectorAll('.btn-delete-blog').forEach(b => b.addEventListener('click', () => deleteBlog(b.getAttribute('data-id'))));
+    }
+
+    // Etkinlik Ekle / Düzenle / Sil
+    const eventModal = document.getElementById('admin-event-modal');
+    const eventForm = document.getElementById('admin-event-form');
+    const btnAddEvent = document.getElementById('btn-add-event');
+    const closeEventModalBtn = document.getElementById('close-event-modal');
+
+    if (btnAddEvent) {
+        btnAddEvent.addEventListener('click', () => {
+            if (eventForm) eventForm.reset();
+            const editId = document.getElementById('event-edit-id');
+            if (editId) editId.value = '';
+            const titleEl = document.getElementById('event-modal-title');
+            if (titleEl) titleEl.innerText = 'Yeni Etkinlik Ekle';
+            if (eventModal) eventModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeEventModalBtn && eventModal) closeEventModalBtn.addEventListener('click', () => eventModal.classList.add('hidden'));
+
+    if (eventForm) {
+        eventForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('member-email').value.trim().toLowerCase();
-            const rawPassword = document.getElementById('member-password').value.trim();
-            const submitBtn = memberLoginForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn ? submitBtn.innerHTML : "Giriş Yap";
+            const editId = document.getElementById('event-edit-id').value;
+            let events = getLocalStorageEvents();
+            const newEvent = {
+                id: editId || 'ev_' + Date.now(),
+                title: document.getElementById('event-title').value.trim(),
+                category: document.getElementById('event-category').value.trim(),
+                badgeClass: document.getElementById('event-badge').value,
+                status: document.getElementById('event-status').value,
+                statusText: document.getElementById('event-statustext').value.trim(),
+                statusIcon: 'fa-solid fa-circle-play',
+                date: document.getElementById('event-date').value.trim(),
+                time: document.getElementById('event-time').value.trim(),
+                location: document.getElementById('event-location').value.trim(),
+                description: document.getElementById('event-description').value.trim()
+            };
 
-            const loginKey = 'member_login_' + email;
-            const rateCheck = AuthRateLimiter.check(loginKey, 5, 180000);
-            if (rateCheck.locked) {
-                alert(`Çok fazla hatalı giriş denemesi yapıldı. Lütfen ${rateCheck.remainingSec} saniye bekleyin.`);
-                return;
-            }
+            if (editId) events = events.map(ev => ev.id === editId ? newEvent : ev);
+            else events.push(newEvent);
 
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Giriş Yapılıyor...';
-            }
-
-            try {
-                let foundMember = null;
-                const hashedPassword = await hashPassword(rawPassword);
-
-                if (useFirebase && db) {
-                    let snapshot = await db.collection('applicants').where('email', '==', email).get();
-                    if (snapshot.empty) {
-                        const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
-                        snapshot = await db.collection('applicants').where('email', '==', capitalizedEmail).get();
-                    }
-
-                    if (!snapshot.empty) {
-                        const doc = snapshot.docs[0];
-                        const fbUser = { id: doc.id, ...doc.data() };
-                        
-                        let isMatch = false;
-                        if (fbUser.password === hashedPassword) {
-                            isMatch = true;
-                        } else if (fbUser.password && fbUser.password.trim() === rawPassword) {
-                            isMatch = true;
-                            fbUser.password = hashedPassword;
-                            db.collection('applicants').doc(doc.id).update({ password: hashedPassword }).catch(() => {});
-                        }
-
-                        if (isMatch) {
-                            foundMember = fbUser;
-                            const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
-                            const idx = localMembers.findIndex(m => m.email.toLowerCase() === email);
-                            if (idx !== -1) localMembers[idx] = fbUser;
-                            else localMembers.push(fbUser);
-                            localStorage.setItem('myk_members', JSON.stringify(localMembers));
-                        }
-                    }
-                } else {
-                    const localData = localStorage.getItem('myk_members');
-                    if (localData) {
-                        const localMembers = JSON.parse(localData);
-                        const candidate = localMembers.find(m => m.email.toLowerCase() === email);
-                        if (candidate) {
-                            if (candidate.password === hashedPassword) {
-                                foundMember = candidate;
-                            } else if (candidate.password && candidate.password.trim() === rawPassword) {
-                                candidate.password = hashedPassword;
-                                foundMember = candidate;
-                                localStorage.setItem('myk_members', JSON.stringify(localMembers));
-                            }
-                        }
-                    }
-                }
-
-                if (foundMember) {
-                    AuthRateLimiter.reset(loginKey);
-                    loginModal.classList.add('hidden');
-                    sessionStorage.setItem('member_logged_in_email', email);
-                    updateHeaderState(foundMember, true);
-                    if (memberLoginError) memberLoginError.classList.add('hidden');
-                    memberLoginForm.reset();
-                    
-                    showStatusToast("Giriş Başarılı!", "Hoş geldiniz, " + (foundMember.name || "Üye"), true);
-                    setTimeout(() => {
-                        window.location.href = 'profil.html';
-                    }, 400);
-                } else {
-                    AuthRateLimiter.record(loginKey);
-                    if (memberLoginError) memberLoginError.classList.remove('hidden');
-                }
-            } catch (err) {
-                AuthRateLimiter.record(loginKey);
-                console.error("Login verification failed:", err);
-                if (memberLoginError) memberLoginError.classList.remove('hidden');
-            } finally {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                }
-            }
+            saveLocalStorageEvents(events);
+            renderDashboardEvents();
+            if (eventModal) eventModal.classList.add('hidden');
+            showStatusToast("Başarılı!", "Etkinlik kaydedildi.", true);
         });
     }
 
-    // Admin Live Mode
+    function openEditEventModal(id) {
+        const found = getLocalStorageEvents().find(ev => ev.id === id);
+        if (!found) return;
+        document.getElementById('event-edit-id').value = found.id;
+        document.getElementById('event-title').value = found.title;
+        document.getElementById('event-category').value = found.category;
+        document.getElementById('event-badge').value = found.badgeClass;
+        document.getElementById('event-status').value = found.status;
+        document.getElementById('event-statustext').value = found.statusText;
+        document.getElementById('event-date').value = found.date;
+        document.getElementById('event-time').value = found.time || '';
+        document.getElementById('event-location').value = found.location;
+        document.getElementById('event-description').value = found.description;
+        document.getElementById('event-modal-title').innerText = 'Etkinliği Düzenle';
+        if (eventModal) eventModal.classList.remove('hidden');
+    }
+
+    function deleteEvent(id) {
+        if (confirm("Bu etkinliği silmek istediğinizden emin misiniz?")) {
+            let events = getLocalStorageEvents().filter(ev => ev.id !== id);
+            saveLocalStorageEvents(events);
+            renderDashboardEvents();
+            if (useFirebase && db) db.collection('events').doc(id.toString()).delete().catch(() => {});
+            showStatusToast("Silindi", "Etkinlik silindi.", true);
+        }
+    }
+
+    // Duyuru Ekle / Düzenle / Sil
+    const announcementModal = document.getElementById('admin-announcement-modal');
+    const announcementForm = document.getElementById('admin-announcement-form');
+    const btnAddAnnouncement = document.getElementById('btn-add-announcement');
+    const closeAnnouncementModalBtn = document.getElementById('close-announcement-modal');
+
+    if (btnAddAnnouncement) {
+        btnAddAnnouncement.addEventListener('click', () => {
+            if (announcementForm) announcementForm.reset();
+            const editId = document.getElementById('announcement-edit-id');
+            if (editId) editId.value = '';
+            document.getElementById('announcement-modal-title').innerText = 'Yeni Duyuru Ekle';
+            if (announcementModal) announcementModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeAnnouncementModalBtn && announcementModal) closeAnnouncementModalBtn.addEventListener('click', () => announcementModal.classList.add('hidden'));
+
+    if (announcementForm) {
+        announcementForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('announcement-edit-id').value;
+            let anns = getLocalStorageAnnouncements();
+            const newAnn = {
+                id: editId || 'ann_' + Date.now(),
+                title: document.getElementById('announcement-title').value.trim(),
+                category: document.getElementById('announcement-category').value.trim(),
+                badgeClass: document.getElementById('announcement-badge').value,
+                date: document.getElementById('announcement-date').value.trim(),
+                description: document.getElementById('announcement-description').value.trim()
+            };
+
+            if (editId) anns = anns.map(a => a.id === editId ? newAnn : a);
+            else anns.push(newAnn);
+
+            saveLocalStorageAnnouncements(anns);
+            renderDashboardAnnouncements();
+            if (announcementModal) announcementModal.classList.add('hidden');
+            showStatusToast("Başarılı!", "Duyuru kaydedildi.", true);
+        });
+    }
+
+    function openEditAnnouncementModal(id) {
+        const found = getLocalStorageAnnouncements().find(a => a.id === id);
+        if (!found) return;
+        document.getElementById('announcement-edit-id').value = found.id;
+        document.getElementById('announcement-title').value = found.title;
+        document.getElementById('announcement-category').value = found.category;
+        document.getElementById('announcement-badge').value = found.badgeClass;
+        document.getElementById('announcement-date').value = found.date;
+        document.getElementById('announcement-description').value = found.description;
+        document.getElementById('announcement-modal-title').innerText = 'Duyuruyu Düzenle';
+        if (announcementModal) announcementModal.classList.remove('hidden');
+    }
+
+    function deleteAnnouncement(id) {
+        if (confirm("Bu duyuruyu silmek istediğinizden emin misiniz?")) {
+            let anns = getLocalStorageAnnouncements().filter(a => a.id !== id);
+            saveLocalStorageAnnouncements(anns);
+            renderDashboardAnnouncements();
+            if (useFirebase && db) db.collection('announcements').doc(id.toString()).delete().catch(() => {});
+            showStatusToast("Silindi", "Duyuru silindi.", true);
+        }
+    }
+
+    // Blog Ekle / Düzenle / Sil
+    const blogModal = document.getElementById('admin-blog-modal');
+    const blogForm = document.getElementById('admin-blog-form');
+    const btnAddBlog = document.getElementById('btn-add-blog');
+    const closeBlogModalBtn = document.getElementById('close-blog-modal');
+
+    if (btnAddBlog) {
+        btnAddBlog.addEventListener('click', () => {
+            if (blogForm) blogForm.reset();
+            document.getElementById('blog-edit-id').value = '';
+            document.getElementById('blog-modal-title').innerText = 'Yeni Blog Ekle';
+            if (blogModal) blogModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeBlogModalBtn && blogModal) closeBlogModalBtn.addEventListener('click', () => blogModal.classList.add('hidden'));
+
+    if (blogForm) {
+        blogForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('blog-edit-id').value;
+            let blog = getLocalStorageBlog();
+            const newPost = {
+                id: editId || 'post_' + Date.now(),
+                title: document.getElementById('blog-title').value.trim(),
+                category: document.getElementById('blog-category').value.trim(),
+                badgeClass: document.getElementById('blog-badge').value,
+                status: document.getElementById('blog-status').value,
+                readTime: document.getElementById('blog-readtime').value.trim(),
+                author: document.getElementById('blog-author').value.trim(),
+                authorIcon: document.getElementById('blog-author-icon').value,
+                date: document.getElementById('blog-date').value.trim(),
+                description: document.getElementById('blog-description').value.trim()
+            };
+
+            if (editId) blog = blog.map(p => p.id === editId ? newPost : p);
+            else blog.push(newPost);
+
+            saveLocalStorageBlog(blog);
+            renderDashboardBlog();
+            if (blogModal) blogModal.classList.add('hidden');
+            showStatusToast("Başarılı!", "Blog kaydedildi.", true);
+        });
+    }
+
+    function openEditBlogModal(id) {
+        const found = getLocalStorageBlog().find(p => p.id === id);
+        if (!found) return;
+        document.getElementById('blog-edit-id').value = found.id;
+        document.getElementById('blog-title').value = found.title;
+        document.getElementById('blog-category').value = found.category;
+        document.getElementById('blog-badge').value = found.badgeClass;
+        document.getElementById('blog-status').value = found.status;
+        document.getElementById('blog-readtime').value = found.readTime || '';
+        document.getElementById('blog-author').value = found.author;
+        document.getElementById('blog-author-icon').value = found.authorIcon;
+        document.getElementById('blog-date').value = found.date;
+        document.getElementById('blog-description').value = found.description;
+        document.getElementById('blog-modal-title').innerText = 'Blog Yazısını Düzenle';
+        if (blogModal) blogModal.classList.remove('hidden');
+    }
+
+    function deleteBlog(id) {
+        if (confirm("Bu blog yazısını silmek istediğinizden emin misiniz?")) {
+            let blog = getLocalStorageBlog().filter(p => p.id !== id);
+            saveLocalStorageBlog(blog);
+            renderDashboardBlog();
+            if (useFirebase && db) db.collection('blog').doc(id.toString()).delete().catch(() => {});
+            showStatusToast("Silindi", "Blog yazısı silindi.", true);
+        }
+    }
+
+    // --- 9. CMS SİTE AYARLARI FORMU ---
+    function initSettingsTab() {
+        const settings = getLocalStorageSettings();
+        const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+
+        setVal('set-hero-title', settings.heroTitle);
+        setVal('set-hero-desc', settings.heroDesc);
+        setVal('set-about-p1', settings.aboutText1);
+        setVal('set-about-p2', settings.aboutText2);
+        setVal('set-contact-address', settings.contactAddress);
+        setVal('set-contact-email', settings.contactEmail);
+        setVal('set-social-github', settings.socialGithub);
+        setVal('set-social-linkedin', settings.socialLinkedin);
+        setVal('set-social-instagram', settings.socialInstagram);
+
+        setVal('set-team-m1-name', settings.teamM1Name);
+        setVal('set-team-m1-role', settings.teamM1Role);
+        setVal('set-team-m1-bio', settings.teamM1Bio);
+        setVal('set-team-m2-name', settings.teamM2Name);
+        setVal('set-team-m2-role', settings.teamM2Role);
+        setVal('set-team-m2-bio', settings.teamM2Bio);
+        setVal('set-team-m3-name', settings.teamM3Name);
+        setVal('set-team-m3-role', settings.teamM3Role);
+        setVal('set-team-m3-bio', settings.teamM3Bio);
+
+        setVal('set-reg-t1', settings.regT1); setVal('set-reg-c1', settings.regC1);
+        setVal('set-reg-t2', settings.regT2); setVal('set-reg-c2', settings.regC2);
+        setVal('set-reg-t3', settings.regT3); setVal('set-reg-c3', settings.regC3);
+        setVal('set-reg-t4', settings.regT4); setVal('set-reg-c4', settings.regC4);
+    }
+
+    const settingsForm = document.getElementById('admin-settings-form');
+    if (settingsForm) {
+        settingsForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const getV = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+            const settingsData = {
+                heroTitle: getV('set-hero-title'),
+                heroDesc: getV('set-hero-desc'),
+                aboutText1: getV('set-about-p1'),
+                aboutText2: getV('set-about-p2'),
+                contactAddress: getV('set-contact-address'),
+                contactEmail: getV('set-contact-email'),
+                socialGithub: getV('set-social-github'),
+                socialLinkedin: getV('set-social-linkedin'),
+                socialInstagram: getV('set-social-instagram'),
+
+                totalSponsors: 0,
+
+                teamM1Name: getV('set-team-m1-name'),
+                teamM1Role: getV('set-team-m1-role'),
+                teamM1Bio: getV('set-team-m1-bio'),
+                teamM2Name: getV('set-team-m2-name'),
+                teamM2Role: getV('set-team-m2-role'),
+                teamM2Bio: getV('set-team-m2-bio'),
+                teamM3Name: getV('set-team-m3-name'),
+                teamM3Role: getV('set-team-m3-role'),
+                teamM3Bio: getV('set-team-m3-bio'),
+
+                regT1: getV('set-reg-t1'), regC1: getV('set-reg-c1'),
+                regT2: getV('set-reg-t2'), regC2: getV('set-reg-c2'),
+                regT3: getV('set-reg-t3'), regC3: getV('set-reg-c3'),
+                regT4: getV('set-reg-t4'), regC4: getV('set-reg-c4')
+            };
+
+            saveLocalStorageSettings(settingsData);
+            applySiteSettings();
+            showStatusToast("Kaydedildi!", "Site içerik ayarları güncellendi.", true);
+        });
+    }
+
+    // --- 10. YÖNETİCİ GİRİŞİ & PANEL YÖNETİMİ ---
+    const adminDashboard = document.getElementById('admin-dashboard');
+    const adminLoginForm = document.getElementById('admin-login-form');
+    const loginModal = document.getElementById('login-modal');
+    const loginError = document.getElementById('login-error-message');
+
     function enableAdminMode() {
         document.body.classList.add('admin-mode-active');
-        const adminToolbar = document.getElementById('admin-toolbar');
-        if (adminToolbar) adminToolbar.classList.remove('hidden');
+        const toolbar = document.getElementById('admin-toolbar');
+        if (toolbar) toolbar.classList.remove('hidden');
         
-        const adminBasvurularSec = document.getElementById('section-admin-basvurular');
-        if (adminBasvurularSec) adminBasvurularSec.classList.remove('hidden');
+        const adminSec = document.getElementById('section-admin-basvurular');
+        if (adminSec) adminSec.classList.remove('hidden');
 
-        if (adminDashboard) adminDashboard.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        
-        document.querySelectorAll('.admin-edit-trigger').forEach(btn => {
-            btn.classList.remove('hidden');
-        });
-        
+        document.querySelectorAll('.admin-edit-trigger').forEach(b => b.classList.remove('hidden'));
         renderDashboardTable(getSearchText(), false);
     }
 
     function disableAdminMode() {
         document.body.classList.remove('admin-mode-active');
-        const adminToolbar = document.getElementById('admin-toolbar');
-        if (adminToolbar) adminToolbar.classList.add('hidden');
+        const toolbar = document.getElementById('admin-toolbar');
+        if (toolbar) toolbar.classList.add('hidden');
         
-        const adminBasvurularSec = document.getElementById('section-admin-basvurular');
-        if (adminBasvurularSec) adminBasvurularSec.classList.add('hidden');
+        const adminSec = document.getElementById('section-admin-basvurular');
+        if (adminSec) adminSec.classList.add('hidden');
 
         if (adminDashboard) adminDashboard.classList.add('hidden');
         document.body.style.overflow = 'auto';
-        
-        document.querySelectorAll('.admin-edit-trigger').forEach(btn => {
-            btn.classList.add('hidden');
-        });
-        
+
+        document.querySelectorAll('.admin-edit-trigger').forEach(b => b.classList.add('hidden'));
         sessionStorage.removeItem('admin_logged_in');
     }
 
@@ -1542,11 +1345,6 @@ const defaultSiteSettings = {
             const email = document.getElementById('admin-email').value.trim();
             const pass = document.getElementById('admin-password').value;
 
-            const submitBtn = adminLoginForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Giriş Yapılıyor...`;
-
             const isAdminUser = (
                 (email.toLowerCase() === 'yusuffurkangek@gmail.com' && (pass === 'Furkan123456?' || pass === 'Furkan123456' || pass === 'admin')) ||
                 (email.toLowerCase() === 'admin@kulup.com' && pass === 'admin') ||
@@ -1554,68 +1352,58 @@ const defaultSiteSettings = {
                 (email.toLowerCase().includes('yusuf') && (pass.includes('123456') || pass === 'Furkan123456?'))
             );
 
-            if (useFirebase && typeof firebase !== 'undefined' && firebase.auth) {
-                firebase.auth().signInWithEmailAndPassword(email, pass)
-                    .then(() => {
-                        loginModal.classList.add('hidden');
-                        sessionStorage.setItem('admin_logged_in', 'true');
-                        enableAdminMode();
-                        if (loginError) loginError.classList.add('hidden');
-                        adminLoginForm.reset();
-                    })
-                    .catch((error) => {
-                        if (isAdminUser) {
-                            loginModal.classList.add('hidden');
-                            sessionStorage.setItem('admin_logged_in', 'true');
-                            enableAdminMode();
-                            if (loginError) loginError.classList.add('hidden');
-                            adminLoginForm.reset();
-                            return;
-                        }
-                        console.error("Firebase Admin Authentication failed:", error);
-                        if (loginError) loginError.classList.remove('hidden');
-                    })
-                    .finally(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalText;
-                    });
+            if (isAdminUser) {
+                if (loginModal) loginModal.classList.add('hidden');
+                sessionStorage.setItem('admin_logged_in', 'true');
+                enableAdminMode();
+                if (loginError) loginError.classList.add('hidden');
+                adminLoginForm.reset();
+                showStatusToast("Yönetici Girişi", "Yönetici modu aktif edildi.", true);
             } else {
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                    if (isAdminUser) {
-                        loginModal.classList.add('hidden');
-                        sessionStorage.setItem('admin_logged_in', 'true');
-                        enableAdminMode();
-                        if (loginError) loginError.classList.add('hidden');
-                        adminLoginForm.reset();
-                    } else {
-                        if (loginError) loginError.classList.remove('hidden');
-                    }
-                }, 300);
+                if (loginError) loginError.classList.remove('hidden');
             }
         });
     }
 
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            disableAdminMode();
-            if (adminLoginForm) adminLoginForm.reset();
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) logoutBtn.addEventListener('click', disableAdminMode);
+
+    const adminToolbarLogout = document.getElementById('admin-toolbar-logout');
+    if (adminToolbarLogout) adminToolbarLogout.addEventListener('click', disableAdminMode);
+
+    // Toolbar ve Panel Sekmeleri
+    const tabBtns = document.querySelectorAll('.dash-tab-btn');
+    const tabSections = document.querySelectorAll('.dash-tab-section');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.getAttribute('data-tab');
+            tabBtns.forEach(b => {
+                b.classList.remove('active');
+                b.style.borderBottomColor = 'transparent';
+                b.style.color = 'var(--text-muted)';
+            });
+            btn.classList.add('active');
+            btn.style.borderBottomColor = 'var(--primary)';
+            btn.style.color = 'var(--headings-color)';
+
+            tabSections.forEach(sec => sec.classList.add('hidden'));
+            const activeSection = document.getElementById(`section-${tab}`);
+            if (activeSection) activeSection.classList.remove('hidden');
+
+            if (tab === 'events') renderDashboardEvents();
+            else if (tab === 'announcements') renderDashboardAnnouncements();
+            else if (tab === 'blog') renderDashboardBlog();
+            else if (tab === 'settings') initSettingsTab();
         });
-    }
+    });
 
     const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
     toolbarBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const targetTab = btn.getAttribute('data-target');
-            if (targetTab === 'members') {
-                window.location.href = 'basvurular.html';
-                return;
-            }
-            
             const dashboardTabBtn = document.querySelector(`.dash-tab-btn[data-tab="${targetTab}"]`);
             if (dashboardTabBtn) dashboardTabBtn.click();
-            
             if (adminDashboard) {
                 adminDashboard.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
@@ -1624,40 +1412,43 @@ const defaultSiteSettings = {
     });
 
     const closeDashboardBtn = document.getElementById('close-dashboard-btn');
-    if (closeDashboardBtn) {
+    if (closeDashboardBtn && adminDashboard) {
         closeDashboardBtn.addEventListener('click', () => {
-            if (adminDashboard) adminDashboard.classList.add('hidden');
+            adminDashboard.classList.add('hidden');
             document.body.style.overflow = 'auto';
         });
     }
 
-    const adminToolbarLogout = document.getElementById('admin-toolbar-logout');
-    if (adminToolbarLogout) {
-        adminToolbarLogout.addEventListener('click', () => {
-            disableAdminMode();
-            if (adminLoginForm) adminLoginForm.reset();
-        });
-    }
-
-    const memberSearch = document.getElementById('member-search');
-    if (memberSearch) {
-        memberSearch.addEventListener('input', (e) => {
-            renderDashboardTable(e.target.value, false);
-        });
-    }
-
-    const clearDataBtn = document.getElementById('clear-data-btn');
-    if (clearDataBtn) {
-        clearDataBtn.addEventListener('click', async () => {
-            if (confirm('Tüm başvuru verilerini varsayılan listeye sıfırlamak istiyor musunuz?')) {
-                localStorage.removeItem('myk_members');
-                dbMembers = getLocalStorageMembers();
-                renderDashboardTable(getSearchText(), false);
-                updateHomepageStats();
+    // Canlı Düzenleme Kalem Butonları
+    document.querySelectorAll('.admin-edit-trigger[data-section]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const section = btn.getAttribute('data-section');
+            const settingsTabBtn = document.querySelector('.dash-tab-btn[data-tab="settings"]');
+            if (settingsTabBtn) settingsTabBtn.click();
+            if (adminDashboard) {
+                adminDashboard.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
             }
+            setTimeout(() => {
+                let targetInput = null;
+                if (section === 'hero') targetInput = document.getElementById('set-hero-title');
+                else if (section === 'about') targetInput = document.getElementById('set-about-p1');
+                else if (section === 'contact') targetInput = document.getElementById('set-contact-address');
+                else if (section === 'team') targetInput = document.getElementById('set-team-m1-name');
+                else if (section === 'regulations') targetInput = document.getElementById('set-reg-t1');
+                if (targetInput) {
+                    targetInput.focus();
+                    targetInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 150);
         });
-    }
+    });
 
+    // Arama Kutusu
+    const memberSearch = document.getElementById('member-search');
+    if (memberSearch) memberSearch.addEventListener('input', e => renderDashboardTable(e.target.value, false));
+
+    // Tema Değiştirici
     const themeToggle = document.getElementById('theme-toggle');
     const storedTheme = localStorage.getItem('theme') || 'dark';
     if (storedTheme === 'dark') {
@@ -1674,37 +1465,16 @@ const defaultSiteSettings = {
         themeToggle.addEventListener('click', () => {
             const isDark = document.body.classList.toggle('dark-theme');
             document.documentElement.classList.toggle('dark-theme', isDark);
-            if (isDark) {
-                themeToggle.innerHTML = `<i class="fa-solid fa-sun"></i>`;
-                localStorage.setItem('theme', 'dark');
-            } else {
-                themeToggle.innerHTML = `<i class="fa-solid fa-moon"></i>`;
-                localStorage.setItem('theme', 'light');
-            }
+            themeToggle.innerHTML = isDark ? `<i class="fa-solid fa-sun"></i>` : `<i class="fa-solid fa-moon"></i>`;
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
     }
 
-    // --- 9. Initial Load Triggers ---
+    // --- 11. BAŞLANGIÇ TETİKLEYİCİLERİ ---
     applySiteSettings();
     updateHomepageStats();
 
     if (sessionStorage.getItem('admin_logged_in') === 'true') {
         enableAdminMode();
     }
-
-    function checkUrlHash() {
-        const hash = window.location.hash;
-        if (hash === '#login') {
-            const loginM = document.getElementById('login-modal');
-            if (loginM) {
-                loginM.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
-        } else if (hash === '#register') {
-            openRegisterModal();
-        }
-    }
-
-    checkUrlHash();
-    window.addEventListener('hashchange', checkUrlHash);
 });
