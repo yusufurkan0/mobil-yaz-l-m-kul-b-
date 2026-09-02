@@ -328,7 +328,6 @@
             background: white;
         }
         
-        /* Responsiveness */
         @media (max-width: 900px) {
             .profile-wrapper {
                 grid-template-columns: 1fr;
@@ -408,7 +407,6 @@
                     <li><a href="duyurular.html" class="nav-link">Duyurular</a></li>
                     <li><a href="iletisim.html" class="nav-link">İletişim</a></li>
                     
-                    <!-- Mobile Action Buttons -->
                     <li class="mobile-actions-wrapper" style="display: none; width: 100%; flex-direction: column; gap: 12px; margin-top: 20px; padding: 0 20px;">
                         <a href="index.html#login" id="login-trigger-mobile" class="btn btn-secondary" style="width: 100%; text-align: center;">Giriş Yap</a>
                         <a href="profil.html" id="user-profile-trigger-mobile" class="btn btn-secondary hidden" style="width: 100%; text-align: center;">
@@ -432,7 +430,6 @@
                 </div>
             </div>
 
-            <!-- Mobile Menu Toggle -->
             <button id="menu-toggle" aria-label="Menüyü Aç">
                 <span></span>
                 <span></span>
@@ -456,7 +453,6 @@
                         <p id="sidebar-user-id" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">Öğrenci No: -</p>
                     </div>
                     
-                    <!-- App Status Badge -->
                     <span class="id-card-badge" id="sidebar-status-badge">Yükleniyor...</span>
                     
                     <!-- Nav Tabs -->
@@ -464,6 +460,12 @@
                         <button class="profile-nav-btn active" data-tab="tab-details"><i class="fa-solid fa-address-card"></i> Profil Bilgileri</button>
                         <button class="profile-nav-btn" data-tab="tab-edit"><i class="fa-solid fa-user-pen"></i> Bilgilerimi Düzenle</button>
                         <button class="profile-nav-btn" data-tab="tab-card"><i class="fa-solid fa-id-badge"></i> Üye Kimlik Kartı</button>
+                        
+                        <!-- Kulüp WhatsApp Grubu Butonu -->
+                        <a href="https://chat.whatsapp.com/DUm12QsHMJWC446YgIRCYw?s=cl&p=a&mlu=4" target="_blank" rel="noopener noreferrer" class="profile-nav-btn" style="color: #25D366; border-color: rgba(37, 211, 102, 0.25); background: rgba(37, 211, 102, 0.08); text-decoration: none;">
+                            <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> Kulüp WhatsApp Grubu
+                        </a>
+                        
                         <button class="profile-nav-btn logout" id="member-profile-logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap</button>
                     </div>
                 </div>
@@ -589,7 +591,6 @@
                                         <span class="id-card-meta-value" id="id-card-user-id">-</span>
                                     </div>
                                     
-                                    <!-- Barcode Simulator -->
                                     <div class="id-card-barcode" id="id-card-barcode-lines">
                                         <!-- Generated dynamically -->
                                     </div>
@@ -613,7 +614,7 @@
                 <p>Geleceğin mobil geliştiricilerini bir araya getiren bağımsız öğrenci topluluğu.</p>
                 <div class="social-links">
                     <a href="https://github.com" id="dyn-footer-github" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
-                    <a href="https://linkedin.com" id="dyn-footer-linkedin" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://www.linkedin.com/company/https-l24.im-9ir3fgw" id="dyn-footer-linkedin" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
                     <a href="https://instagram.com/gedikmygk" id="dyn-footer-instagram" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
                 </div>
             </div>
@@ -640,12 +641,11 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK (Only if active) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="js/config.js"></script>
     
-    <!-- Toast status UI template helper -->
     <div id="status-toast" class="status-toast hidden">
         <div class="toast-content">
             <i class="fa-solid" id="toast-icon"></i>
@@ -657,8 +657,17 @@
     </div>
 
     <script>
+        // SHA-256 + Salt Hashleme Fonksiyonu
+        async function hashPassword(password, salt = 'mygk_security_salt_2026') {
+            if (!password) return '';
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password + salt);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
-            // Theme setup
             const theme = localStorage.getItem('theme') || 'dark';
             if (theme === 'light') {
                 document.body.classList.remove('dark-theme');
@@ -682,12 +691,11 @@
                 });
             }
 
-            // Apply Site Settings (CMS footer)
             const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {
                 contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
                 contactEmail: "gedikmobilyazilimkulubu@gmail.com",
                 socialInstagram: "https://www.instagram.com/gedikmygk",
-                socialLinkedin: "https://linkedin.com",
+                socialLinkedin: "https://www.linkedin.com/company/https-l24.im-9ir3fgw",
                 socialGithub: "https://github.com/yusufurkan0"
             };
             const contactAddr = document.getElementById('dyn-footer-address');
@@ -702,15 +710,13 @@
             if (linkedinLink) linkedinLink.href = settings.socialLinkedin;
             if (instagramLink) instagramLink.href = settings.socialInstagram;
 
-            // Authentication verification
             const loggedInEmail = sessionStorage.getItem('member_logged_in_email');
             if (!loggedInEmail) {
                 alert("Profilinizi görüntülemek için lütfen üye girişi yapınız!");
-                window.location.href = "index.html?login=true"; // open login modal
+                window.location.href = "index.html?login=true";
                 return;
             }
 
-            // Sync user profile state to header
             const loginTrigger = document.getElementById('login-trigger');
             const registerTrigger = document.getElementById('register-trigger-nav');
             const profileTrigger = document.getElementById('user-profile-trigger');
@@ -720,7 +726,6 @@
             if (registerTrigger) registerTrigger.classList.add('hidden');
             if (profileTrigger) profileTrigger.classList.remove('hidden');
 
-            // Load Member Data
             let dbMembers = [];
             function getLocalStorageMembers() {
                 const stored = localStorage.getItem('myk_members');
@@ -730,7 +735,6 @@
 
             let currentUser = dbMembers.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
             
-            // Check Firebase if configured and user not found locally, or to check for status updates
             const useFirebase = typeof firebase !== 'undefined' && CONFIG && CONFIG.firebase && CONFIG.firebase.apiKey;
             let db = null;
             if (useFirebase) {
@@ -758,8 +762,6 @@
                             fbUser = { id: doc.id, ...doc.data() };
                         }
                     } catch (queryErr) {
-                        console.warn("Firestore query failed in profile, trying doc get fallback:", queryErr);
-                        // Fallback to direct document get by email (if list is completely disabled but get is allowed)
                         let doc = await db.collection('applicants').doc(loggedInEmail).get();
                         if (!doc.exists) {
                             const capitalizedEmail = loggedInEmail.charAt(0).toUpperCase() + loggedInEmail.slice(1);
@@ -771,7 +773,6 @@
                     }
 
                     if (fbUser) {
-                        // Update local cache
                         currentUser = fbUser;
                         const localIndex = dbMembers.findIndex(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
                         if (localIndex !== -1) {
@@ -793,24 +794,18 @@
                 return;
             }
 
-            // Set Header name
             if (navUserName) navUserName.innerText = currentUser.username || currentUser.name.split(' ')[0];
 
-            // Render Page details
             renderProfileDetails(currentUser);
 
-            // Dashboard tabs control
             const tabBtns = document.querySelectorAll('.profile-nav-btn[data-tab]');
             const panels = document.querySelectorAll('.tab-panel');
             tabBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const targetTab = btn.getAttribute('data-tab');
-                    
-                    // Activate btn
                     tabBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     
-                    // Toggle Panels
                     panels.forEach(p => {
                         if (p.id === targetTab) {
                             p.classList.remove('hidden');
@@ -821,7 +816,6 @@
                 });
             });
 
-            // Logout Action
             const logoutBtn = document.getElementById('member-profile-logout-btn');
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', () => {
@@ -830,10 +824,9 @@
                 });
             }
 
-            // Edit Profile Form Submission
+            // Edit Profile Form Submission (Şifre Hashleme Entegre Edildi)
             const editForm = document.getElementById('profile-page-edit-form');
             if (editForm) {
-                // Populate inputs
                 document.getElementById('edit-profile-phone').value = currentUser.phone || '';
                 document.getElementById('edit-profile-grade').value = currentUser.grade || '1. Sınıf';
                 
@@ -842,8 +835,8 @@
                     
                     const phone = document.getElementById('edit-profile-phone').value.trim();
                     const grade = document.getElementById('edit-profile-grade').value;
-                    const password = document.getElementById('edit-profile-password').value;
-                    const confirmPassword = document.getElementById('edit-profile-password-confirm').value;
+                    const password = document.getElementById('edit-profile-password').value.trim();
+                    const confirmPassword = document.getElementById('edit-profile-password-confirm').value.trim();
                     
                     if (password && password.length < 6) {
                         showToast("Hata", "Yeni şifreniz en az 6 karakter olmalıdır!", false);
@@ -855,53 +848,46 @@
                         return;
                     }
                     
-                    // Update current user values
                     currentUser.phone = phone;
                     currentUser.grade = grade;
+                    
+                    const updateData = {
+                        phone: phone,
+                        grade: grade
+                    };
+
+                    // Eğer yeni şifre girilmişse SHA-256 ile hashle
                     if (password) {
-                        currentUser.password = password;
+                        const hashed = await hashPassword(password);
+                        currentUser.password = hashed;
+                        updateData.password = hashed;
                     }
                     
-                    // Update Local Storage cache
                     const idx = dbMembers.findIndex(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
                     if (idx !== -1) {
                         dbMembers[idx] = currentUser;
                         localStorage.setItem('myk_members', JSON.stringify(dbMembers));
                     }
                     
-                    // Update Firestore (non-blocking)
                     if (useFirebase && db) {
                         const targetId = currentUser.id.toString();
-                        const updateData = {
-                            phone: phone,
-                            grade: grade
-                        };
-                        if (password) {
-                            updateData.password = password;
-                        }
-                        
                         db.collection('applicants').doc(targetId).update(updateData)
                         .then(() => console.log("Firestore profile updated successfully."))
                         .catch(err => console.error("Firestore profile update failed:", err));
                     }
                     
-                    // Re-render
                     renderProfileDetails(currentUser);
                     showToast("Güncellendi!", "Profil bilgileriniz başarıyla güncellendi.", true);
                     
-                    // Switch back to details tab
                     const detailsTabBtn = document.querySelector('.profile-nav-btn[data-tab="tab-details"]');
                     if (detailsTabBtn) detailsTabBtn.click();
                     
-                    // Clear passwords inputs
                     document.getElementById('edit-profile-password').value = '';
                     document.getElementById('edit-profile-password-confirm').value = '';
                 });
             }
 
-            // Function to render details
             function renderProfileDetails(user) {
-                // Sidebar
                 document.getElementById('sidebar-user-name').innerText = user.name;
                 document.getElementById('sidebar-user-id').innerText = `Öğrenci No: ${user.studentId}`;
                 
@@ -909,40 +895,47 @@
                 const sidebarCard = document.getElementById('profile-sidebar-card');
                 const avatarIcon = document.getElementById('profile-avatar-icon');
                 
-                // Reset sidebar classes
                 sidebarCard.classList.remove('approved');
                 
-                // Status mapping
                 if (user.status === 'approved') {
                     statusBadge.innerText = "KABUL EDİLDİ";
                     statusBadge.className = "id-card-badge approved";
                     sidebarCard.classList.add('approved');
-                    avatarIcon.className = "fa-solid fa-crown"; // Crown icon for official members
+                    avatarIcon.className = "fa-solid fa-crown";
                     
-                    // Banner
                     const banner = document.getElementById('status-banner');
                     banner.style.background = "rgba(46, 204, 113, 0.1)";
                     banner.style.borderColor = "rgba(46, 204, 113, 0.3)";
                     banner.style.color = "#2ecc71";
                     document.getElementById('status-banner-icon').className = "fa-solid fa-circle-check";
                     document.getElementById('status-banner-title').innerText = "Başvurunuz Onaylandı!";
-                    document.getElementById('status-banner-desc').innerText = "Tebrikler! Gedik Mobil Yazılım Kulübü resmi üyelik başvurunuz onaylandı. Artık kulüp etkinliklerinde öncelik hakkına sahipsiniz.";
+                    document.getElementById('status-banner-desc').innerHTML = `
+                        Tebrikler! Gedik Mobil Yazılım Kulübü resmi üyelik başvurunuz onaylandı. 
+                        Etkinlik ve duyurular için 
+                        <a href="https://chat.whatsapp.com/DUm12QsHMJWC446YgIRCYw?s=cl&p=a&mlu=4" target="_blank" rel="noopener noreferrer" style="color: #25D366; font-weight: 700; text-decoration: underline; margin-left: 5px;">
+                            <i class="fa-brands fa-whatsapp"></i> WhatsApp Grubumuza Katılın
+                        </a>.
+                    `;
                 } else {
                     statusBadge.innerText = "ONAY BEKLİYOR";
                     statusBadge.className = "id-card-badge pending";
-                    avatarIcon.className = "fa-solid fa-user-clock"; // Clock icon for pending
+                    avatarIcon.className = "fa-solid fa-user-clock";
                     
-                    // Banner
                     const banner = document.getElementById('status-banner');
                     banner.style.background = "rgba(241, 196, 15, 0.1)";
                     banner.style.borderColor = "rgba(241, 196, 15, 0.3)";
                     banner.style.color = "#f1c40f";
                     document.getElementById('status-banner-icon').className = "fa-solid fa-clock-rotate-left";
                     document.getElementById('status-banner-title').innerText = "Başvurunuz İnceleme Aşamasında";
-                    document.getElementById('status-banner-desc').innerText = "Üyelik başvurunuz başarıyla alındı. Yönetim kurulumuz en kısa sürede başvurunuzu inceleyip onaylayacaktır. Lütfen takipte kalın.";
+                    document.getElementById('status-banner-desc').innerHTML = `
+                        Üyelik başvurunuz başarıyla alındı. Yönetim kurulumuz en kısa sürede başvurunuzu inceleyecektir. 
+                        Bilgi almak için 
+                        <a href="https://chat.whatsapp.com/DUm12QsHMJWC446YgIRCYw?s=cl&p=a&mlu=4" target="_blank" rel="noopener noreferrer" style="color: #25D366; font-weight: 700; text-decoration: underline; margin-left: 5px;">
+                            <i class="fa-brands fa-whatsapp"></i> WhatsApp Grubumuza Katılabilirsiniz
+                        </a>.
+                    `;
                 }
                 
-                // Details Grid
                 document.getElementById('det-email').innerText = user.email;
                 document.getElementById('det-username').innerText = `@${user.username || user.name.toLowerCase().replace(/\s/g, '')}`;
                 document.getElementById('det-phone').innerText = user.phone || '-';
@@ -952,7 +945,6 @@
                 document.getElementById('det-birthdate').innerText = user.birthdate ? formatDate(user.birthdate) : '-';
                 document.getElementById('det-track').innerText = 'Mobil Uygulama Geliştirme';
 
-                // ID Card Rendering
                 document.getElementById('id-card-user-name').innerText = user.name;
                 document.getElementById('id-card-user-id').innerText = user.studentId;
                 document.getElementById('id-card-user-track').innerText = 'KULÜP ÜYESİ';
@@ -966,13 +958,12 @@
                     cardStatus.className = "id-card-badge pending";
                 }
                 
-                // Barcode simulation lines
                 const barcodeContainer = document.getElementById('id-card-barcode-lines');
                 if (barcodeContainer) {
                     barcodeContainer.innerHTML = '';
                     const idString = user.studentId.toString();
                     for (let i = 0; i < idString.length; i++) {
-                        const width = (parseInt(idString[i]) % 3) + 1; // random barcode widths based on digits
+                        const width = (parseInt(idString[i]) % 3) + 1;
                         const opacity = 0.4 + (parseInt(idString[i]) % 5) * 0.1;
                         const line = document.createElement('div');
                         line.className = 'id-card-barcode-line';
@@ -983,7 +974,6 @@
                 }
             }
 
-            // Helper to format date nicely
             function formatDate(dateStr) {
                 try {
                     const d = new Date(dateStr);
@@ -994,7 +984,6 @@
                 }
             }
 
-            // Toast feedback helper
             function showToast(title, msg, isSuccess) {
                 const toast = document.getElementById('status-toast');
                 const tIcon = document.getElementById('toast-icon');
@@ -1018,7 +1007,7 @@
                     toast.className = "status-toast hidden";
                 }, 4000);
             }
-            // Admin session synchronization
+
             if (sessionStorage.getItem('admin_logged_in') === 'true') {
                 const adminToolbar = document.getElementById('admin-toolbar');
                 if (adminToolbar) {
@@ -1026,7 +1015,6 @@
                     document.body.classList.add('admin-mode-active');
                 }
                 
-                // Map toolbar buttons to index.html redirect with target query param
                 const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
                 toolbarBtns.forEach(btn => {
                     btn.addEventListener('click', () => {
@@ -1035,7 +1023,6 @@
                     });
                 });
                 
-                // Handle admin logout from subpage
                 const logoutBtn = document.getElementById('admin-toolbar-logout');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', () => {
