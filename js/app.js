@@ -50,12 +50,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveLocalStorageMembers(members) {
-        if (Array.isArray(members) && members.length > 0) {
+        if (Array.isArray(members)) {
             localStorage.setItem('myk_members', JSON.stringify(members));
         }
     }
 
-    let dbMembers = getLocalStorageMembers(); // Initialize immediately with local cache
+    let dbMembers = getLocalStorageMembers();
 
     // Firebase Initialization
     if (typeof CONFIG !== 'undefined' && CONFIG.firebase && CONFIG.firebase.projectId) {
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             db = firebase.firestore();
             useFirebase = true;
             console.log("Firebase initialized successfully.");
-            syncFirestoreToLocalStorage(); // Fetch latest Firestore records in background
+            syncFirestoreToLocalStorage();
         } catch (err) {
             console.error("Firebase initialization failed. Falling back to LocalStorage:", err);
         }
@@ -82,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 events.push(doc.data());
             });
             localStorage.setItem('myk_events', JSON.stringify(events));
-            console.log("Events synced from Firestore:", events.length);
             if (typeof dbEvents !== 'undefined') dbEvents = events;
             if (typeof renderEvents === 'function') renderEvents();
 
@@ -93,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 announcements.push(doc.data());
             });
             localStorage.setItem('myk_announcements', JSON.stringify(announcements));
-            console.log("Announcements synced from Firestore:", announcements.length);
             if (typeof dbAnnouncements !== 'undefined') dbAnnouncements = announcements;
             if (typeof renderAnnouncements === 'function') renderAnnouncements();
 
@@ -104,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 blog.push(doc.data());
             });
             localStorage.setItem('myk_blog', JSON.stringify(blog));
-            console.log("Blog posts synced from Firestore:", blog.length);
             if (typeof dbBlog !== 'undefined') dbBlog = blog;
             if (typeof renderBlog === 'function') renderBlog();
 
@@ -114,16 +111,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const settingsData = settingsDoc.data();
                 const localM = getLocalStorageMembers();
                 const approvedCount = localM.filter(m => (m.status === 'approved' || m.status === 'onaylandı')).length;
-                if (approvedCount > 0) {
-                    settingsData.totalMembers = approvedCount;
-                }
+                settingsData.totalMembers = approvedCount;
+                settingsData.totalSponsors = 0; // Sponsor daima 0
                 const currentSettings = getLocalStorageSettings();
                 localStorage.setItem('myk_site_settings', JSON.stringify({ ...currentSettings, ...settingsData }));
-                console.log("CMS Settings synced from Firestore safely.");
                 if (typeof applySiteSettings === 'function') applySiteSettings();
             }
             
-            // Re-render admin tables if admin is logged in
             if (sessionStorage.getItem('admin_logged_in') === 'true') {
                 if (typeof renderDashboardEvents === 'function') renderDashboardEvents();
                 if (typeof renderDashboardAnnouncements === 'function') renderDashboardAnnouncements();
@@ -142,22 +136,29 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (useFirebase && db) {
             db.collection('applicants').get().then(snapshot => {
-                const members = [];
+                const cloudMembers = [];
                 snapshot.forEach(doc => {
-                    members.push({ id: doc.id, ...doc.data() });
+                    cloudMembers.push({ id: doc.id, ...doc.data() });
                 });
                 const local = getLocalStorageMembers();
-                if (members.length > 0) {
-                    local.forEach(locMem => {
-                        if (!members.some(m => (m.email && locMem.email && m.email.toLowerCase() === locMem.email.toLowerCase()) || m.id === locMem.id)) {
-                            members.push(locMem);
-                        }
-                    });
-                    dbMembers = members;
-                    saveLocalStorageMembers(dbMembers);
-                } else {
-                    dbMembers = local;
-                }
+                
+                // Firestore verilerini yerel onay/red kararlarını ezmeyecek şekilde birleştir
+                local.forEach(locMem => {
+                    const idx = cloudMembers.findIndex(c => 
+                        (c.email && locMem.email && c.email.toLowerCase() === locMem.email.toLowerCase()) || 
+                        String(c.id) === String(locMem.id)
+                    );
+                    if (idx === -1) {
+                        cloudMembers.push(locMem);
+                    } else if (locMem.status && locMem.status !== cloudMembers[idx].status) {
+                        // Yereldeki güncel durumu koru
+                        cloudMembers[idx].status = locMem.status;
+                    }
+                });
+
+                dbMembers = cloudMembers.length > 0 ? cloudMembers : local;
+                saveLocalStorageMembers(dbMembers);
+                
                 if (typeof renderDashboardTable === 'function') {
                     renderDashboardTable(getSearchText(), false);
                 }
@@ -256,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function animateCounters() {
         statNumbers.forEach(stat => {
-            const target = parseInt(stat.getAttribute('data-val'));
+            const target = parseInt(stat.getAttribute('data-val')) || 0;
             if (target === 0) {
                 stat.innerText = "0";
                 return;
@@ -664,7 +665,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Validate passwords match & length
             const rawPassword = document.getElementById('user-password').value.trim();
             const rawPasswordConfirm = document.getElementById('user-password-confirm').value.trim();
             if (rawPassword.length < 6) {
@@ -692,7 +692,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const grade = document.getElementById('user-grade').value;
                 const birthdate = document.getElementById('user-birthdate').value;
 
-                // Şifreyi kaydetmeden önce güvenli şekilde hash'le
                 const hashedPassword = await hashPassword(rawPassword);
 
                 let clientIP = 'Tespit Ediliyor...';
@@ -714,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     department: department,
                     grade: grade,
                     birthdate: birthdate,
-                    password: hashedPassword, // HASH SAKLANIYOR
+                    password: hashedPassword,
                     track: 'ios',
                     status: 'pending',
                     ipAddress: clientIP,
@@ -750,7 +749,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // OTP Code validation verification
     if (verifySubmitBtn) {
         verifySubmitBtn.addEventListener('click', async () => {
             let enteredCode = '';
@@ -777,7 +775,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         department: pendingMemberData.department || '',
                         grade: pendingMemberData.grade || '',
                         birthdate: pendingMemberData.birthdate || '',
-                        password: pendingMemberData.password || '', // Hash
+                        password: pendingMemberData.password || '',
                         track: pendingMemberData.track,
                         status: pendingMemberData.status,
                         ipAddress: pendingMemberData.ipAddress || 'Bilinmiyor',
@@ -1055,6 +1053,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- Sponsor Sayısı Varsayılanı 0 Yapıldı ---
     const defaultSiteSettings = {
         heroTitle: `Geleceğin Mobil <br>\n                    <span class="gradient-text animate-gradient">Geliştiricileri Burada</span>`,
         heroDesc: "Mobil uygulama geliştirmeye odaklanan kulübümüzle mobil yazılım ekosistemine ilk adımını at. Sıfırdan başla, projeler geliştir, sektöre yön ver!",
@@ -1066,6 +1065,8 @@ document.addEventListener('DOMContentLoaded', () => {
         socialLinkedin: "https://www.linkedin.com/company/https-l24.im-9ir3fgw",
         socialGithub: "https://github.com/yusufurkan0",
         
+        totalSponsors: 0, // Sponsor sayısı 0
+
         teamM1Name: "Yusuf Furkan Yılmaz",
         teamM1Role: "Kulüp Başkanı / Kurucu",
         teamM1Bio: "İstanbul Gedik Üniversitesi Yazılım Mühendisliği Öğrencisi.",
@@ -1183,9 +1184,10 @@ document.addEventListener('DOMContentLoaded', () => {
             eventSpan.innerText = eventCount;
         }
 
+        // Sponsor Sayacı Kesin Olarak 0
         const sponsorSpan = document.getElementById('homepage-sponsor-count');
         if (sponsorSpan) {
-            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 5;
+            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 0;
             sponsorSpan.setAttribute('data-val', sponsorCount);
             sponsorSpan.innerText = sponsorCount;
         }
@@ -1210,7 +1212,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const sponsorSpan = document.getElementById('homepage-sponsor-count');
         if (sponsorSpan) {
-            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 5;
+            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 0;
             sponsorSpan.setAttribute('data-val', sponsorCount);
             sponsorSpan.innerText = sponsorCount;
         }
@@ -1238,7 +1240,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentAdminMemberStatusFilter = 'all';
 
-    // --- Admin Başvuru Tablosu (Şifrelerin Güvenli Gösterimi) ---
+    // --- Admin Başvuru Tablosu (Şifrelerin Güvenli Gösterimi & Reddetme Butonu) ---
     function renderDashboardTable(filterText = getSearchText(), forceFetch = false, statusFilter = currentAdminMemberStatusFilter) {
         currentAdminMemberStatusFilter = statusFilter;
         const listContainer = document.getElementById('admin-member-list');
@@ -1334,7 +1336,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const emailVal = m.email || '-';
             const deptVal = m.department || m.faculty || 'Belirtilmedi';
 
-            // Şifre yerine korumalı rozet gösterilir
             const passwordBadge = (m.password && m.password.length === 64)
                 ? `<span class="ip-tag-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem;"><i class="fa-solid fa-shield-halved"></i> SHA-256</span>`
                 : `<span class="ip-tag-badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem;"><i class="fa-solid fa-lock"></i> Korumalı</span>`;
@@ -1344,11 +1345,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<span class="track-badge-mini ${escapeHtml(trackKey)}">${escapeHtml((label || trackKey).split(' ')[0])}</span>`;
             }).join('') : `<span class="track-badge-mini ios">Mobil</span>`;
 
-            const statusClass = m.status === 'approved' ? 'approved' : 'pending';
-            const statusText = m.status === 'approved' ? 'Onaylandı' : 'Beklemede';
+            const st = (m.status || '').toLowerCase();
+            let statusClass = 'pending';
+            let statusText = 'Beklemede';
+            if (st === 'approved' || st === 'onaylandı' || st === 'onaylandi') {
+                statusClass = 'approved';
+                statusText = 'Onaylandı';
+            } else if (st === 'rejected' || st === 'reddedildi') {
+                statusClass = 'pending';
+                statusText = 'Reddedildi';
+            }
+
             const ipDisplay = m.ipAddress || m.ip || 'Tespit Ediliyor...';
             const deviceTitle = m.userAgent || 'Tarayıcı / Cihaz Bilgisi';
             const regDate = m.registeredAt || 'Yeni Başvuru';
+
+            // Hem onay hem red seçeneği
+            const isApproved = statusClass === 'approved';
 
             tr.innerHTML = `
                 <td><strong class="clickable-member-name" data-id="${m.id}" style="cursor: pointer; color: var(--primary); text-decoration: underline; text-underline-offset: 4px;">${escapeHtml(nameVal)}</strong></td>
@@ -1367,7 +1380,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                 <td>
-                    ${m.status === 'pending' ? `<button class="table-btn btn-approve" data-id="${m.id}" title="Onayla"><i class="fa-solid fa-circle-check"></i></button>` : ''}
+                    ${!isApproved ? `<button class="table-btn btn-approve" data-id="${m.id}" title="Onayla"><i class="fa-solid fa-circle-check" style="color: #10b981;"></i></button>` : ''}
+                    ${st !== 'rejected' ? `<button class="table-btn btn-reject" data-id="${m.id}" title="Reddet"><i class="fa-solid fa-ban" style="color: #f59e0b;"></i></button>` : ''}
                     <button class="table-btn btn-delete" data-id="${m.id}" title="Sil"><i class="fa-solid fa-trash-can"></i></button>
                 </td>
             `;
@@ -1379,6 +1393,13 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-id');
                 approveMember(id);
+            });
+        });
+
+        listContainer.querySelectorAll('.btn-reject').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                rejectMember(id);
             });
         });
 
@@ -1411,13 +1432,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Admin Member Detail Modal (Şifre Açık Gösterilmez) ---
+    // --- Admin Member Detail Modal (Şifre Açık Gösterilmez & Reddet Butonu) ---
     const adminMemberDetailModal = document.getElementById('admin-member-detail-modal');
     const closeAdminMemberDetail = document.getElementById('close-admin-member-detail');
     let activeDetailMemberId = null;
 
     function openAdminMemberDetail(id) {
-        const member = dbMembers.find(m => m.id.toString() === id.toString());
+        const targetStr = String(id).toLowerCase().trim();
+        const member = dbMembers.find(m => String(m.id).toLowerCase().trim() === targetStr || String(m.email).toLowerCase().trim() === targetStr);
         if (!member) return;
 
         activeDetailMemberId = id;
@@ -1432,23 +1454,38 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('admin-detail-grade').innerText = member.grade || '-';
         document.getElementById('admin-detail-birthdate').innerText = member.birthdate || '-';
         
-        // Açık şifre yerine güvenlik etiketi basılır
         const pwEl = document.getElementById('admin-detail-password');
         if (pwEl) {
             pwEl.innerHTML = '<span style="color: #10b981; font-weight: 600;"><i class="fa-solid fa-shield-halved"></i> SHA-256 Şifreli</span>';
         }
 
+        const st = (member.status || '').toLowerCase();
+        let statusClass = 'pending';
+        let statusText = 'Beklemede';
+        if (st === 'approved' || st === 'onaylandı' || st === 'onaylandi') {
+            statusClass = 'approved';
+            statusText = 'Onaylandı';
+        } else if (st === 'rejected' || st === 'reddedildi') {
+            statusClass = 'pending';
+            statusText = 'Reddedildi';
+        }
+
         const statusSpan = document.getElementById('admin-detail-status');
-        const statusClass = member.status === 'approved' ? 'approved' : 'pending';
-        const statusText = member.status === 'approved' ? 'Onaylandı' : 'Beklemede';
         statusSpan.className = `status-badge ${statusClass}`;
         statusSpan.innerText = statusText;
 
         const btnApprove = document.getElementById('admin-detail-approve-btn');
-        if (member.status === 'approved') {
+        const btnReject = document.getElementById('admin-detail-reject-btn');
+        
+        if (statusClass === 'approved') {
             if (btnApprove) btnApprove.style.display = 'none';
+            if (btnReject) btnReject.style.display = 'block';
+        } else if (st === 'rejected') {
+            if (btnApprove) btnApprove.style.display = 'block';
+            if (btnReject) btnReject.style.display = 'none';
         } else {
             if (btnApprove) btnApprove.style.display = 'block';
+            if (btnReject) btnReject.style.display = 'block';
         }
 
         if (adminMemberDetailModal) {
@@ -1461,6 +1498,16 @@ document.addEventListener('DOMContentLoaded', () => {
         btnApproveDetail.addEventListener('click', () => {
             if (activeDetailMemberId) {
                 approveMember(activeDetailMemberId);
+                if (adminMemberDetailModal) adminMemberDetailModal.classList.add('hidden');
+            }
+        });
+    }
+
+    const btnRejectDetail = document.getElementById('admin-detail-reject-btn');
+    if (btnRejectDetail) {
+        btnRejectDetail.addEventListener('click', () => {
+            if (activeDetailMemberId) {
+                rejectMember(activeDetailMemberId);
                 if (adminMemberDetailModal) adminMemberDetailModal.classList.add('hidden');
             }
         });
@@ -1501,41 +1548,92 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/'/g, "&#039;");
     }
 
+    // --- Onaylama Fonksiyonu (Hem ID hem E-posta ile Eşleşir) ---
     function approveMember(id) {
-        const numericId = parseInt(id);
+        if (!id) return;
+        const target = String(id).toLowerCase().trim();
+
         let local = getLocalStorageMembers();
-        local = local.map(m => (m.id === numericId || m.id.toString() === id.toString()) ? { ...m, status: 'approved' } : m);
+        local = local.map(m => {
+            const mId = String(m.id || '').toLowerCase().trim();
+            const mEmail = String(m.email || '').toLowerCase().trim();
+            return (mId === target || mEmail === target) ? { ...m, status: 'approved' } : m;
+        });
         saveLocalStorageMembers(local);
+        dbMembers = local;
 
-        dbMembers = dbMembers.map(m => (m.id === numericId || m.id.toString() === id.toString()) ? { ...m, status: 'approved' } : m);
-
-        if (useFirebase) {
-            db.collection('applicants').doc(id.toString()).update({ status: 'approved' })
-                .then(() => console.log("Background Firestore approve succeeded!"))
-                .catch(err => console.error("Background Firestore approve failed:", err));
+        if (useFirebase && db) {
+            db.collection('applicants').doc(target).update({ status: 'approved' })
+                .then(() => console.log("Firestore onayı başarılı."))
+                .catch(() => {
+                    db.collection('applicants').where('email', '==', target).get().then(snap => {
+                        snap.forEach(doc => doc.ref.update({ status: 'approved' }));
+                    }).catch(err => console.error("Firestore onay hatası:", err));
+                });
         }
 
         renderDashboardTable(getSearchText(), false);
         updateHomepageStats();
+        showStatusToast("Onaylandı!", "Başvuru başarıyla onaylandı.", true);
     }
 
+    // --- Reddetme Fonksiyonu ---
+    function rejectMember(id) {
+        if (!id) return;
+        const target = String(id).toLowerCase().trim();
+
+        let local = getLocalStorageMembers();
+        local = local.map(m => {
+            const mId = String(m.id || '').toLowerCase().trim();
+            const mEmail = String(m.email || '').toLowerCase().trim();
+            return (mId === target || mEmail === target) ? { ...m, status: 'rejected' } : m;
+        });
+        saveLocalStorageMembers(local);
+        dbMembers = local;
+
+        if (useFirebase && db) {
+            db.collection('applicants').doc(target).update({ status: 'rejected' })
+                .then(() => console.log("Firestore red başarılı."))
+                .catch(() => {
+                    db.collection('applicants').where('email', '==', target).get().then(snap => {
+                        snap.forEach(doc => doc.ref.update({ status: 'rejected' }));
+                    }).catch(err => console.error("Firestore red hatası:", err));
+                });
+        }
+
+        renderDashboardTable(getSearchText(), false);
+        updateHomepageStats();
+        showStatusToast("Reddedildi", "Başvuru reddedildi.", false);
+    }
+
+    // --- Silme Fonksiyonu ---
     function deleteMember(id) {
-        if (confirm('Bu başvuruyu listeden silmek istediğinize emin misiniz?')) {
-            const numericId = parseInt(id);
+        if (!id) return;
+        if (confirm('Bu başvuruyu silmek istediğinize emin misiniz?')) {
+            const target = String(id).toLowerCase().trim();
+
             let local = getLocalStorageMembers();
-            local = local.filter(m => (m.id !== numericId && m.id.toString() !== id.toString()));
+            local = local.filter(m => {
+                const mId = String(m.id || '').toLowerCase().trim();
+                const mEmail = String(m.email || '').toLowerCase().trim();
+                return mId !== target && mEmail !== target;
+            });
             saveLocalStorageMembers(local);
+            dbMembers = local;
 
-            dbMembers = dbMembers.filter(m => (m.id !== numericId && m.id.toString() !== id.toString()));
-
-            if (useFirebase) {
-                db.collection('applicants').doc(id.toString()).delete()
-                    .then(() => console.log("Background Firestore delete succeeded!"))
-                    .catch(err => console.error("Background Firestore delete failed:", err));
+            if (useFirebase && db) {
+                db.collection('applicants').doc(target).delete()
+                    .then(() => console.log("Firestore silme başarılı."))
+                    .catch(() => {
+                        db.collection('applicants').where('email', '==', target).get().then(snap => {
+                            snap.forEach(doc => doc.ref.delete());
+                        }).catch(err => console.error("Firestore silme hatası:", err));
+                    });
             }
 
             renderDashboardTable(getSearchText(), false);
             updateHomepageStats();
+            showStatusToast("Silindi", "Başvuru kalıcı olarak silindi.", true);
         }
     }
 
@@ -1667,7 +1765,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- Üye Girişi (Hash Doğrulama & Otomatik Yükseltme Entegre Edildi) ---
+    // --- Üye Girişi (Hash Doğrulama & Otomatik Yükseltme) ---
     const memberLoginForm = document.getElementById('member-login-form');
     if (memberLoginForm) {
         memberLoginForm.addEventListener('submit', async (e) => {
@@ -1697,7 +1795,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 let foundMember = null;
                 const hashedPassword = await hashPassword(rawPassword);
 
-                // 1. First check in Firestore directly
                 if (useFirebase && db) {
                     try {
                         let snapshot = await db.collection('applicants').where('email', '==', email).get();
@@ -1711,12 +1808,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             const doc = snapshot.docs[0];
                             const fbUser = { id: doc.id, ...doc.data() };
                             
-                            // Hash veya Eski Düz Şifre Karşılaştırması
                             let isMatch = false;
                             if (fbUser.password === hashedPassword) {
                                 isMatch = true;
                             } else if (fbUser.password && fbUser.password.trim() === rawPassword) {
-                                // Eski üye düz şifre ile girdi: Hemen hash'e yükselt!
                                 isMatch = true;
                                 fbUser.password = hashedPassword;
                                 db.collection('applicants').doc(doc.id).update({ password: hashedPassword })
@@ -1763,7 +1858,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 } else {
-                    // 2. Fallback to local storage cache
                     const localData = localStorage.getItem('myk_members');
                     if (localData) {
                         const localMembers = JSON.parse(localData);
@@ -1959,7 +2053,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (resetVerifError) resetVerifError.classList.add('hidden');
 
-            // Yeni şifreyi hash'leyerek kaydet
             const hashedNewPassword = await hashPassword(newPassword);
 
             let localMembers = getLocalStorageMembers();
@@ -2070,7 +2163,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             document.getElementById('edit-grade').value = member.grade || '';
             document.getElementById('edit-birthdate').value = member.birthdate || '';
-            document.getElementById('edit-password').value = ''; // Güvenlik için boş bırakılır
+            document.getElementById('edit-password').value = '';
 
             if (memberViewArea) memberViewArea.classList.add('hidden');
             if (memberEditArea) memberEditArea.classList.remove('hidden');
@@ -2087,7 +2180,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Profil Güncelleme Formu Submit
     if (memberProfileEditForm) {
         memberProfileEditForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -2829,6 +2921,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 socialLinkedin,
                 socialInstagram,
 
+                totalSponsors: 0, // CMS kaydında daima 0 kalır
+
                 teamM1Name,
                 teamM1Role,
                 teamM1Bio,
@@ -3093,7 +3187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 10. Club Tools (CV Builder, Skills Evaluator, Leaderboard, Quiz, CTF) Logic ---
+    // --- 10. Club Tools Logic ---
     const toolModal = document.getElementById('tool-modal');
     const closeToolModal = document.getElementById('close-tool-modal');
     const toolModalBody = document.getElementById('tool-modal-body');
