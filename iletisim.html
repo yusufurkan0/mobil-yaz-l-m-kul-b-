@@ -212,14 +212,20 @@
                     <div class="card-glow" style="padding: 24px 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color);">
                         <h4 style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;">Sosyal Medya</h4>
                         <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">
-                            <a href="https://instagram.com" target="_blank" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition-fast);" class="contact-social-link">
-                                <i class="fa-brands fa-instagram" style="font-size: 1.1rem; color: var(--primary);"></i> Instagram
+                            
+                            <!-- Instagram -->
+                            <a href="https://www.instagram.com/gedikmygk" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition-fast);" class="contact-social-link">
+                                <i class="fa-brands fa-instagram" style="font-size: 1.1rem; color: #E1306C;"></i> Instagram
                             </a>
-                            <a href="https://linkedin.com" target="_blank" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition-fast);" class="contact-social-link">
-                                <i class="fa-brands fa-linkedin" style="font-size: 1.1rem; color: var(--primary);"></i> LinkedIn
+                            
+                            <!-- LinkedIn -->
+                            <a href="https://www.linkedin.com/company/https-l24.im-9ir3fgw" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition-fast);" class="contact-social-link">
+                                <i class="fa-brands fa-linkedin" style="font-size: 1.1rem; color: #0A66C2;"></i> LinkedIn
                             </a>
-                            <a href="https://youtube.com" target="_blank" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition-fast);" class="contact-social-link">
-                                <i class="fa-brands fa-youtube" style="font-size: 1.1rem; color: var(--primary);"></i> YouTube
+                            
+                            <!-- WhatsApp (YouTube yerine getirildi) -->
+                            <a href="https://chat.whatsapp.com/DUm12QsHMJWC446YgIRCYw?s=cl&p=a&mlu=4" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition-fast);" class="contact-social-link">
+                                <i class="fa-brands fa-whatsapp" style="font-size: 1.1rem; color: #25D366;"></i> WhatsApp
                             </a>
                         </div>
                     </div>
@@ -246,7 +252,7 @@
                 <p>Geleceğin mobil geliştiricilerini bir araya getiren bağımsız öğrenci topluluğu.</p>
                 <div class="social-links">
                     <a href="https://github.com" id="dyn-footer-github" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
-                    <a href="https://linkedin.com" id="dyn-footer-linkedin" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://www.linkedin.com/company/https-l24.im-9ir3fgw" id="dyn-footer-linkedin" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
                     <a href="https://instagram.com/gedikmygk" id="dyn-footer-instagram" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
                 </div>
             </div>
@@ -309,7 +315,7 @@
                 contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
                 contactEmail: "gedikmobilyazilimkulubu@gmail.com",
                 socialInstagram: "https://www.instagram.com/gedikmygk",
-                socialLinkedin: "https://linkedin.com",
+                socialLinkedin: "https://www.linkedin.com/company/https-l24.im-9ir3fgw",
                 socialGithub: "https://github.com/yusufurkan0"
             };
             const contactAddr = document.getElementById('dyn-footer-address');
@@ -449,7 +455,7 @@
 
                     // 4. Block temporary/disposable email domains
                     const tempEmailDomains = ['tempmail.com', '10minutemail.com', 'yopmail.com', 'mailinator.com', 'temp-mail.org', 'guerrillamail.com', 'sharklasers.com', 'dispostable.com', 'getairmail.com', 'boun.cr', 'tempmail.net', 'tempmailaddress.com'];
-                    const emailDomain = email.split('@')[1].toLowerCase();
+                    const emailDomain = email.split('@').toLowerCase();
                     if (tempEmailDomains.includes(emailDomain)) {
                         showStatusToast("Geçersiz E-posta", "Geçici veya tek kullanımlık e-posta adresleri kabul edilmemektedir.", false);
                         submitBtn.disabled = false;
