@@ -2472,6 +2472,17 @@ body.admin-mode-active #main-header {
         gap: 8px;
     }
 }
+/* Oturum açıkken Giriş/Kayıt butonlarını sayfa çizilmeden önce gizle */
+html.user-logged-in #login-trigger,
+html.user-logged-in #register-trigger-nav,
+html.user-logged-in #login-trigger-mobile,
+html.user-logged-in #register-trigger-mobile {
+    display: none !important;
+}
 
+html.user-logged-in #user-profile-trigger,
+html.user-logged-in #user-profile-trigger-mobile {
+    display: inline-flex !important;
+}
 
 
