@@ -51,14 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             console.error("Firebase initialization failed. Falling back to LocalStorage:", err);
         }
-    } else {
-        console.log("Firebase config not found. Running in LocalStorage fallback mode.");
     }
 
     async function syncFirestoreToLocalStorage() {
         if (!useFirebase || !db) return;
         try {
-            // 1. Sync Events (Sahte şablonlar hariç)
+            // 1. Sync Events
             const eventsSnapshot = await db.collection('events').get();
             const events = [];
             eventsSnapshot.forEach(doc => {
@@ -70,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('myk_events', JSON.stringify(events));
             if (typeof renderDashboardEvents === 'function') renderDashboardEvents();
 
-            // 2. Sync Announcements (Sahte şablonlar hariç)
+            // 2. Sync Announcements
             const annSnapshot = await db.collection('announcements').get();
             const announcements = [];
             annSnapshot.forEach(doc => {
@@ -82,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('myk_announcements', JSON.stringify(announcements));
             if (typeof renderDashboardAnnouncements === 'function') renderDashboardAnnouncements();
 
-            // 3. Sync Blog (Sahte şablonlar hariç)
+            // 3. Sync Blog
             const blogSnapshot = await db.collection('blog').get();
             const blog = [];
             blogSnapshot.forEach(doc => {
@@ -104,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (typeof applySiteSettings === 'function') applySiteSettings();
             }
             
-            // 5. Sync Applicants (Tek seferlik güvenli çekim)
+            // 5. Sync Applicants
             const snap = await db.collection('applicants').get();
             const cloudMembers = [];
             snap.forEach(doc => {
@@ -147,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return dbMembers;
     }
 
-    // EmailJS Initialization
+    // EmailJS
     if (typeof emailjs !== 'undefined' && typeof CONFIG !== 'undefined' && CONFIG.emailjs && CONFIG.emailjs.publicKey) {
         try {
             emailjs.init(CONFIG.emailjs.publicKey);
@@ -198,11 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. Scroll Active Link Highlight ---
     const sections = document.querySelectorAll('section');
-    const scrollOptions = {
-        threshold: 0.3,
-        rootMargin: "0px 0px -20% 0px"
-    };
-
     const navObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -215,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
-    }, scrollOptions);
+    }, { threshold: 0.3, rootMargin: "0px 0px -20% 0px" });
 
     sections.forEach(section => {
         if (section.getAttribute('id')) {
@@ -260,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 animateCounters();
             }
         }, { threshold: 0.3 });
-        
         statsObserver.observe(statsGrid);
     }
 
@@ -277,6 +269,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function openRegisterModal(e) {
         if (e) e.preventDefault();
         
+        // Eğer kullanıcı zaten giriş yapmışsa kayıt modalı yerine profile yönlendir
+        if (sessionStorage.getItem('member_logged_in_email')) {
+            window.location.href = 'profil.html';
+            return;
+        }
+
         const menuToggleBtn = document.getElementById('menu-toggle');
         const navMenuDrawer = document.getElementById('nav-menu');
         if (menuToggleBtn && navMenuDrawer) {
@@ -327,15 +325,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closeRegister) closeRegister.addEventListener('click', closeRegisterModal);
 
     const refreshCaptchaBtn = document.getElementById('refresh-captcha');
-    if (refreshCaptchaBtn) {
-        refreshCaptchaBtn.addEventListener('click', generateRegisterCaptcha);
-    }
+    if (refreshCaptchaBtn) refreshCaptchaBtn.addEventListener('click', generateRegisterCaptcha);
 
     if (registerModal) {
         registerModal.addEventListener('click', (e) => {
-            if (e.target === registerModal) {
-                closeRegisterModal();
-            }
+            if (e.target === registerModal) closeRegisterModal();
         });
     }
 
@@ -481,7 +475,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Kayıt Formu Submit ---
     if (membershipForm) {
         membershipForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -518,9 +511,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const firstName = document.getElementById('first-name').value.trim();
                 const lastName = document.getElementById('last-name').value.trim();
                 const email = emailInputVal;
-                const username = document.getElementById('user-username').value;
-                const studentId = document.getElementById('user-student-id').value;
-                const phone = document.getElementById('user-phone').value;
+                const username = document.getElementById('user-username').value.trim();
+                const studentId = document.getElementById('user-student-id').value.trim();
+                const phone = document.getElementById('user-phone').value.trim();
                 const faculty = document.getElementById('user-faculty').value;
                 const department = document.getElementById('user-department').value;
                 const grade = document.getElementById('user-grade').value;
@@ -609,7 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 7. TEMİZLENMİŞ ETKİNLİK, DUYURU VE BLOG YÖNETİMİ (Kullanıcının eklemediği sahte şablonlar silindi) ---
+    // --- 7. TEMİZLENMİŞ ETKİNLİK, DUYURU VE BLOG YÖNETİMİ ---
     function getLocalStorageEvents() {
         const stored = localStorage.getItem('myk_events');
         if (!stored) return [];
@@ -924,7 +917,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const ipDisplay = m.ipAddress || m.ip || 'Tespit Ediliyor...';
             const regDate = m.registeredAt || 'Yeni Başvuru';
 
-            // Zengin Hover Önizlemesi
             const hoverTooltip = `Öğrenci No: ${m.studentId || '-'}\nTelefon: ${m.phone || '-'}\nFakülte: ${m.faculty || '-'}\nBölüm: ${deptVal}\nSınıf: ${m.grade || '-'}\nDoğum Tarihi: ${m.birthdate || '-'}\nDurum: ${statusText}\n(Detayları açmak için tıklayın)`;
 
             tr.innerHTML = `
@@ -1201,7 +1193,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 9. ÜYE VE YÖNETİCİ GİRİŞ SİSTEMİ (GİRİŞ YAP BUTONLARI VE MODALI) ---
+    // --- 9. ÜYE VE YÖNETİCİ GİRİŞ SİSTEMİ ---
+    // Her iki ID'yi de yakalayabilen (nav-user-name ve user-profile-name) fonksiyon
+    function updateHeaderState(member, isLoggedIn) {
+        const loginTrigger = document.getElementById('login-trigger');
+        const registerTriggerNav = document.getElementById('register-trigger-nav');
+        const userProfileTrigger = document.getElementById('user-profile-trigger');
+        const navUserName = document.getElementById('nav-user-name') || document.getElementById('user-profile-name');
+        
+        const loginTriggerMobile = document.getElementById('login-trigger-mobile');
+        const registerTriggerMobile = document.getElementById('register-trigger-mobile');
+        const userProfileTriggerMobile = document.getElementById('user-profile-trigger-mobile');
+        const navUserNameMobile = document.getElementById('nav-user-name-mobile');
+
+        if (isLoggedIn && member) {
+            if (loginTrigger) loginTrigger.classList.add('hidden');
+            if (registerTriggerNav) registerTriggerNav.classList.add('hidden');
+            if (userProfileTrigger) {
+                userProfileTrigger.classList.remove('hidden');
+                userProfileTrigger.style.display = 'inline-flex';
+                userProfileTrigger.href = 'profil.html';
+            }
+            
+            if (loginTriggerMobile) loginTriggerMobile.classList.add('hidden');
+            if (registerTriggerMobile) registerTriggerMobile.classList.add('hidden');
+            if (userProfileTriggerMobile) {
+                userProfileTriggerMobile.classList.remove('hidden');
+                userProfileTriggerMobile.style.display = 'flex';
+                userProfileTriggerMobile.href = 'profil.html';
+            }
+            
+            // KULLANICI ADINI ÖNCELİKLİ OLARAK AYARLA (yusufurkan)
+            const displayName = member.username || sessionStorage.getItem('member_username') || (member.name ? member.name.split(' ')[0] : 'Profilim');
+            if (navUserName) navUserName.innerText = displayName;
+            if (navUserNameMobile) navUserNameMobile.innerText = displayName;
+        } else {
+            if (loginTrigger) loginTrigger.classList.remove('hidden');
+            if (registerTriggerNav) registerTriggerNav.classList.remove('hidden');
+            if (userProfileTrigger) {
+                userProfileTrigger.classList.add('hidden');
+                userProfileTrigger.style.display = 'none';
+            }
+            
+            if (loginTriggerMobile) loginTriggerMobile.classList.remove('hidden');
+            if (registerTriggerMobile) registerTriggerMobile.classList.remove('hidden');
+            if (userProfileTriggerMobile) {
+                userProfileTriggerMobile.classList.add('hidden');
+                userProfileTriggerMobile.style.display = 'none';
+            }
+        }
+    }
+
     function openLoginModal(e) {
         if (e) e.preventDefault();
         
@@ -1266,40 +1308,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (memberLoginError) memberLoginError.classList.add('hidden');
             if (loginError) loginError.classList.add('hidden');
         });
-    }
-
-    function updateHeaderState(member, isLoggedIn) {
-        const loginTrigger = document.getElementById('login-trigger');
-        const registerTriggerNav = document.getElementById('register-trigger-nav');
-        const userProfileTrigger = document.getElementById('user-profile-trigger');
-        const navUserName = document.getElementById('nav-user-name');
-        
-        const loginTriggerMobile = document.getElementById('login-trigger-mobile');
-        const registerTriggerMobile = document.getElementById('register-trigger-mobile');
-        const userProfileTriggerMobile = document.getElementById('user-profile-trigger-mobile');
-        const navUserNameMobile = document.getElementById('nav-user-name-mobile');
-
-        if (isLoggedIn && member) {
-            if (loginTrigger) loginTrigger.classList.add('hidden');
-            if (registerTriggerNav) registerTriggerNav.classList.add('hidden');
-            if (userProfileTrigger) userProfileTrigger.classList.remove('hidden');
-            
-            if (loginTriggerMobile) loginTriggerMobile.classList.add('hidden');
-            if (registerTriggerMobile) registerTriggerMobile.classList.add('hidden');
-            if (userProfileTriggerMobile) userProfileTriggerMobile.classList.remove('hidden');
-            
-            const displayName = member.username || member.name.split(' ')[0];
-            if (navUserName) navUserName.innerText = displayName;
-            if (navUserNameMobile) navUserNameMobile.innerText = displayName;
-        } else {
-            if (loginTrigger) loginTrigger.classList.remove('hidden');
-            if (registerTriggerNav) registerTriggerNav.classList.remove('hidden');
-            if (userProfileTrigger) userProfileTrigger.classList.add('hidden');
-            
-            if (loginTriggerMobile) loginTriggerMobile.classList.remove('hidden');
-            if (registerTriggerMobile) registerTriggerMobile.classList.remove('hidden');
-            if (userProfileTriggerMobile) userProfileTriggerMobile.classList.add('hidden');
-        }
     }
 
     // Üye Girişi Form Submit
@@ -1371,6 +1379,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     loginModal.classList.add('hidden');
                     document.body.style.overflow = 'auto';
                     sessionStorage.setItem('member_logged_in_email', email);
+                    sessionStorage.setItem('member_username', foundMember.username || foundMember.name || 'Profilim');
                     updateHeaderState(foundMember, true);
                     if (memberLoginError) memberLoginError.classList.add('hidden');
                     memberLoginForm.reset();
@@ -1424,7 +1433,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 10. YÖNETİCİ MODU & CMS PANELİ (Canlı Düzenleme) ---
+    // --- 10. YÖNETİCİ MODU & CMS PANELİ ---
     function enableAdminMode() {
         document.body.classList.add('admin-mode-active');
         const toolbar = document.getElementById('admin-toolbar');
@@ -1964,7 +1973,55 @@ document.addEventListener('DOMContentLoaded', () => {
     applySiteSettings();
     updateHomepageStats();
 
+    // Üye Giriş Durumu Kontrolü (Ana Sayfada Giriş Durumunu Korur)
+    const currentMemberEmail = sessionStorage.getItem('member_logged_in_email');
+    if (currentMemberEmail) {
+        const localData = localStorage.getItem('myk_members');
+        let found = null;
+        if (localData) {
+            try {
+                const members = JSON.parse(localData);
+                found = members.find(m => m.email && m.email.toLowerCase() === currentMemberEmail.toLowerCase());
+            } catch(e) {}
+        }
+        if (!found) {
+            found = {
+                email: currentMemberEmail,
+                username: sessionStorage.getItem('member_username') || 'yusufurkan'
+            };
+        }
+        updateHeaderState(found, true);
+    }
+
     if (sessionStorage.getItem('admin_logged_in') === 'true') {
         enableAdminMode();
     }
+
+    // URL Hash Kontrolü: Giriş yapılmışsa kayıt modalını otomatik açmayı engeller
+    function checkUrlHash() {
+        const hash = window.location.hash;
+        if (sessionStorage.getItem('member_logged_in_email')) {
+            if (hash === '#register' || hash === '#login') {
+                try {
+                    history.replaceState(null, null, window.location.pathname);
+                } catch(e) {}
+            }
+            return;
+        }
+
+        if (hash === '#login') {
+            const loginM = document.getElementById('login-modal');
+            if (login === '#login') {
+            const loginM = document.getElementById('login-modal');
+            if (loginM) {
+                loginM.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        } else if (hash === '#register') {
+            openRegisterModal();
+        }
+    }
+
+    checkUrlHash();
+    window.addEventListener('hashchange', checkUrlHash);
 });
