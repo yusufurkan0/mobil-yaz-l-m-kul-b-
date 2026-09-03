@@ -4,18 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Etkinlikler - Gedik Mobil Yazılım Kulübü</title>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Favicon -->
     <link rel="shortcut icon" href="favicon.ico?v=9999" type="image/x-icon">
     <link rel="icon" href="favicon.ico?v=9999" type="image/x-icon">
     <link rel="icon" type="image/png" href="img/favicon.png?v=9999">
     <link rel="apple-touch-icon" href="img/favicon.png?v=9999">
-    <!-- Main Style Sheet -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="dark-theme subpage">
@@ -30,7 +26,7 @@
         })();
     </script>
 
-    <!-- Admin Toolbar (Only visible when logged in as admin) -->
+    <!-- Admin Toolbar -->
     <div id="admin-toolbar" class="admin-toolbar hidden">
         <div class="toolbar-container">
             <div class="toolbar-info">
@@ -86,7 +82,6 @@
                     <li><a href="duyurular.html" class="nav-link">Duyurular</a></li>
                     <li><a href="iletisim.html" class="nav-link">İletişim</a></li>
                     
-                    <!-- Mobile Action Buttons -->
                     <li class="mobile-actions-wrapper" style="display: none; width: 100%; flex-direction: column; gap: 12px; margin-top: 20px; padding: 0 20px;">
                         <a href="index.html#login" id="login-trigger-mobile" class="btn btn-secondary" style="width: 100%; text-align: center;">Giriş Yap</a>
                         <a href="profil.html" id="user-profile-trigger-mobile" class="btn btn-secondary hidden" style="width: 100%; text-align: center;">
@@ -110,7 +105,6 @@
                 </div>
             </div>
 
-            <!-- Mobile Menu Toggle -->
             <button id="menu-toggle" aria-label="Menüyü Aç">
                 <span></span>
                 <span></span>
@@ -127,10 +121,7 @@
                 <h2>Gelecek Etkinlikler</h2>
                 <p>Yakın tarihte düzenleyeceğimiz eğitim kampları, buluşmalar ve sunumlar.</p>
             </div>
-
-            <div id="upcoming-events-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-                <!-- Loaded dynamically from Admin Panel -->
-            </div>
+            <div id="upcoming-events-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;"></div>
         </div>
     </section>
 
@@ -142,10 +133,7 @@
                 <h2>Geçmiş Etkinlikler</h2>
                 <p>Daha önce kulüp olarak başarıyla tamamladığımız, sunum ve buluşma etkinlikleri.</p>
             </div>
-
-            <div id="past-events-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-                <!-- Loaded dynamically from Admin Panel -->
-            </div>
+            <div id="past-events-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;"></div>
         </div>
     </section>
 
@@ -157,10 +145,7 @@
                 <h2>Workshoplar</h2>
                 <p>Üyelerimizin katılımıyla gerçekleştirdiğimiz kodlama ve pratik proje geliştirme atölyeleri.</p>
             </div>
-
-            <div id="workshops-events-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-                <!-- Loaded dynamically from Admin Panel -->
-            </div>
+            <div id="workshops-events-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;"></div>
         </div>
     </section>
 
@@ -201,10 +186,8 @@
         </div>
     </footer>
 
-    <!-- Custom Page Script to handle rendering from Admin Panel -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Theme setup
             const theme = localStorage.getItem('theme') || 'dark';
             if (theme === 'light') {
                 document.body.classList.remove('dark-theme');
@@ -228,13 +211,13 @@
                 });
             }
 
-            // Sync user profile state from sessionStorage
+            // Sync user profile state from sessionStorage (Garanti yusufurkan Yazar)
             const loggedInEmail = sessionStorage.getItem('member_logged_in_email');
             if (loggedInEmail) {
                 const loginTrigger = document.getElementById('login-trigger');
                 const registerTrigger = document.getElementById('register-trigger-nav');
                 const profileTrigger = document.getElementById('user-profile-trigger');
-                const navUserName = document.getElementById('nav-user-name');
+                const navUserName = document.getElementById('nav-user-name') || document.getElementById('user-profile-name');
                 
                 const loginTriggerMobile = document.getElementById('login-trigger-mobile');
                 const registerTriggerMobile = document.getElementById('register-trigger-mobile');
@@ -245,6 +228,7 @@
                 if (registerTrigger) registerTrigger.classList.add('hidden');
                 if (profileTrigger) {
                     profileTrigger.classList.remove('hidden');
+                    profileTrigger.style.display = 'inline-flex';
                     profileTrigger.href = "profil.html";
                 }
                 
@@ -252,31 +236,33 @@
                 if (registerTriggerMobile) registerTriggerMobile.classList.add('hidden');
                 if (profileTriggerMobile) {
                     profileTriggerMobile.classList.remove('hidden');
+                    profileTriggerMobile.style.display = 'flex';
                     profileTriggerMobile.href = "profil.html";
                 }
                 
-                const localData = localStorage.getItem('myk_members');
-                if (localData) {
-                    try {
-                        const members = JSON.parse(localData);
-                        const found = members.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
-                        if (found) {
-                            const displayName = found.username || found.name.split(' ')[0];
-                            if (navUserName) navUserName.innerText = displayName;
-                            if (navUserNameMobile) navUserNameMobile.innerText = displayName;
-                        }
-                    } catch(e) {}
+                let displayName = sessionStorage.getItem('member_username');
+                if (!displayName || displayName === 'Profilim') {
+                    const localData = localStorage.getItem('myk_members');
+                    if (localData) {
+                        try {
+                            const members = JSON.parse(localData);
+                            const found = members.find(m => m.email && m.email.toLowerCase() === loggedInEmail.toLowerCase());
+                            if (found) displayName = found.username || found.name;
+                        } catch(e) {}
+                    }
                 }
+                if (!displayName) displayName = 'yusufurkan';
+
+                if (navUserName) navUserName.innerText = displayName;
+                if (navUserNameMobile) navUserNameMobile.innerText = displayName;
             }
 
-            // --- Yalnızca Panelden Eklenen Gerçek Etkinlikleri Çekme ---
             function getLocalStorageEvents() {
                 const stored = localStorage.getItem('myk_events');
                 if (!stored) return [];
                 try {
                     const parsed = JSON.parse(stored);
                     if (!Array.isArray(parsed)) return [];
-                    // Sahte şablon etkinlikleri (ev_1 ... ev_6) filtrele
                     const cleaned = parsed.filter(e => e && !['ev_1','ev_2','ev_3','ev_4','ev_5','ev_6'].includes(e.id));
                     localStorage.setItem('myk_events', JSON.stringify(cleaned));
                     return cleaned;
@@ -335,7 +321,6 @@
                     }
                 });
 
-                // Boş Durum Şablonu
                 const emptyCard = (msg) => `
                     <div class="card-glow" style="grid-column: 1/-1; padding: 40px 20px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); text-align: center;">
                         <i class="fa-solid fa-calendar-days" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; display: inline-block;"></i>
@@ -357,17 +342,14 @@
                           .replace(/'/g, "&#039;");
             }
 
-            // Sayfa Ayarları
             const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {};
             const contactAddr = document.getElementById('dyn-footer-address');
             const contactEmail = document.getElementById('dyn-footer-email');
             if (contactAddr && settings.contactAddress) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
             if (contactEmail && settings.contactEmail) contactEmail.innerText = settings.contactEmail;
 
-            // Etkinlikleri Çiz
             renderEvents();
 
-            // Admin Yetki Senkronizasyonu
             if (sessionStorage.getItem('admin_logged_in') === 'true') {
                 const adminToolbar = document.getElementById('admin-toolbar');
                 if (adminToolbar) {
