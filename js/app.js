@@ -269,12 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function openRegisterModal(e) {
         if (e) e.preventDefault();
         
-        // Eğer kullanıcı zaten giriş yapmışsa kayıt modalı yerine profile yönlendir
-        if (sessionStorage.getItem('member_logged_in_email')) {
-            window.location.href = 'profil.html';
-            return;
-        }
-
         const menuToggleBtn = document.getElementById('menu-toggle');
         const navMenuDrawer = document.getElementById('nav-menu');
         if (menuToggleBtn && navMenuDrawer) {
@@ -282,18 +276,35 @@ document.addEventListener('DOMContentLoaded', () => {
             navMenuDrawer.classList.remove('open');
         }
         
-        if (registerModal) {
-            registerModal.classList.remove('hidden');
+        const regModal = document.getElementById('register-modal');
+        if (regModal) {
+            regModal.classList.remove('hidden');
+            regModal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-            
-            if (membershipForm) {
-                membershipForm.classList.remove('hidden');
-                membershipForm.reset();
-            }
-            if (verificationContainer) verificationContainer.classList.add('hidden');
-            if (successMsg) successMsg.classList.add('hidden');
+        }
+        
+        const mForm = document.getElementById('membership-form');
+        if (mForm) {
+            mForm.classList.remove('hidden');
+            mForm.reset();
+        }
+        const vContainer = document.getElementById('verification-container');
+        if (vContainer) vContainer.classList.add('hidden');
+        const sMsg = document.getElementById('form-success-message');
+        if (sMsg) sMsg.classList.add('hidden');
 
-            generateRegisterCaptcha();
+        generateRegisterCaptcha();
+    }
+
+    function closeRegisterModal() {
+        const regModal = document.getElementById('register-modal');
+        if (regModal) {
+            regModal.classList.add('hidden');
+            regModal.style.display = 'none';
+        }
+        document.body.style.overflow = 'auto';
+        if (typeof countdownInterval !== 'undefined' && countdownInterval) {
+            clearInterval(countdownInterval);
         }
     }
 
@@ -311,14 +322,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (captchaInput) captchaInput.value = '';
     }
 
-    function closeRegisterModal() {
-        if (registerModal) {
-            registerModal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            clearInterval(countdownInterval);
-        }
-    }
-
     if (regTriggerNav) regTriggerNav.addEventListener('click', openRegisterModal);
     if (regTriggerMobile) regTriggerMobile.addEventListener('click', openRegisterModal);
     if (regTriggerHero) regTriggerHero.addEventListener('click', openRegisterModal);
@@ -326,12 +329,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const refreshCaptchaBtn = document.getElementById('refresh-captcha');
     if (refreshCaptchaBtn) refreshCaptchaBtn.addEventListener('click', generateRegisterCaptcha);
-
-    if (registerModal) {
-        registerModal.addEventListener('click', (e) => {
-            if (e.target === registerModal) closeRegisterModal();
-        });
-    }
 
     // --- 6. OTP Verification Code Flow ---
     const verifyInputs = document.querySelectorAll('.verify-input');
@@ -674,7 +671,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         totalSponsors: 0,
 
-        // GERÇEK YÖNETİM KURULU BİLGİLERİ
         teamM1Name: "Burak Kaya",
         teamM1Role: "Kulüp Başkanı",
         teamM1Bio: "İstanbul Gedik Üniversitesi Endüstri Mühendisliği Öğrencisi.",
@@ -950,45 +946,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Güçlendirilmiş Tıklama Yakalayıcı (Event Delegation)
-    document.addEventListener('click', (e) => {
-        const approveBtn = e.target.closest('.btn-approve');
-        if (approveBtn) {
-            e.preventDefault(); e.stopPropagation();
-            approveMember(approveBtn.getAttribute('data-id'));
-            return;
-        }
-
-        const rejectBtn = e.target.closest('.btn-reject');
-        if (rejectBtn) {
-            e.preventDefault(); e.stopPropagation();
-            rejectMember(rejectBtn.getAttribute('data-id'));
-            return;
-        }
-
-        const deleteBtn = e.target.closest('.btn-delete');
-        if (deleteBtn) {
-            e.preventDefault(); e.stopPropagation();
-            deleteMember(deleteBtn.getAttribute('data-id'));
-            return;
-        }
-
-        const nameElem = e.target.closest('.clickable-member-name');
-        if (nameElem) {
-            e.preventDefault(); e.stopPropagation();
-            openAdminMemberDetail(nameElem.getAttribute('data-id'));
-            return;
-        }
-
-        const cardAll = e.target.closest('#stat-card-all, #filter-btn-all');
-        const cardApproved = e.target.closest('#stat-card-approved, #filter-btn-approved');
-        const cardPending = e.target.closest('#stat-card-pending, #filter-btn-pending');
-
-        if (cardAll) renderDashboardTable(getSearchText(), false, 'all');
-        else if (cardApproved) renderDashboardTable(getSearchText(), false, 'approved');
-        else if (cardPending) renderDashboardTable(getSearchText(), false, 'pending');
-    });
-
     // --- Admin Member Detail Modal ---
     let activeDetailMemberId = null;
 
@@ -1074,16 +1031,6 @@ document.addEventListener('DOMContentLoaded', () => {
         closeAdminMemberDetail.addEventListener('click', () => {
             const modal = document.getElementById('admin-member-detail-modal');
             if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
-        });
-    }
-
-    const adminMemberDetailModal = document.getElementById('admin-member-detail-modal');
-    if (adminMemberDetailModal) {
-        adminMemberDetailModal.addEventListener('click', (e) => {
-            if (e.target === adminMemberDetailModal) {
-                adminMemberDetailModal.classList.add('hidden');
-                adminMemberDetailModal.style.display = 'none';
-            }
         });
     }
 
@@ -1194,7 +1141,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 9. ÜYE VE YÖNETİCİ GİRİŞ SİSTEMİ ---
-    // Her iki ID'yi de yakalayabilen (nav-user-name ve user-profile-name) fonksiyon
     function updateHeaderState(member, isLoggedIn) {
         const loginTrigger = document.getElementById('login-trigger');
         const registerTriggerNav = document.getElementById('register-trigger-nav');
@@ -1223,7 +1169,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 userProfileTriggerMobile.href = 'profil.html';
             }
             
-            // KULLANICI ADINI ÖNCELİKLİ OLARAK AYARLA (yusufurkan)
             const displayName = member.username || sessionStorage.getItem('member_username') || (member.name ? member.name.split(' ')[0] : 'Profilim');
             if (navUserName) navUserName.innerText = displayName;
             if (navUserNameMobile) navUserNameMobile.innerText = displayName;
@@ -1254,34 +1199,50 @@ document.addEventListener('DOMContentLoaded', () => {
             navMenuDrawer.classList.remove('open');
         }
         
-        if (loginModal) {
-            loginModal.classList.remove('hidden');
-            if (loginError) loginError.classList.add('hidden');
+        const lModal = document.getElementById('login-modal');
+        if (lModal) {
+            lModal.classList.remove('hidden');
+            lModal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+        }
+
+        const lErr = document.getElementById('login-error-message');
+        if (lErr) lErr.classList.add('hidden');
+        const mErr = document.getElementById('member-login-error');
+        if (mErr) mErr.classList.add('hidden');
+
+        const lTabs = document.querySelector('.login-tabs');
+        if (lTabs) lTabs.classList.remove('hidden');
+        const mArea = document.getElementById('member-login-area');
+        if (mArea) mArea.classList.remove('hidden');
+        const aArea = document.getElementById('admin-login-area');
+        if (aArea) aArea.classList.add('hidden');
+        const fArea = document.getElementById('forgot-password-area');
+        if (fArea) fArea.classList.add('hidden');
+        const rArea = document.getElementById('password-reset-verif-area');
+        if (rArea) rArea.classList.add('hidden');
+
+        const tabM = document.getElementById('tab-member-btn');
+        const tabA = document.getElementById('tab-admin-btn');
+        if (tabM) {
+            tabM.classList.add('active');
+            tabM.style.borderBottom = '2px solid var(--primary)';
+            tabM.style.color = 'var(--headings-color)';
+        }
+        if (tabA) {
+            tabA.classList.remove('active');
+            tabA.style.borderBottom = '2px solid transparent';
+            tabA.style.color = 'var(--text-muted)';
         }
     }
 
-    if (loginTrigger) loginTrigger.addEventListener('click', openLoginModal);
-    const loginTriggerMobile = document.getElementById('login-trigger-mobile');
-    if (loginTriggerMobile) loginTriggerMobile.addEventListener('click', openLoginModal);
-    if (adminTriggerFooter) adminTriggerFooter.addEventListener('click', openLoginModal);
-    
-    if (closeLogin) {
-        closeLogin.addEventListener('click', () => {
-            if (loginModal) {
-                loginModal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }
-        });
-    }
-    
-    if (loginModal) {
-        loginModal.addEventListener('click', (e) => {
-            if (e.target === loginModal) {
-                loginModal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }
-        });
+    function closeLoginModal() {
+        const lModal = document.getElementById('login-modal');
+        if (lModal) {
+            lModal.classList.add('hidden');
+            lModal.style.display = 'none';
+        }
+        document.body.style.overflow = 'auto';
     }
 
     const tabMemberBtn = document.getElementById('tab-member-btn');
@@ -1376,8 +1337,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (foundMember) {
-                    loginModal.classList.add('hidden');
-                    document.body.style.overflow = 'auto';
+                    closeLoginModal();
                     sessionStorage.setItem('member_logged_in_email', email);
                     sessionStorage.setItem('member_username', foundMember.username || foundMember.name || 'Profilim');
                     updateHeaderState(foundMember, true);
@@ -1475,8 +1435,7 @@ document.addEventListener('DOMContentLoaded', () => {
             );
 
             if (isAdminUser) {
-                if (loginModal) loginModal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
+                closeLoginModal();
                 sessionStorage.setItem('admin_logged_in', 'true');
                 enableAdminMode();
                 if (loginError) loginError.classList.add('hidden');
@@ -1997,28 +1956,61 @@ document.addEventListener('DOMContentLoaded', () => {
         enableAdminMode();
     }
 
-    // URL Hash Kontrolü: Giriş yapılmışsa kayıt modalını otomatik açmayı engeller
-    function checkUrlHash() {
-        const hash = window.location.hash;
-        if (sessionStorage.getItem('member_logged_in_email')) {
-            if (hash === '#register' || hash === '#login') {
-                try {
-                    history.replaceState(null, null, window.location.pathname);
-                } catch(e) {}
-            }
+    // Modal Açma / Kapama İçin Genel Tıklama Yakalayıcı (Her Koşulda Çalışır)
+    document.addEventListener('click', (e) => {
+        // Giriş Yap Butonu Tıklaması
+        const loginBtn = e.target.closest('#login-trigger, #login-trigger-mobile, #admin-trigger-footer, a[href$="#login"]');
+        if (loginBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            openLoginModal();
             return;
         }
 
-        if (hash === '#login') {
-            const loginM = document.getElementById('login-modal');
-            if (login === '#login') {
-            const loginM = document.getElementById('login-modal');
-            if (loginM) {
-                loginM.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
-        } else if (hash === '#register') {
+        // Kayıt Ol / Topluluğa Katıl Butonu Tıklaması
+        const regBtn = e.target.closest('#register-trigger-nav, #register-trigger-hero, #register-trigger-mobile, a[href$="#register"]');
+        if (regBtn) {
+            e.preventDefault();
+            e.stopPropagation();
             openRegisterModal();
+            return;
+        }
+
+        // Kapatma Çarpı Butonları
+        if (e.target.closest('#close-login')) {
+            e.preventDefault();
+            closeLoginModal();
+            return;
+        }
+        if (e.target.closest('#close-register')) {
+            e.preventDefault();
+            closeRegisterModal();
+            return;
+        }
+
+        // Arka Plan Karartısına Tıklayınca Kapatma
+        const regM = document.getElementById('register-modal');
+        if (regM && e.target === regM) {
+            closeRegisterModal();
+            return;
+        }
+        const logM = document.getElementById('login-modal');
+        if (logM && e.target === logM) {
+            closeLoginModal();
+            return;
+        }
+    });
+
+    function checkUrlHash() {
+        const hash = window.location.hash;
+        if (hash === '#login') {
+            openLoginModal();
+            try { history.replaceState(null, null, window.location.pathname); } catch(e) {}
+        } else if (hash === '#register') {
+            if (!sessionStorage.getItem('member_logged_in_email')) {
+                openRegisterModal();
+            }
+            try { history.replaceState(null, null, window.location.pathname); } catch(e) {}
         }
     }
 
