@@ -68,7 +68,7 @@
                         </ul>
                     </li>
                     <li class="dropdown-item">
-                        <a href="etkinlikler.html" class="nav-link dropdown-toggle">Etkinlikler <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
+                        <a href="etkinlikler.html" class="nav-link dropdown-toggle active">Etkinlikler <i class="fa-solid fa-chevron-down dropdown-arrow"></i></a>
                         <ul class="dropdown-menu">
                             <li><a href="#upcoming">Gelecek Etkinlikler</a></li>
                             <li><a href="#past">Geçmiş Etkinlikler</a></li>
@@ -129,7 +129,7 @@
             </div>
 
             <div id="upcoming-events-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-                <!-- Loaded dynamically -->
+                <!-- Loaded dynamically from Admin Panel -->
             </div>
         </div>
     </section>
@@ -144,7 +144,7 @@
             </div>
 
             <div id="past-events-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-                <!-- Loaded dynamically -->
+                <!-- Loaded dynamically from Admin Panel -->
             </div>
         </div>
     </section>
@@ -159,7 +159,7 @@
             </div>
 
             <div id="workshops-events-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-                <!-- Loaded dynamically -->
+                <!-- Loaded dynamically from Admin Panel -->
             </div>
         </div>
     </section>
@@ -173,9 +173,9 @@
                 </a>
                 <p>Geleceğin mobil geliştiricilerini bir araya getiren bağımsız öğrenci topluluğu.</p>
                 <div class="social-links">
-                    <a href="https://github.com" id="dyn-footer-github" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
-                    <a href="https://linkedin.com" id="dyn-footer-linkedin" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-                    <a href="https://instagram.com/gedikmygk" id="dyn-footer-instagram" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://github.com" id="dyn-footer-github" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://www.linkedin.com/company/https-l24.im-9ir3fgw" id="dyn-footer-linkedin" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://instagram.com/gedikmygk" id="dyn-footer-instagram" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
                 </div>
             </div>
             
@@ -197,11 +197,11 @@
         </div>
         
         <div class="footer-bottom text-center">
-            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with ❤️ by Yusuf Furkan Gelişin.</p>
+            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with 🦾 by Yusuf Furkan Gelişin.</p>
         </div>
     </footer>
 
-    <!-- Custom Page Script to handle light/dark mode and session headers -->
+    <!-- Custom Page Script to handle rendering from Admin Panel -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Theme setup
@@ -255,117 +255,33 @@
                     profileTriggerMobile.href = "profil.html";
                 }
                 
-                // Fetch name from local cache if possible (uses 'myk_members')
                 const localData = localStorage.getItem('myk_members');
                 if (localData) {
-                    const members = JSON.parse(localData);
-                    const found = members.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
-                    if (found) {
-                        const displayName = found.username || found.name.split(' ')[0];
-                        if (navUserName) navUserName.innerText = displayName;
-                        if (navUserNameMobile) navUserNameMobile.innerText = displayName;
-                    }
+                    try {
+                        const members = JSON.parse(localData);
+                        const found = members.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
+                        if (found) {
+                            const displayName = found.username || found.name.split(' ')[0];
+                            if (navUserName) navUserName.innerText = displayName;
+                            if (navUserNameMobile) navUserNameMobile.innerText = displayName;
+                        }
+                    } catch(e) {}
                 }
             }
 
-            // --- Dynamic Events Rendering ---
-            const initialMockEvents = [
-                {
-                    id: "ev_1",
-                    title: "SwiftUI ile Arayüz Tasarım Kampı",
-                    category: "iOS / Swift",
-                    badgeClass: "kolay",
-                    status: "upcoming",
-                    statusText: "Aktif Kayıt",
-                    statusIcon: "fa-solid fa-circle-play",
-                    description: "iOS uygulama dünyasının modern arayüz framework'ü SwiftUI temellerini, bildirimsel kod yazımını ve hazır animasyon bileşenlerini uygulamalı olarak işliyoruz.",
-                    date: "15 Şubat 2026, Cumartesi",
-                    time: "14:00 - 17:00",
-                    location: "Teknoloji Kampüsü, Lab 404"
-                },
-                {
-                    id: "ev_2",
-                    title: "Kotlin ile Android Geliştirmeye Giriş",
-                    category: "Android / Kotlin",
-                    badgeClass: "orta",
-                    status: "upcoming",
-                    statusText: "Aktif Kayıt",
-                    statusIcon: "fa-solid fa-circle-play",
-                    description: "Android geliştirmede kullanılan resmi dil Kotlin'in temellerini, OOP prensiplerini ve temel emülatör yapılandırmalarını sıfırdan ele alıyoruz.",
-                    date: "22 Şubat 2026, Cumartesi",
-                    time: "14:00 - 17:00",
-                    location: "Teknoloji Kampüsü, Lab 404"
-                },
-                {
-                    id: "ev_3",
-                    title: "MYGK Tanışma Toplantısı",
-                    category: "Kulüp İçi",
-                    badgeClass: "kolay",
-                    status: "past",
-                    statusText: "Tamamlandı",
-                    statusIcon: "fa-solid fa-circle-check",
-                    description: "Kulübümüzün vizyonunu, eğitim hedeflerini, projelerimizi ve dönem planlarını sunduğumuz, yeni katılan üyelerimizle tanıştığımız ilk buluşmamızı başarıyla gerçekleştirdik.",
-                    date: "12 Kasım 2025, Çarşamba",
-                    time: "",
-                    location: "Konferans Salonu B"
-                },
-                {
-                    id: "ev_4",
-                    title: "Mobil Sektöründe Kariyer Sohbetleri",
-                    category: "Sektör Sohbeti",
-                    badgeClass: "orta",
-                    status: "past",
-                    statusText: "Tamamlandı",
-                    statusIcon: "fa-solid fa-circle-check",
-                    description: "Sektörde aktif olarak çalışan tecrübeli konuklarımızla mobil geliştirmenin bugünü, geleceği, iş bulma süreçleri ve CV hazırlama tüyolarını konuştuk.",
-                    date: "05 Aralık 2025, Cuma",
-                    time: "",
-                    location: "Online Zoom"
-                },
-                {
-                    id: "ev_5",
-                    title: "Git ve GitHub Workshop",
-                    category: "Git / Versiyon Kontrol",
-                    badgeClass: "zor",
-                    status: "workshop",
-                    statusText: "Tamamlandı",
-                    statusIcon: "fa-solid fa-circle-check",
-                    description: "Kodlarimizi versiyonlamayi, takim halinde cakisma (conflict) yasamadan calismayi ve projelerimizi GitHub reposuna yuklemeyi uygulamali isledik.",
-                    date: "20 Aralık 2025, Cumartesi",
-                    time: "",
-                    location: "Teknoloji Kampüsü, Lab 404"
-                },
-                {
-                    id: "ev_6",
-                    title: "Figma ile Mobil UI/UX Tasarım Atölyesi",
-                    category: "Tasarım / UI-UX",
-                    badgeClass: "kolay",
-                    status: "workshop",
-                    statusText: "Tamamlandı",
-                    statusIcon: "fa-solid fa-circle-check",
-                    description: "Kullanıcı deneyimi (UX) prensiplerini, mobil arayüz (UI) standartlarını ve Figma'da prototipleme araçlarını sıfırdan uygulamalı olarak öğrendik.",
-                    date: "10 Ocak 2026, Cumartesi",
-                    time: "",
-                    location: "Online Zoom"
-                }
-            ];
-
+            // --- Yalnızca Panelden Eklenen Gerçek Etkinlikleri Çekme ---
             function getLocalStorageEvents() {
                 const stored = localStorage.getItem('myk_events');
-                if (!stored || stored === '[]' || stored === 'null' || stored === 'undefined') {
-                    localStorage.setItem('myk_events', JSON.stringify(initialMockEvents));
-                    return initialMockEvents;
-                }
+                if (!stored) return [];
                 try {
                     const parsed = JSON.parse(stored);
-                    if (!Array.isArray(parsed) || parsed.length === 0) {
-                        localStorage.setItem('myk_events', JSON.stringify(initialMockEvents));
-                        return initialMockEvents;
-                    }
-                    return parsed;
+                    if (!Array.isArray(parsed)) return [];
+                    // Sahte şablon etkinlikleri (ev_1 ... ev_6) filtrele
+                    const cleaned = parsed.filter(e => e && !['ev_1','ev_2','ev_3','ev_4','ev_5','ev_6'].includes(e.id));
+                    localStorage.setItem('myk_events', JSON.stringify(cleaned));
+                    return cleaned;
                 } catch (e) {
-                    localStorage.setItem('myk_events', JSON.stringify(initialMockEvents));
-                    return initialMockEvents;
+                    return [];
                 }
             }
 
@@ -393,17 +309,17 @@
 
                     card.innerHTML = `
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="ctf-badge ${escapeHtml(ev.badgeClass)}">${escapeHtml(ev.category)}</span>
+                            <span class="ctf-badge ${escapeHtml(ev.badgeClass || 'orta')}">${escapeHtml(ev.category || 'Etkinlik')}</span>
                             <span style="font-size: 0.8rem; color: ${ev.status === 'past' ? 'var(--text-muted)' : 'var(--primary)'}; font-weight: 600;">
-                                <i class="${escapeHtml(ev.statusIcon)}"></i> ${escapeHtml(ev.statusText)}
+                                <i class="${escapeHtml(ev.statusIcon || 'fa-solid fa-circle-play')}"></i> ${escapeHtml(ev.statusText || 'Aktif')}
                             </span>
                         </div>
                         <h3 style="font-size: 1.2rem; color: var(--headings-color); font-weight: 700; margin: 0;">${escapeHtml(ev.title)}</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">${escapeHtml(ev.description)}</p>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">${escapeHtml(ev.description || '')}</p>
                         <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
-                            <span><i class="fa-regular fa-calendar"></i> ${escapeHtml(ev.date)}</span>
+                            <span><i class="fa-regular fa-calendar"></i> ${escapeHtml(ev.date || 'Tarih belirtilmedi')}</span>
                             ${ev.time ? `<span><i class="fa-regular fa-clock"></i> ${escapeHtml(ev.time)}</span>` : ''}
-                            <span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(ev.location)}</span>
+                            ${ev.location ? `<span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(ev.location)}</span>` : ''}
                         </div>
                     `;
 
@@ -419,11 +335,17 @@
                     }
                 });
 
-                // Empty checks
-                const emptyCard = (msg) => `<div class="card-glow" style="grid-column: 1/-1; padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); text-align: center;"><p style="color: var(--text-muted); margin: 0;">${msg}</p></div>`;
-                if (upcomingCount === 0 && upcomingList) upcomingList.innerHTML = emptyCard("Yaklaşan bir etkinlik bulunmamaktadır.");
-                if (pastCount === 0 && pastList) pastList.innerHTML = emptyCard("Geçmiş bir etkinlik bulunmamaktadır.");
-                if (workshopCount === 0 && workshopsList) workshopsList.innerHTML = emptyCard("Tamamlanmış bir workshop bulunmamaktadır.");
+                // Boş Durum Şablonu
+                const emptyCard = (msg) => `
+                    <div class="card-glow" style="grid-column: 1/-1; padding: 40px 20px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); text-align: center;">
+                        <i class="fa-solid fa-calendar-days" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; display: inline-block;"></i>
+                        <p style="color: var(--text-muted); margin: 0; font-size: 0.95rem;">${msg}</p>
+                    </div>
+                `;
+
+                if (upcomingCount === 0 && upcomingList) upcomingList.innerHTML = emptyCard("Yaklaşan bir etkinlik bulunmamaktadır. Yakında duyurulacaktır.");
+                if (pastCount === 0 && pastList) pastList.innerHTML = emptyCard("Henüz geçmiş bir etkinlik bulunmamaktadır.");
+                if (workshopCount === 0 && workshopsList) workshopsList.innerHTML = emptyCard("Henüz tamamlanmış bir workshop bulunmamaktadır.");
             }
 
             function escapeHtml(str) {
@@ -435,30 +357,17 @@
                           .replace(/'/g, "&#039;");
             }
 
-            // Apply Site Settings
-            const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {
-                contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
-                contactEmail: "gedikmobilyazilimkulubu@gmail.com",
-                socialInstagram: "https://www.instagram.com/gedikmygk",
-                socialLinkedin: "https://linkedin.com",
-                socialGithub: "https://github.com/yusufurkan0"
-            };
+            // Sayfa Ayarları
+            const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {};
             const contactAddr = document.getElementById('dyn-footer-address');
             const contactEmail = document.getElementById('dyn-footer-email');
-            if (contactAddr) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
-            if (contactEmail) contactEmail.innerText = settings.contactEmail;
-            
-            const githubLink = document.getElementById('dyn-footer-github');
-            const linkedinLink = document.getElementById('dyn-footer-linkedin');
-            const instagramLink = document.getElementById('dyn-footer-instagram');
-            if (githubLink) githubLink.href = settings.socialGithub;
-            if (linkedinLink) linkedinLink.href = settings.socialLinkedin;
-            if (instagramLink) instagramLink.href = settings.socialInstagram;
+            if (contactAddr && settings.contactAddress) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
+            if (contactEmail && settings.contactEmail) contactEmail.innerText = settings.contactEmail;
 
-            // Run render
+            // Etkinlikleri Çiz
             renderEvents();
 
-            // Admin session synchronization
+            // Admin Yetki Senkronizasyonu
             if (sessionStorage.getItem('admin_logged_in') === 'true') {
                 const adminToolbar = document.getElementById('admin-toolbar');
                 if (adminToolbar) {
@@ -466,16 +375,18 @@
                     document.body.classList.add('admin-mode-active');
                 }
                 
-                // Map toolbar buttons to index.html redirect with target query param
                 const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
                 toolbarBtns.forEach(btn => {
                     btn.addEventListener('click', () => {
                         const target = btn.getAttribute('data-target');
+                        if (target === 'members') {
+                            window.location.href = 'basvurular.html';
+                            return;
+                        }
                         window.location.href = `index.html?admin_target=${target}`;
                     });
                 });
                 
-                // Handle admin logout from subpage
                 const logoutBtn = document.getElementById('admin-toolbar-logout');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', () => {
