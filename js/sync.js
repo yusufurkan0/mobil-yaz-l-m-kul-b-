@@ -27,29 +27,33 @@
             });
         }
 
-        // Member session handling & top right navbar username badge sync
+        // Member session handling & top right navbar username badge sync (Garanti yusufurkan Yapar)
         const loggedInEmail = sessionStorage.getItem('member_logged_in_email');
         const loginBtn = document.getElementById('login-trigger');
         const registerBtn = document.getElementById('register-trigger-nav');
-        const profileBtn = document.getElementById('user-profile-trigger');
-        const profileNameSpan = document.getElementById('user-profile-name');
 
         if (loggedInEmail) {
-            let displayName = loggedInEmail.split('@')[0];
+            let displayName = sessionStorage.getItem('member_username');
             try {
                 const local = JSON.parse(localStorage.getItem('myk_members')) || [];
                 const found = local.find(m => m.email && m.email.toLowerCase() === loggedInEmail.toLowerCase());
-                if (found && (found.fullName || found.name)) {
-                    const fullName = found.fullName || found.name;
-                    displayName = fullName.split(' ')[0];
+                if (found) {
+                    displayName = found.username || sessionStorage.getItem('member_username') || found.fullName || found.name;
                 }
             } catch(e) {}
+
+            if (!displayName || displayName === 'Profilim') {
+                displayName = 'yusufurkan';
+            }
 
             if (loginBtn) loginBtn.classList.add('hidden');
             if (registerBtn) registerBtn.classList.add('hidden');
 
             const profileBtns = document.querySelectorAll('#user-profile-trigger, #user-profile-trigger-mobile');
-            profileBtns.forEach(btn => btn.classList.remove('hidden'));
+            profileBtns.forEach(btn => {
+                btn.classList.remove('hidden');
+                btn.style.display = 'inline-flex';
+            });
 
             const nameSpans = document.querySelectorAll('#user-profile-name, #nav-user-name, #nav-user-name-mobile');
             nameSpans.forEach(span => span.textContent = displayName);
@@ -85,10 +89,9 @@
         }
     });
 
-    // Only run if CONFIG is defined (which holds our credentials)
+    // Only run if CONFIG is defined
     if (typeof CONFIG === 'undefined' || !CONFIG.firebase || !CONFIG.firebase.projectId) return;
 
-    // Helper to dynamically load external scripts
     function loadScript(src, callback) {
         const s = document.createElement('script');
         s.src = src;
@@ -113,7 +116,6 @@
                     try { return JSON.parse(localStorage.getItem('myk_site_settings')) || {}; } catch(e) { return {}; }
                 })();
                 
-                // CRITICAL PROTECTION: Never allow Firestore sync to wipe approved members count to 0
                 const localMembers = (function() {
                     try { return JSON.parse(localStorage.getItem('myk_members')) || []; } catch(e) { return []; }
                 })();
@@ -122,13 +124,13 @@
                     settingsData.totalMembers = approvedCount;
                 }
                 
+                settingsData.totalSponsors = 0;
                 localStorage.setItem('myk_site_settings', JSON.stringify({ ...currentSettings, ...settingsData }));
                 applySyncedFooterSettings(settingsData);
                 
-                // Immediately apply stats to the homepage elements if they exist on the page
                 const memberSpan = document.getElementById('homepage-member-count');
                 if (memberSpan) {
-                    const displayCount = (approvedCount > 0) ? approvedCount : ((settingsData.totalMembers && settingsData.totalMembers > 0) ? settingsData.totalMembers : 4);
+                    const displayCount = (approvedCount > 0) ? approvedCount : ((settingsData.totalMembers && settingsData.totalMembers > 0) ? settingsData.totalMembers : 0);
                     memberSpan.setAttribute('data-val', displayCount);
                     memberSpan.innerText = displayCount;
                 }
@@ -140,39 +142,48 @@
                 }
                 const sponsorSpan = document.getElementById('homepage-sponsor-count');
                 if (sponsorSpan) {
-                    const sponsorCount = settingsData.totalSponsors !== undefined ? settingsData.totalSponsors : 5;
-                    sponsorSpan.setAttribute('data-val', sponsorCount);
-                    sponsorSpan.innerText = sponsorCount;
+                    sponsorSpan.setAttribute('data-val', 0);
+                    sponsorSpan.innerText = 0;
                 }
             }
         }).catch(err => console.error("CMS settings sync failed:", err));
 
-        // 2. Page-specific background sync
+        // 2. Page-specific background sync (Sahte şablonlar hariç)
         const path = window.location.pathname;
         if (path.includes('etkinlikler.html')) {
             db.collection('events').get().then(snapshot => {
                 const events = [];
-                snapshot.forEach(doc => events.push(doc.data()));
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data && !['ev_1','ev_2','ev_3','ev_4','ev_5','ev_6'].includes(data.id)) {
+                        events.push(data);
+                    }
+                });
                 localStorage.setItem('myk_events', JSON.stringify(events));
-                console.log("Events synced from Firestore:", events.length);
                 if (typeof renderEvents === 'function') renderEvents();
             }).catch(err => console.error("Events sync failed:", err));
         } else if (path.includes('duyurular.html')) {
             db.collection('announcements').get().then(snapshot => {
                 const announcements = [];
-                snapshot.forEach(doc => announcements.push(doc.data()));
-                if (announcements.length > 0) {
-                    localStorage.setItem('myk_announcements', JSON.stringify(announcements));
-                    console.log("Announcements synced from Firestore:", announcements.length);
-                }
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data && !['ann_1','ann_2','ann_3'].includes(data.id)) {
+                        announcements.push(data);
+                    }
+                });
+                localStorage.setItem('myk_announcements', JSON.stringify(announcements));
                 if (typeof renderAnnouncements === 'function') renderAnnouncements();
             }).catch(err => console.error("Announcements sync failed:", err));
         } else if (path.includes('blog.html')) {
             db.collection('blog').get().then(snapshot => {
                 const blog = [];
-                snapshot.forEach(doc => blog.push(doc.data()));
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data && !['post_1','post_2','post_3','post_4','post_5','post_6'].includes(data.id)) {
+                        blog.push(data);
+                    }
+                });
                 localStorage.setItem('myk_blog', JSON.stringify(blog));
-                console.log("Blog posts synced from Firestore:", blog.length);
                 if (typeof renderBlog === 'function') renderBlog();
             }).catch(err => console.error("Blog posts sync failed:", err));
         }
