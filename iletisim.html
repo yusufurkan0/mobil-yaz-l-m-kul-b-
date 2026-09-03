@@ -213,17 +213,14 @@
                         <h4 style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;">Sosyal Medya</h4>
                         <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">
                             
-                            <!-- Instagram -->
                             <a href="https://www.instagram.com/gedikmygk" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition-fast);" class="contact-social-link">
                                 <i class="fa-brands fa-instagram" style="font-size: 1.1rem; color: #E1306C;"></i> Instagram
                             </a>
                             
-                            <!-- LinkedIn -->
                             <a href="https://www.linkedin.com/company/https-l24.im-9ir3fgw" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition-fast);" class="contact-social-link">
                                 <i class="fa-brands fa-linkedin" style="font-size: 1.1rem; color: #0A66C2;"></i> LinkedIn
                             </a>
                             
-                            <!-- WhatsApp (YouTube yerine getirildi) -->
                             <a href="https://chat.whatsapp.com/DUm12QsHMJWC446YgIRCYw?s=cl&p=a&mlu=4" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 10px; transition: var(--transition-fast);" class="contact-social-link">
                                 <i class="fa-brands fa-whatsapp" style="font-size: 1.1rem; color: #25D366;"></i> WhatsApp
                             </a>
@@ -251,9 +248,9 @@
                 </a>
                 <p>Geleceğin mobil geliştiricilerini bir araya getiren bağımsız öğrenci topluluğu.</p>
                 <div class="social-links">
-                    <a href="https://github.com" id="dyn-footer-github" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
-                    <a href="https://www.linkedin.com/company/https-l24.im-9ir3fgw" id="dyn-footer-linkedin" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-                    <a href="https://instagram.com/gedikmygk" id="dyn-footer-instagram" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://github.com" id="dyn-footer-github" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://www.linkedin.com/company/https-l24.im-9ir3fgw" id="dyn-footer-linkedin" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://instagram.com/gedikmygk" id="dyn-footer-instagram" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
                 </div>
             </div>
             
@@ -275,7 +272,7 @@
         </div>
         
         <div class="footer-bottom text-center">
-            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with ❤️ by Yusuf Furkan Gelişin.</p>
+            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with 🦾 by Yusuf Furkan Gelişin.</p>
         </div>
     </footer>
 
@@ -283,7 +280,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="js/config.js"></script>
 
-    <!-- Custom Page Script to handle light/dark mode, session headers and Form Submission -->
+    <!-- Custom Page Script -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Theme setup
@@ -311,32 +308,26 @@
             }
 
             // Apply Site Settings
-            const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {
-                contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
-                contactEmail: "gedikmobilyazilimkulubu@gmail.com",
-                socialInstagram: "https://www.instagram.com/gedikmygk",
-                socialLinkedin: "https://www.linkedin.com/company/https-l24.im-9ir3fgw",
-                socialGithub: "https://github.com/yusufurkan0"
-            };
+            const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {};
             const contactAddr = document.getElementById('dyn-footer-address');
             const contactEmail = document.getElementById('dyn-footer-email');
-            if (contactAddr) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
-            if (contactEmail) contactEmail.innerText = settings.contactEmail;
+            if (contactAddr && settings.contactAddress) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
+            if (contactEmail && settings.contactEmail) contactEmail.innerText = settings.contactEmail;
             
             const githubLink = document.getElementById('dyn-footer-github');
             const linkedinLink = document.getElementById('dyn-footer-linkedin');
             const instagramLink = document.getElementById('dyn-footer-instagram');
-            if (githubLink) githubLink.href = settings.socialGithub;
-            if (linkedinLink) linkedinLink.href = settings.socialLinkedin;
-            if (instagramLink) instagramLink.href = settings.socialInstagram;
+            if (githubLink && settings.socialGithub) githubLink.href = settings.socialGithub;
+            if (linkedinLink && settings.socialLinkedin) linkedinLink.href = settings.socialLinkedin;
+            if (instagramLink && settings.socialInstagram) instagramLink.href = settings.socialInstagram;
 
-            // Sync user profile state from sessionStorage
+            // Sync user profile state from sessionStorage (Garanti yusufurkan Yazar)
             const loggedInEmail = sessionStorage.getItem('member_logged_in_email');
             if (loggedInEmail) {
                 const loginTrigger = document.getElementById('login-trigger');
                 const registerTrigger = document.getElementById('register-trigger-nav');
                 const profileTrigger = document.getElementById('user-profile-trigger');
-                const navUserName = document.getElementById('nav-user-name');
+                const navUserName = document.getElementById('nav-user-name') || document.getElementById('user-profile-name');
                 
                 const loginTriggerMobile = document.getElementById('login-trigger-mobile');
                 const registerTriggerMobile = document.getElementById('register-trigger-mobile');
@@ -347,6 +338,7 @@
                 if (registerTrigger) registerTrigger.classList.add('hidden');
                 if (profileTrigger) {
                     profileTrigger.classList.remove('hidden');
+                    profileTrigger.style.display = 'inline-flex';
                     profileTrigger.href = "profil.html";
                 }
                 
@@ -354,20 +346,25 @@
                 if (registerTriggerMobile) registerTriggerMobile.classList.add('hidden');
                 if (profileTriggerMobile) {
                     profileTriggerMobile.classList.remove('hidden');
+                    profileTriggerMobile.style.display = 'flex';
                     profileTriggerMobile.href = "profil.html";
                 }
                 
-                // Fetch name from local cache if possible (uses 'myk_members')
-                const localData = localStorage.getItem('myk_members');
-                if (localData) {
-                    const members = JSON.parse(localData);
-                    const found = members.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
-                    if (found) {
-                        const displayName = found.username || found.name.split(' ')[0];
-                        if (navUserName) navUserName.innerText = displayName;
-                        if (navUserNameMobile) navUserNameMobile.innerText = displayName;
+                let displayName = sessionStorage.getItem('member_username');
+                if (!displayName || displayName === 'Profilim') {
+                    const localData = localStorage.getItem('myk_members');
+                    if (localData) {
+                        try {
+                            const members = JSON.parse(localData);
+                            const found = members.find(m => m.email && m.email.toLowerCase() === loggedInEmail.toLowerCase());
+                            if (found) displayName = found.username || found.name;
+                        } catch(e) {}
                     }
                 }
+                if (!displayName) displayName = 'yusufurkan';
+
+                if (navUserName) navUserName.innerText = displayName;
+                if (navUserNameMobile) navUserNameMobile.innerText = displayName;
             }
 
             // EmailJS Initialization for contact page
@@ -424,7 +421,6 @@
                     const subject = document.getElementById('contact-subject').value;
                     const message = document.getElementById('contact-message').value.trim();
                     
-                    // 1. Rate limiting / Flood prevention (60 seconds cooldown)
                     const lastSubmit = localStorage.getItem('last_contact_submit_time');
                     const now = Date.now();
                     if (lastSubmit && (now - lastSubmit < 60000)) {
@@ -435,33 +431,21 @@
                         return;
                     }
 
-                    // 2. Spam Bot Honeypot check
                     const honeyPot = document.getElementById('contact-hp').value;
                     if (honeyPot) {
-                        console.warn("Spam bot submission blocked.");
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalText;
                         return;
                     }
 
-                    // 3. Strict Email Validation Regex
                     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                     if (!emailRegex.test(email)) {
-                        showStatusToast("Geçersiz E-posta", "Lütfen geçerli bir e-posta adresi giriniz! (Örn: isim@domain.com)", false);
+                        showStatusToast("Geçersiz E-posta", "Lütfen geçerli bir e-posta adresi giriniz!", false);
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalText;
                         return;
                     }
 
-                    // 4. Block temporary/disposable email domains
-                    const tempEmailDomains = ['tempmail.com', '10minutemail.com', 'yopmail.com', 'mailinator.com', 'temp-mail.org', 'guerrillamail.com', 'sharklasers.com', 'dispostable.com', 'getairmail.com', 'boun.cr', 'tempmail.net', 'tempmailaddress.com'];
-                    const emailDomain = email.split('@').toLowerCase();
-                    if (tempEmailDomains.includes(emailDomain)) {
-                        showStatusToast("Geçersiz E-posta", "Geçici veya tek kullanımlık e-posta adresleri kabul edilmemektedir.", false);
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalText;
-                        return;
-                    }
                     if (useEmailJS) {
                         const templateParams = {
                             name: name,
@@ -474,16 +458,14 @@
                         const tId = CONFIG.emailjs.contactTemplateId || "template_contact";
 
                         emailjs.send(CONFIG.emailjs.serviceId, tId, templateParams)
-                            .then((response) => {
-                                console.log('Contact Message sent successfully via EmailJS!', response.status, response.text);
+                            .then(() => {
                                 localStorage.setItem('last_contact_submit_time', Date.now());
-                                showStatusToast("Gönderildi!", "Mesajınız başarıyla kulüp mail adresine iletildi.", true);
+                                showStatusToast("Gönderildi!", "Mesajınız başarıyla iletildi.", true);
                                 contactForm.reset();
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = originalText;
                             })
-                            .catch((error) => {
-                                console.error('EmailJS contact failed. Falling back to FormSubmit...', error);
+                            .catch(() => {
                                 sendViaFormSubmit(name, email, subject, message, submitBtn, originalText);
                             });
                     } else {
@@ -508,14 +490,13 @@
                     })
                 })
                 .then(response => response.json())
-                .then(data => {
+                .then(() => {
                     localStorage.setItem('last_contact_submit_time', Date.now());
-                    showStatusToast("Gönderildi!", "Mesajınız başarıyla iletildi! Gelen kutunuza düşen onay mailini doğrulamayı unutmayın.", true);
+                    showStatusToast("Gönderildi!", "Mesajınız başarıyla iletildi.", true);
                     contactForm.reset();
                 })
-                .catch(error => {
-                    console.error("FormSubmit contact message failed:", error);
-                    showStatusToast("Gönderilemedi", "Mesajınız gönderilirken hata oluştu. Lütfen doğrudan gedikmobilyazilimkulubu@gmail.com adresine mail atınız.", false);
+                .catch(() => {
+                    showStatusToast("Gönderilemedi", "Mesaj gönderilemedi. Lütfen doğrudan gedikmobilyazilimkulubu@gmail.com adresine mail atınız.", false);
                 })
                 .finally(() => {
                     submitBtn.disabled = false;
@@ -523,7 +504,7 @@
                 });
             }
 
-            // Admin session synchronization
+            // Admin yetki senkronizasyonu
             if (sessionStorage.getItem('admin_logged_in') === 'true') {
                 const adminToolbar = document.getElementById('admin-toolbar');
                 if (adminToolbar) {
@@ -531,16 +512,18 @@
                     document.body.classList.add('admin-mode-active');
                 }
                 
-                // Map toolbar buttons to index.html redirect with target query param
                 const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
                 toolbarBtns.forEach(btn => {
                     btn.addEventListener('click', () => {
                         const target = btn.getAttribute('data-target');
+                        if (target === 'members') {
+                            window.location.href = 'basvurular.html';
+                            return;
+                        }
                         window.location.href = `index.html?admin_target=${target}`;
                     });
                 });
                 
-                // Handle admin logout from subpage
                 const logoutBtn = document.getElementById('admin-toolbar-logout');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', () => {
@@ -551,7 +534,6 @@
             }
         });
     </script>
-    <script src="js/config.js?v=9999"></script>
     <script src="js/sync.js?v=9999"></script>
     <script src="js/chatbot.js?v=9999"></script>
 </body>
