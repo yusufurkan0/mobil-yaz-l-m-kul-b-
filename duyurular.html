@@ -130,7 +130,7 @@
 
             <!-- Announcements Grid -->
             <div id="dynamic-announcements-list" style="display: flex; flex-direction: column; gap: 24px; max-width: 900px; margin: 0 auto;">
-                <!-- Loaded dynamically -->
+                <!-- Loaded dynamically from Admin Panel -->
             </div>
         </div>
     </main>
@@ -144,9 +144,9 @@
                 </a>
                 <p>Geleceğin mobil geliştiricilerini bir araya getiren bağımsız öğrenci topluluğu.</p>
                 <div class="social-links">
-                    <a href="https://github.com" id="dyn-footer-github" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
-                    <a href="https://linkedin.com" id="dyn-footer-linkedin" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-                    <a href="https://instagram.com/gedikmygk" id="dyn-footer-instagram" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://github.com" id="dyn-footer-github" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://www.linkedin.com/company/https-l24.im-9ir3fgw" id="dyn-footer-linkedin" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://instagram.com/gedikmygk" id="dyn-footer-instagram" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
                 </div>
             </div>
             
@@ -168,11 +168,11 @@
         </div>
         
         <div class="footer-bottom text-center">
-            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with ❤️ by Yusuf Furkan Gelişin.</p>
+            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with 🦾 by Yusuf Furkan Gelişin.</p>
         </div>
     </footer>
 
-    <!-- Custom Page Script to handle light/dark mode and session headers -->
+    <!-- Custom Page Script to handle rendering from Admin Panel -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Theme setup
@@ -226,63 +226,33 @@
                     profileTriggerMobile.href = "profil.html";
                 }
                 
-                // Fetch name from local cache if possible (uses 'myk_members')
                 const localData = localStorage.getItem('myk_members');
                 if (localData) {
-                    const members = JSON.parse(localData);
-                    const found = members.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
-                    if (found) {
-                        const displayName = found.username || found.name.split(' ')[0];
-                        if (navUserName) navUserName.innerText = displayName;
-                        if (navUserNameMobile) navUserNameMobile.innerText = displayName;
-                    }
+                    try {
+                        const members = JSON.parse(localData);
+                        const found = members.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
+                        if (found) {
+                            const displayName = found.username || found.name.split(' ')[0];
+                            if (navUserName) navUserName.innerText = displayName;
+                            if (navUserNameMobile) navUserNameMobile.innerText = displayName;
+                        }
+                    } catch(e) {}
                 }
             }
 
-            // --- Dynamic Announcements Rendering ---
-            const initialMockAnnouncements = [
-                {
-                    id: "ann_1",
-                    title: "Sıfırdan Mobil Geliştirme Atölyeleri Kayıtları Açıldı!",
-                    category: "Eğitim Atölyesi",
-                    badgeClass: "kolay",
-                    date: "15 Ocak 2026",
-                    description: "Swift ve Kotlin dilleri ile sıfırdan mobil uygulama geliştirme atölyelerimizin kayıtları başlamıştır. Eğitimlerimiz ücretsiz olup, uygulamalı projeler üzerinden yürütülecektir. Katılmak için ana sayfadaki 'Kayıt Ol' butonu ile üyelik başvurusu yapmanız yeterlidir."
-                },
-                {
-                    id: "ann_2",
-                    title: "WhatsApp Duyuru Grubumuza Katılın!",
-                    category: "Önemli Duyuru",
-                    badgeClass: "zor",
-                    date: "10 Ocak 2026",
-                    description: "Kulüp içindeki eğitim sınıfları, hackathon grupları ve buluşma zamanı güncellemelerinden anlık haberdar olabilmek için üye olduktan sonra sağ üstteki profil panelinizde açılan 'Kulüp WhatsApp Grubu' linkine tıklayarak grubumuza katılabilirsiniz."
-                },
-                {
-                    id: "ann_3",
-                    title: "Sponsorluk ve Partnerlik Görüşmeleri Başladı",
-                    category: "Genel Haber",
-                    badgeClass: "orta",
-                    date: "05 Ocak 2026",
-                    description: "İstanbul Gedik Üniversitesi Mobil Yazılım Geliştirme Kulübü olarak bu dönem yapacağımız proje yarışmaları ve hackathonlar için sektör temsilcisi teknoloji firmaları ile sponsorluk görüşmelerine başlanmıştır. Detaylar netleştikçe buradan duyurulacaktır."
-                }
-            ];
-
+            // --- Yalnızca Panelden Eklenen Gerçek Duyuruları Çekme ---
             function getLocalStorageAnnouncements() {
                 const stored = localStorage.getItem('myk_announcements');
-                if (!stored || stored === '[]' || stored === 'null' || stored === 'undefined') {
-                    localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
-                    return initialMockAnnouncements;
-                }
+                if (!stored) return [];
                 try {
                     const parsed = JSON.parse(stored);
-                    if (!Array.isArray(parsed) || parsed.length === 0) {
-                        localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
-                        return initialMockAnnouncements;
-                    }
-                    return parsed;
+                    if (!Array.isArray(parsed)) return [];
+                    // Sahte şablon duyuruları (ann_1, ann_2, ann_3) filtrele
+                    const cleaned = parsed.filter(a => a && !['ann_1','ann_2','ann_3'].includes(a.id));
+                    localStorage.setItem('myk_announcements', JSON.stringify(cleaned));
+                    return cleaned;
                 } catch (e) {
-                    localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
-                    return initialMockAnnouncements;
+                    return [];
                 }
             }
 
@@ -291,10 +261,16 @@
                 if (!list) return;
                 list.innerHTML = '';
                 
-                let announcements = getLocalStorageAnnouncements();
+                const announcements = getLocalStorageAnnouncements();
+
                 if (!Array.isArray(announcements) || announcements.length === 0) {
-                    announcements = initialMockAnnouncements;
-                    localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
+                    list.innerHTML = `
+                        <div class="card-glow" style="padding: 45px 20px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); text-align: center;">
+                            <i class="fa-solid fa-bullhorn" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; display: inline-block;"></i>
+                            <p style="color: var(--text-muted); margin: 0; font-size: 0.95rem;">Henüz yayınlanmış bir kulüp duyurusu bulunmamaktadır. Yakında eklenecektir.</p>
+                        </div>
+                    `;
+                    return;
                 }
 
                 announcements.forEach(ann => {
@@ -324,30 +300,17 @@
                           .replace(/'/g, "&#039;");
             }
 
-            // Apply Site Settings
-            const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {
-                contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
-                contactEmail: "gedikmobilyazilimkulubu@gmail.com",
-                socialInstagram: "https://www.instagram.com/gedikmygk",
-                socialLinkedin: "https://linkedin.com",
-                socialGithub: "https://github.com/yusufurkan0"
-            };
+            // Sayfa Ayarları
+            const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {};
             const contactAddr = document.getElementById('dyn-footer-address');
             const contactEmail = document.getElementById('dyn-footer-email');
-            if (contactAddr) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
-            if (contactEmail) contactEmail.innerText = settings.contactEmail;
-            
-            const githubLink = document.getElementById('dyn-footer-github');
-            const linkedinLink = document.getElementById('dyn-footer-linkedin');
-            const instagramLink = document.getElementById('dyn-footer-instagram');
-            if (githubLink) githubLink.href = settings.socialGithub;
-            if (linkedinLink) linkedinLink.href = settings.socialLinkedin;
-            if (instagramLink) instagramLink.href = settings.socialInstagram;
+            if (contactAddr && settings.contactAddress) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
+            if (contactEmail && settings.contactEmail) contactEmail.innerText = settings.contactEmail;
 
-            // Run render
+            // Duyuruları Çiz
             renderAnnouncements();
 
-            // Admin session synchronization
+            // Admin Yetki Senkronizasyonu
             if (sessionStorage.getItem('admin_logged_in') === 'true') {
                 const adminToolbar = document.getElementById('admin-toolbar');
                 if (adminToolbar) {
@@ -355,7 +318,6 @@
                     document.body.classList.add('admin-mode-active');
                 }
                 
-                // Map toolbar buttons to index.html redirect with target query param
                 const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
                 toolbarBtns.forEach(btn => {
                     btn.addEventListener('click', () => {
@@ -368,7 +330,6 @@
                     });
                 });
                 
-                // Handle admin logout from subpage
                 const logoutBtn = document.getElementById('admin-toolbar-logout');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', () => {
