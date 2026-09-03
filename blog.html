@@ -129,7 +129,7 @@
             </div>
 
             <div id="dynamic-mobile-posts" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-                <!-- Loaded dynamically -->
+                <!-- Loaded dynamically from Admin Panel -->
             </div>
         </div>
     </section>
@@ -144,7 +144,7 @@
             </div>
 
             <div id="dynamic-sector-news" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-                <!-- Loaded dynamically -->
+                <!-- Loaded dynamically from Admin Panel -->
             </div>
         </div>
     </section>
@@ -159,7 +159,7 @@
             </div>
 
             <div id="dynamic-resources" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-                <!-- Loaded dynamically -->
+                <!-- Loaded dynamically from Admin Panel -->
             </div>
         </div>
     </section>
@@ -173,9 +173,9 @@
                 </a>
                 <p>Geleceğin mobil geliştiricilerini bir araya getiren bağımsız öğrenci topluluğu.</p>
                 <div class="social-links">
-                    <a href="https://github.com" id="dyn-footer-github" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
-                    <a href="https://linkedin.com" id="dyn-footer-linkedin" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-                    <a href="https://instagram.com/gedikmygk" id="dyn-footer-instagram" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://github.com" id="dyn-footer-github" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://www.linkedin.com/company/https-l24.im-9ir3fgw" id="dyn-footer-linkedin" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://instagram.com/gedikmygk" id="dyn-footer-instagram" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
                 </div>
             </div>
             
@@ -197,11 +197,11 @@
         </div>
         
         <div class="footer-bottom text-center">
-            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with ❤️ by Yusuf Furkan Gelişin.</p>
+            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with 🦾 by Yusuf Furkan Gelişin.</p>
         </div>
     </footer>
 
-    <!-- Custom Page Script to handle light/dark mode and session headers -->
+    <!-- Custom Page Script to handle rendering from Admin Panel -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Theme setup
@@ -255,111 +255,33 @@
                     profileTriggerMobile.href = "profil.html";
                 }
                 
-                // Fetch name from local cache if possible (uses 'myk_members')
                 const localData = localStorage.getItem('myk_members');
                 if (localData) {
-                    const members = JSON.parse(localData);
-                    const found = members.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
-                    if (found) {
-                        const displayName = found.username || found.name.split(' ')[0];
-                        if (navUserName) navUserName.innerText = displayName;
-                        if (navUserNameMobile) navUserNameMobile.innerText = displayName;
-                    }
+                    try {
+                        const members = JSON.parse(localData);
+                        const found = members.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
+                        if (found) {
+                            const displayName = found.username || found.name.split(' ')[0];
+                            if (navUserName) navUserName.innerText = displayName;
+                            if (navUserNameMobile) navUserNameMobile.innerText = displayName;
+                        }
+                    } catch(e) {}
                 }
             }
 
-            // --- Dynamic Blog Loading and Rendering ---
-            const initialMockBlog = [
-                {
-                    id: "post_1",
-                    title: "SwiftUI ile Deklaratif Kodlama Neden Gelecek?",
-                    category: "SwiftUI",
-                    badgeClass: "kolay",
-                    status: "mobile-posts",
-                    author: "Yusuf Furkan Gelişin",
-                    authorIcon: "fa-solid fa-user-edit",
-                    date: "20 Ocak 2026",
-                    readTime: "5 dk okuma",
-                    description: "Imperative (emirsel) kodlama yaklaşımından declarative (bildirimsel) kodlamaya geçişin getirdiği hız, okunabilirlik ve arayüz animasyonlarındaki üstün performans avantajlarını derinlemesine inceliyoruz."
-                },
-                {
-                    id: "post_2",
-                    title: "Kotlin Multiplatform (KMP) ile Tek Kod, İki Platform",
-                    category: "Kotlin Multiplatform",
-                    badgeClass: "orta",
-                    status: "mobile-posts",
-                    author: "Ahmet Yılmaz",
-                    authorIcon: "fa-solid fa-user-edit",
-                    date: "18 Ocak 2026",
-                    readTime: "7 dk okuma",
-                    description: "Hem iOS hem de Android için tek bir iş mantığı (business logic) kodu yazarak native uygulamalar geliştirmenin yollarını ve KMP ekosistemini mercek altına alıyoruz."
-                },
-                {
-                    id: "post_3",
-                    title: "Apple WWDC26 Tarihleri ve Beklentiler",
-                    category: "Apple Lansman",
-                    badgeClass: "zor",
-                    status: "sector-news",
-                    author: "MYGK Editör",
-                    authorIcon: "fa-solid fa-user-edit",
-                    date: "15 Ocak 2026",
-                    readTime: "4 dk okuma",
-                    description: "Apple'ın haziran ayında gerçekleştireceği geliştirici konferansı WWDC26 için sunulması beklenen iOS 20, Swift 7 ve yeni yapay zeka entegrasyonu vizyonları hakkında öngörülerimiz."
-                },
-                {
-                    id: "post_4",
-                    title: "Google Android 17 (Vanilla Ice Cream) Sürümü",
-                    category: "Google Android",
-                    badgeClass: "orta",
-                    status: "sector-news",
-                    author: "MYGK Editör",
-                    authorIcon: "fa-solid fa-user-edit",
-                    date: "12 Ocak 2026",
-                    readTime: "3 dk okuma",
-                    description: "Google'ın Android 17 için sunduğu yeni gelişmiş veri şifreleme özellikleri, optimize edilmiş arka plan servisleri ve Kotlin Coroutines entegrasyonu yenilikleri."
-                },
-                {
-                    id: "post_5",
-                    title: "Resmi Dökümantasyonlar ve Eğitim Serileri",
-                    category: "Resmi Belgeler",
-                    badgeClass: "kolay",
-                    status: "resources",
-                    author: "Kitaplık",
-                    authorIcon: "fa-solid fa-bookmark",
-                    date: "10 Ocak 2026",
-                    readTime: "",
-                    description: "Swift için resmi Apple Developer Documentation ve Swift.org; Kotlin için Kotlinlang.org ve Android Developers portalı, her seviyeden yazılımcı için en güncel ve en güvenilir ana kaynaklardır."
-                },
-                {
-                    id: "post_6",
-                    title: "Öncü Eğitim Kanalları ve Kaynaklar",
-                    category: "Kanallar & Kitaplar",
-                    badgeClass: "orta",
-                    status: "resources",
-                    author: "Kitaplık",
-                    authorIcon: "fa-solid fa-bookmark",
-                    date: "08 Ocak 2026",
-                    readTime: "",
-                    description: "Paul Hudson (Hacking with Swift), Philipp Lackner (Android/Kotlin), Kodeco (Ray Wenderlich) eğitim platformları ile Uncle Bob'un Clean Code ve Clean Architecture kitapları kendinizi ileri seviyeye taşımak için harika rehberlerdir."
-                }
-            ];
-
+            // --- Yalnızca Panelden Eklenen Gerçek Blog Yazılarını Çekme ---
             function getLocalStorageBlog() {
                 const stored = localStorage.getItem('myk_blog');
-                if (!stored || stored === '[]' || stored === 'null' || stored === 'undefined') {
-                    localStorage.setItem('myk_blog', JSON.stringify(initialMockBlog));
-                    return initialMockBlog;
-                }
+                if (!stored) return [];
                 try {
                     const parsed = JSON.parse(stored);
-                    if (!Array.isArray(parsed) || parsed.length === 0) {
-                        localStorage.setItem('myk_blog', JSON.stringify(initialMockBlog));
-                        return initialMockBlog;
-                    }
-                    return parsed;
+                    if (!Array.isArray(parsed)) return [];
+                    // Sahte bot makaleleri (post_1 ... post_6) filtrele
+                    const cleaned = parsed.filter(b => b && !['post_1','post_2','post_3','post_4','post_5','post_6'].includes(b.id));
+                    localStorage.setItem('myk_blog', JSON.stringify(cleaned));
+                    return cleaned;
                 } catch (e) {
-                    localStorage.setItem('myk_blog', JSON.stringify(initialMockBlog));
-                    return initialMockBlog;
+                    return [];
                 }
             }
 
@@ -383,20 +305,17 @@
                     card.className = post.status === 'resources' ? 'card-glow' : 'card-glow animate-hover-lift';
                     card.style.cssText = 'padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px;';
 
-                    // Build inside card content
-                    let headerBadge = `<span class="ctf-badge ${escapeHtml(post.badgeClass)}">${escapeHtml(post.category)}</span>`;
-                    let authorDetail = `<span style="font-size: 0.8rem; color: var(--text-muted);"><i class="${escapeHtml(post.authorIcon)}"></i> ${escapeHtml(post.author)}</span>`;
+                    let headerBadge = `<span class="ctf-badge ${escapeHtml(post.badgeClass || 'kolay')}">${escapeHtml(post.category || 'Genel')}</span>`;
+                    let authorDetail = `<span style="font-size: 0.8rem; color: var(--text-muted);"><i class="${escapeHtml(post.authorIcon || 'fa-solid fa-user-edit')}"></i> ${escapeHtml(post.author || 'MYGK')}</span>`;
                     
                     let dateInfo = '';
                     if (post.status !== 'resources') {
                         dateInfo = `
                             <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px; display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
-                                <span><i class="fa-regular fa-calendar"></i> ${escapeHtml(post.date)}</span>
+                                <span><i class="fa-regular fa-calendar"></i> ${escapeHtml(post.date || 'Yeni')}</span>
                                 ${post.readTime ? `<span><i class="fa-regular fa-clock"></i> ${escapeHtml(post.readTime)}</span>` : ''}
                             </div>
                         `;
-                    } else {
-                        dateInfo = '';
                     }
 
                     card.innerHTML = `
@@ -421,11 +340,17 @@
                     }
                 });
 
-                // Empty checks
-                const emptyCard = (msg) => `<div class="card-glow" style="grid-column: 1/-1; padding: 30px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); text-align: center;"><p style="color: var(--text-muted); margin: 0;">${msg}</p></div>`;
-                if (mobileCount === 0 && mobilePostsContainer) mobilePostsContainer.innerHTML = emptyCard("Henüz yayınlanmış bir teknik makale bulunmamaktadır.");
-                if (sectorCount === 0 && sectorNewsContainer) sectorNewsContainer.innerHTML = emptyCard("Henüz yayınlanmış bir sektör haberi bulunmamaktadır.");
-                if (resourceCount === 0 && resourcesContainer) resourcesContainer.innerHTML = emptyCard("Henüz eklenmiş bir kaynak tavsiyesi bulunmamaktadır.");
+                // Boş Durum Şablonu
+                const emptyCard = (msg) => `
+                    <div class="card-glow" style="grid-column: 1/-1; padding: 40px 20px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); text-align: center;">
+                        <i class="fa-regular fa-newspaper" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; display: inline-block;"></i>
+                        <p style="color: var(--text-muted); margin: 0; font-size: 0.95rem;">${msg}</p>
+                    </div>
+                `;
+                
+                if (mobileCount === 0 && mobilePostsContainer) mobilePostsContainer.innerHTML = emptyCard("Henüz yayınlanmış bir teknik makale bulunmamaktadır. Yakında eklenecektir.");
+                if (sectorCount === 0 && sectorNewsContainer) sectorNewsContainer.innerHTML = emptyCard("Henüz yayınlanmış bir sektör haberi bulunmamaktadır. Yakında eklenecektir.");
+                if (resourceCount === 0 && resourcesContainer) resourcesContainer.innerHTML = emptyCard("Henüz eklenmiş bir kaynak tavsiyesi bulunmamaktadır. Yakında eklenecektir.");
             }
 
             function escapeHtml(str) {
@@ -437,30 +362,17 @@
                           .replace(/'/g, "&#039;");
             }
 
-            // Apply Site Settings
-            const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {
-                contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
-                contactEmail: "gedikmobilyazilimkulubu@gmail.com",
-                socialInstagram: "https://www.instagram.com/gedikmygk",
-                socialLinkedin: "https://linkedin.com",
-                socialGithub: "https://github.com/yusufurkan0"
-            };
+            // Sayfa Ayarları Senkronizasyonu
+            const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {};
             const contactAddr = document.getElementById('dyn-footer-address');
             const contactEmail = document.getElementById('dyn-footer-email');
-            if (contactAddr) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
-            if (contactEmail) contactEmail.innerText = settings.contactEmail;
-            
-            const githubLink = document.getElementById('dyn-footer-github');
-            const linkedinLink = document.getElementById('dyn-footer-linkedin');
-            const instagramLink = document.getElementById('dyn-footer-instagram');
-            if (githubLink) githubLink.href = settings.socialGithub;
-            if (linkedinLink) linkedinLink.href = settings.socialLinkedin;
-            if (instagramLink) instagramLink.href = settings.socialInstagram;
+            if (contactAddr && settings.contactAddress) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
+            if (contactEmail && settings.contactEmail) contactEmail.innerText = settings.contactEmail;
 
-            // Run render
+            // Blogları Çiz
             renderBlog();
 
-            // Admin session synchronization
+            // Admin Yetki Senkronizasyonu
             if (sessionStorage.getItem('admin_logged_in') === 'true') {
                 const adminToolbar = document.getElementById('admin-toolbar');
                 if (adminToolbar) {
@@ -468,7 +380,6 @@
                     document.body.classList.add('admin-mode-active');
                 }
                 
-                // Map toolbar buttons to index.html redirect with target query param
                 const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
                 toolbarBtns.forEach(btn => {
                     btn.addEventListener('click', () => {
@@ -477,7 +388,6 @@
                     });
                 });
                 
-                // Handle admin logout from subpage
                 const logoutBtn = document.getElementById('admin-toolbar-logout');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', () => {
