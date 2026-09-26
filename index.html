@@ -101,7 +101,6 @@
                     <li><a href="duyurular.html" class="nav-link">Duyurular</a></li>
                     <li><a href="iletisim.html" class="nav-link">İletişim</a></li>
                     
-                    <!-- Mobile Action Buttons -->
                     <li class="mobile-actions-wrapper" style="display: none; width: 100%; flex-direction: column; gap: 12px; margin-top: 20px; padding: 0 20px;">
                         <a href="#" id="login-trigger-mobile" class="btn btn-secondary" style="width: 100%; text-align: center;">Giriş Yap</a>
                         <a href="profil.html" id="user-profile-trigger-mobile" class="btn btn-secondary hidden" style="width: 100%; text-align: center;">
@@ -125,7 +124,6 @@
                 </div>
             </div>
 
-            <!-- Mobile Menu Toggle -->
             <button id="menu-toggle" aria-label="Menüyü Aç">
                 <span></span>
                 <span></span>
@@ -157,7 +155,6 @@
             </div>
             
             <div class="hero-visual animate-float">
-                <!-- Glowing Phone Mockup Simulator -->
                 <div class="phone-mockup">
                     <div class="phone-speaker"></div>
                     <div class="phone-camera"></div>
@@ -210,7 +207,7 @@
         </div>
     </section>
 
-    <!-- DEDICATED ADMIN APPLICATIONS SECTION (Only visible when logged in as admin) -->
+    <!-- DEDICATED ADMIN APPLICATIONS SECTION -->
     <section id="section-admin-basvurular" class="admin-basvurular-section hidden" style="padding: 100px 0 60px; background: var(--bg-dark); border-bottom: 1px solid var(--border-color);">
         <div class="container">
             <div class="section-title text-center" style="margin-bottom: 30px;">
@@ -279,7 +276,7 @@
                             <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
                                 <th style="padding: 14px;">Ad Soyad</th>
                                 <th style="padding: 14px;">E-posta</th>
-                                <th style="padding: 14px;">Şifre</th>
+                                <th style="padding: 14px;">Güvenlik</th>
                                 <th style="padding: 14px;">Bölüm</th>
                                 <th style="padding: 14px;">İlgi Alanı</th>
                                 <th style="padding: 14px;">Cihaz / Tarih</th>
@@ -317,6 +314,7 @@
     </section>
 
     <!-- Yönetim Kurulu Bölümü -->
+   <!-- Yönetim Kurulu Bölümü -->
     <section id="board" style="padding-top: 60px; padding-bottom: 60px;">
         <div class="container">
             <div class="section-title text-center" style="margin-bottom: 40px;">
@@ -326,40 +324,40 @@
             </div>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px;">
-                <!-- Member 1 -->
+                <!-- Member 1: Burak Kaya -->
                 <div class="card-glow animate-hover-lift" style="padding: 30px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 15px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color);">
                     <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">
                         <i class="fa-solid fa-crown"></i>
                     </div>
                     <div>
-                        <h4 id="dyn-team-m1-name" style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Yusuf Furkan Yılmaz</h4>
-                        <p id="dyn-team-m1-role" style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">Kulüp Başkanı / Kurucu</p>
+                        <h4 id="dyn-team-m1-name" style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Burak Kaya</h4>
+                        <p id="dyn-team-m1-role" style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">Kulüp Başkanı</p>
                     </div>
-                    <p id="dyn-team-m1-bio" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">İstanbul Gedik Üniversitesi Yazılım Mühendisliği Öğrencisi.</p>
+                    <p id="dyn-team-m1-bio" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">İstanbul Gedik Üniversitesi Endüstri Mühendisliği Öğrencisi.</p>
                 </div>
                 
-                <!-- Member 2 -->
+                <!-- Member 2: Yusuf Furkan Gelişin -->
                 <div class="card-glow animate-hover-lift" style="padding: 30px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 15px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color);">
                     <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">
-                        <i class="fa-brands fa-apple"></i>
+                        <i class="fa-solid fa-laptop-code"></i>
                     </div>
                     <div>
-                        <h4 id="dyn-team-m2-name" style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Ahmet Yılmaz</h4>
-                        <p id="dyn-team-m2-role" style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">iOS Geliştirme Lead</p>
+                        <h4 id="dyn-team-m2-name" style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Yusuf Furkan Gelişin</h4>
+                        <p id="dyn-team-m2-role" style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">Kulüp Başkan Yardımcısı / Kurucu</p>
                     </div>
-                    <p id="dyn-team-m2-bio" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Swift ve SwiftUI ile iOS uygulama geliştirme eğitimleri koordinatörü.</p>
+                    <p id="dyn-team-m2-bio" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">İstanbul Gedik Üniversitesi Bilgisayar Mühendisliği Öğrencisi.</p>
                 </div>
                 
-                <!-- Member 3 -->
+                <!-- Member 3: Selin Durdu -->
                 <div class="card-glow animate-hover-lift" style="padding: 30px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 15px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color);">
                     <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">
-                        <i class="fa-brands fa-android"></i>
+                        <i class="fa-solid fa-users-gear"></i>
                     </div>
                     <div>
-                        <h4 id="dyn-team-m3-name" style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Elif Kaya</h4>
-                        <p id="dyn-team-m3-role" style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">Android Geliştirme Lead</p>
+                        <h4 id="dyn-team-m3-name" style="font-size: 1.1rem; color: var(--headings-color); font-weight: 700;">Selin Durdu</h4>
+                        <p id="dyn-team-m3-role" style="color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-top: 4px;">Kulüp Başkan Yardımcısı</p>
                     </div>
-                    <p id="dyn-team-m3-bio" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Kotlin ve Jetpack Compose ile Android uygulama eğitimleri koordinatörü.</p>
+                    <p id="dyn-team-m3-bio" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">İstanbul Gedik Üniversitesi Endüstri Mühendisliği Öğrencisi.</p>
                 </div>
             </div>
         </div>
@@ -395,7 +393,7 @@
         </div>
     </section>
 
-    <!-- İstatistikler Bölümü (Stats Strip) -->
+    <!-- İstatistikler Bölümü (Sponsor Sayacı 0 Yapıldı) -->
     <section id="stats-strip" class="stats-strip-section">
         <div class="container">
             <div class="stats-grid card-glow">
@@ -423,21 +421,17 @@
         </div>
     </section>
 
-
-
-    <!-- Sponsorlarımız -->
+    <!-- Sponsorlarımız Bölümü (Sahte Logolar Temizlendi) -->
     <section id="sponsors" class="sponsors-section-modern">
         <div class="container text-center">
             <span class="subtitle">Destekçilerimiz</span>
-            <h3>Sponsorluk & Ortaklık</h3>
-            <p style="color: var(--text-muted); max-width: 600px; margin: 14px auto 20px; font-size: 0.95rem; line-height: 1.6;">
-                Şu an için resmi sponsorumuz bulunmamaktadır. Kulübümüz bünyesinde geleceğin mobil geliştiricilerine destek olmak ve iş birliği fırsatlarını değerlendirmek için bizimle iletişime geçebilirsiniz.
+            <h3>Sponsorlarımız & Ortaklarımız</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 15px; margin-bottom: 20px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                Kulübümüz yeni dönem etkinlik ve projeleri için sponsorluk ve iş birliği görüşmelerine devam etmektedir.
             </p>
             <a href="iletisim.html" class="btn btn-outline btn-sm"><i class="fa-solid fa-handshake"></i> Sponsorluk İçin İletişime Geçin</a>
         </div>
     </section>
-
-
 
     <!-- Footer -->
     <footer>
@@ -448,9 +442,9 @@
                 </a>
                 <p>Geleceğin mobil geliştiricilerini bir araya getiren bağımsız öğrenci topluluğu.</p>
                 <div class="social-links">
-                    <a href="https://github.com" id="dyn-footer-github" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
-                    <a href="https://linkedin.com" id="dyn-footer-linkedin" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-                    <a href="https://instagram.com/gedikmygk" id="dyn-footer-instagram" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://github.com" id="dyn-footer-github" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://www.linkedin.com/company/https-l24.im-9ir3fgw" id="dyn-footer-linkedin" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://instagram.com/gedikmygk" id="dyn-footer-instagram" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
                 </div>
             </div>
             
@@ -472,7 +466,7 @@
         </div>
         
         <div class="footer-bottom text-center">
-            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with ❤️ by Yusuf Furkan Gelişin.</p>
+            <p>&copy; 2026 Gedik MYGK - Mobil Yazılım Geliştirme Kulübü. Tüm Hakları Saklıdır. Designed with 🦾 by Yusuf Furkan Gelişin.</p>
         </div>
     </footer>
 
@@ -581,7 +575,6 @@
                     </label>
                 </div>
 
-                <!-- Spam Bot Protection -->
                 <div style="display: none !important; position: absolute; left: -9999px;">
                     <input type="text" id="register-honeypot" name="register-honeypot" tabindex="-1" autocomplete="off">
                 </div>
@@ -607,7 +600,6 @@
                 </div>
             </form>
             
-            <!-- Verification Step (Within Modal) -->
             <div id="verification-container" class="hidden">
                 <div class="verification-box-inner">
                     <i class="fa-solid fa-shield-halved verification-icon animate-pulse"></i>
@@ -635,7 +627,6 @@
                 </div>
             </div>
 
-            <!-- Success State -->
             <div id="form-success-message" class="hidden alert-success">
                 <i class="fa-solid fa-circle-check"></i>
                 <div>
@@ -646,18 +637,16 @@
         </div>
     </div>
 
-    <!-- MODAL: Login Modal (Tabbed) -->
+    <!-- MODAL: Login Modal -->
     <div id="login-modal" class="modal hidden">
         <div class="modal-content card-glow animate-zoom-in">
             <button class="modal-close" id="close-login">&times;</button>
             
-            <!-- Login Tabs -->
             <div class="login-tabs">
                 <button class="login-tab active" id="tab-member-btn">Üye Girişi</button>
                 <button class="login-tab" id="tab-admin-btn">Yönetici Girişi</button>
             </div>
 
-            <!-- MEMBER LOGIN FORM -->
             <div id="member-login-area">
                 <p class="modal-desc">Başvuru durumunuzu görmek ve üye ayrıcalıklarına erişmek için giriş yapın.</p>
                 <form id="member-login-form">
@@ -677,7 +666,6 @@
                 </form>
             </div>
 
-            <!-- ADMIN LOGIN FORM (Hidden by default) -->
             <div id="admin-login-area" class="hidden">
                 <p class="modal-desc">Üyelik başvurularını yönetmek için yönetici hesabı ile giriş yapın.</p>
                 <form id="admin-login-form">
@@ -696,7 +684,6 @@
                 </form>
             </div>
 
-            <!-- FORGOT PASSWORD AREA (Hidden by default) -->
             <div id="forgot-password-area" class="hidden">
                 <p class="modal-desc">Kayıtlı e-posta adresinizi girin. Şifrenizi sıfırlamanız için size bir onay kodu göndereceğiz.</p>
                 <form id="forgot-password-form">
@@ -712,7 +699,6 @@
                 </form>
             </div>
 
-            <!-- PASSWORD RESET VERIFICATION AREA (Hidden by default) -->
             <div id="password-reset-verif-area" class="hidden">
                 <p class="modal-desc">E-postanıza gönderilen 6 haneli kodu ve yeni şifrenizi girin.</p>
                 <form id="password-reset-verif-form">
@@ -737,6 +723,8 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL: Member Detail Modal (Şifre Güvenli ve Reddet Butonu Eklendi) -->
     <div id="admin-member-detail-modal" class="modal hidden">
         <div class="modal-content card-glow animate-zoom-in" style="max-width: 500px;">
             <button class="modal-close" id="close-admin-member-detail">&times;</button>
@@ -779,8 +767,8 @@
                     <span class="detail-val" id="admin-detail-birthdate">-</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Şifre:</span>
-                    <span class="detail-val" id="admin-detail-password">-</span>
+                    <span class="detail-label">Şifre Durumu:</span>
+                    <span class="detail-val" id="admin-detail-password" style="font-weight: 600; color: #10b981;"><i class="fa-solid fa-shield-halved"></i> SHA-256 Şifreli</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Başvuru Durumu:</span>
@@ -790,6 +778,7 @@
             
             <div class="admin-detail-actions" style="margin-top: 24px; display: flex; gap: 12px;">
                 <button class="btn btn-primary btn-full" id="admin-detail-approve-btn"><i class="fa-solid fa-circle-check"></i> Onayla</button>
+                <button class="btn btn-secondary btn-full" id="admin-detail-reject-btn" style="color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);"><i class="fa-solid fa-ban"></i> Reddet</button>
                 <button class="btn btn-outline btn-full" id="admin-detail-delete-btn" style="color: var(--accent-pink); border-color: rgba(255, 77, 148, 0.3);"><i class="fa-solid fa-trash-can"></i> Sil</button>
             </div>
         </div>
@@ -800,7 +789,6 @@
         <div class="modal-content card-glow animate-zoom-in" style="max-width: 800px; width: 95%;">
             <button class="modal-close" id="close-tool-modal">&times;</button>
             <div id="tool-modal-body">
-                <!-- Dynamic Content Injected via JS -->
             </div>
         </div>
     </div>
@@ -820,7 +808,6 @@
                 <button id="logout-btn" class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap</button>
             </header>
 
-            <!-- Navigation Tabs for CMS Management -->
             <div class="dashboard-tabs" style="display: flex; gap: 15px; margin-top: 25px; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
                 <button class="dash-tab-btn active" data-tab="events" style="background: none; border: none; color: var(--headings-color); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid var(--primary); transition: var(--transition-fast);">Etkinlik Yönetimi</button>
                 <button class="dash-tab-btn" data-tab="announcements" style="background: none; border: none; color: var(--text-muted); font-weight: 700; font-size: 1rem; cursor: pointer; padding: 8px 16px; border-bottom: 2px solid transparent; transition: var(--transition-fast);">Duyuru Yönetimi</button>
@@ -849,7 +836,6 @@
                                 </tr>
                             </thead>
                             <tbody id="admin-events-list">
-                                <!-- Events loaded dynamically -->
                             </tbody>
                         </table>
                     </div>
@@ -875,7 +861,6 @@
                                 </tr>
                             </thead>
                             <tbody id="admin-announcements-list">
-                                <!-- Announcements loaded dynamically -->
                             </tbody>
                         </table>
                     </div>
@@ -904,7 +889,6 @@
                                 </tr>
                             </thead>
                             <tbody id="admin-blog-list">
-                                <!-- Blog posts loaded dynamically -->
                             </tbody>
                         </table>
                     </div>
@@ -974,11 +958,12 @@
                                     <input type="url" id="set-social-instagram" required placeholder="https://instagram.com/...">
                                 </div>
                             </div>
+                        </div>
+
                         <!-- 4. Board Team Section -->
                         <div style="border-top: 1px solid var(--border-color); padding-top: 15px;">
                             <h4 style="font-size: 1rem; color: var(--primary); margin-bottom: 12px; font-weight: 700;">Kulüp Ekibi (Yönetim Kurulu)</h4>
                             <div style="display: flex; flex-direction: column; gap: 15px;">
-                                <!-- Member 1 -->
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px;">
                                     <div class="form-group" style="margin-bottom: 0; grid-column: 1/-1;"><span style="font-weight:700; color: var(--headings-color); font-size: 0.85rem;">1. Ekip Üyesi (Başkan)</span></div>
                                     <div class="form-group" style="margin-bottom: 0;">
@@ -995,7 +980,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Member 2 -->
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px;">
                                     <div class="form-group" style="margin-bottom: 0; grid-column: 1/-1;"><span style="font-weight:700; color: var(--headings-color); font-size: 0.85rem;">2. Ekip Üyesi (iOS Lead)</span></div>
                                     <div class="form-group" style="margin-bottom: 0;">
@@ -1012,7 +996,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Member 3 -->
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px;">
                                     <div class="form-group" style="margin-bottom: 0; grid-column: 1/-1;"><span style="font-weight:700; color: var(--headings-color); font-size: 0.85rem;">3. Ekip Üyesi (Android Lead)</span></div>
                                     <div class="form-group" style="margin-bottom: 0;">
@@ -1035,7 +1018,6 @@
                         <div style="border-top: 1px solid var(--border-color); padding-top: 15px;">
                             <h4 style="font-size: 1rem; color: var(--primary); margin-bottom: 12px; font-weight: 700;">Kulüp Tüzüğü (Maddeler)</h4>
                             <div style="display: flex; flex-direction: column; gap: 15px;">
-                                <!-- Madde 1 -->
                                 <div style="border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
                                     <div class="form-group" style="margin-bottom: 0;">
                                         <label for="set-reg-t1">Madde 1 Başlık</label>
@@ -1047,7 +1029,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Madde 2 -->
                                 <div style="border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
                                     <div class="form-group" style="margin-bottom: 0;">
                                         <label for="set-reg-t2">Madde 2 Başlık</label>
@@ -1059,7 +1040,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Madde 3 -->
                                 <div style="border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
                                     <div class="form-group" style="margin-bottom: 0;">
                                         <label for="set-reg-t3">Madde 3 Başlık</label>
@@ -1071,7 +1051,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Madde 4 -->
                                 <div style="border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
                                     <div class="form-group" style="margin-bottom: 0;">
                                         <label for="set-reg-t4">Madde 4 Başlık</label>
@@ -1083,7 +1062,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div></div>
+                        </div>
 
                         <button type="submit" class="btn btn-primary glow-btn" style="margin-top: 10px; width: fit-content; align-self: flex-start; padding: 10px 30px;">
                             <i class="fa-solid fa-floppy-disk"></i> Değişiklikleri Kaydet (Tüm Sitede Güncellenir)

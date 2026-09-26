@@ -2,6 +2,16 @@
    MOBİL YAZILIM KULÜBÜ JAVASCRIPT LOGIC
    ========================================== */
 
+// --- 1. Web Crypto API ile SHA-256 + Salt Hashleme Fonksiyonu ---
+async function hashPassword(password, salt = 'mygk_security_salt_2026') {
+    if (!password) return '';
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password + salt);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 0. Firebase & EmailJS Initialization (with localStorage Fallbacks) ---
@@ -9,43 +19,26 @@ document.addEventListener('DOMContentLoaded', () => {
     let useFirebase = false;
     let useEmailJS = false;
 
-    // Initial mock data with real members and IP tracking fields
-    const initialMockMembers = [
-        { id: "231017034@stu.gedik.edu.tr", name: "burak kaya", email: "231017034@stu.gedik.edu.tr", password: "burak123456", department: "Endüstri Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.12", userAgent: "Chrome 122 / Windows 11", registeredAt: "24 Ağustos 2026, 11:20" },
-        { id: "241047003@stu.gedik.edu.tr", name: "Daghan Aslan", email: "241047003@stu.gedik.edu.tr", password: "furkangelisin", department: "Yazılım Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.15", userAgent: "Safari 17 / macOS", registeredAt: "24 Ağustos 2026, 11:25" },
-        { id: "251017006@stu.gedik.edu.tr", name: "Selin Durdu", email: "251017006@stu.gedik.edu.tr", password: "selin.Dbjk29", department: "Endüstri Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.18", userAgent: "Chrome 122 / Windows 10", registeredAt: "24 Ağustos 2026, 11:30" },
-        { id: "251017017@stu.gedik.edu.tr", name: "melike terzi", email: "251017017@stu.gedik.edu.tr", password: "melike001", department: "Endüstri Mühendisliği", track: "ios", status: "approved", ipAddress: "185.192.44.20", userAgent: "Safari / iOS Mobile", registeredAt: "24 Ağustos 2026, 11:35" },
-        { id: "101", name: "Ahmet Yılmaz", email: "ahmet.yilmaz@posta.com", password: "123456ahmet", department: "Yazılım Mühendisliği", track: "ios", status: "pending", ipAddress: "176.234.12.89", userAgent: "Chrome 121 / Android", registeredAt: "25 Ağustos 2026, 09:15" },
-        { id: "102", name: "Elif Kaya", email: "elif.kaya@outlook.com", password: "elifpasswords", department: "Bilgisayar Mühendisliği", track: "ios", status: "approved", ipAddress: "176.234.12.90", userAgent: "Safari / iPhone", registeredAt: "25 Ağustos 2026, 10:00" },
-        { id: "103", name: "Can Demir", email: "can.demir@gmail.com", password: "candemirpass", department: "Yönetim Bilişim Sistemleri (YBS)", track: "android", status: "pending", ipAddress: "185.220.101.5", userAgent: "Tor Browser / Bot Script", registeredAt: "26 Ağustos 2026, 08:30" }
-    ];
-
+    // Sahte test kullanıcıları filtrelenmiş yerel hafıza yönetimi
     function getLocalStorageMembers() {
         const stored = localStorage.getItem('myk_members');
-        if (!stored || stored === '[]' || stored === 'null' || stored === 'undefined') {
-            localStorage.setItem('myk_members', JSON.stringify(initialMockMembers));
-            return [...initialMockMembers];
-        }
+        if (!stored) return [];
         try {
-            const parsed = JSON.parse(stored);
-            if (!Array.isArray(parsed) || parsed.length === 0) {
-                localStorage.setItem('myk_members', JSON.stringify(initialMockMembers));
-                return [...initialMockMembers];
-            }
-            return parsed;
+            let parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed)) return [];
+            return parsed.filter(m => m && m.id !== '101' && m.id !== '102' && m.id !== '103' && m.email !== 'ahmet.yilmaz@posta.com' && m.email !== 'elif.kaya@outlook.com' && m.email !== 'can.demir@gmail.com');
         } catch (e) {
-            localStorage.setItem('myk_members', JSON.stringify(initialMockMembers));
-            return [...initialMockMembers];
+            return [];
         }
     }
 
     function saveLocalStorageMembers(members) {
-        if (Array.isArray(members) && members.length > 0) {
+        if (Array.isArray(members)) {
             localStorage.setItem('myk_members', JSON.stringify(members));
         }
     }
 
-    let dbMembers = getLocalStorageMembers(); // Initialize immediately with local cache
+    let dbMembers = getLocalStorageMembers();
 
     // Firebase Initialization
     if (typeof CONFIG !== 'undefined' && CONFIG.firebase && CONFIG.firebase.projectId) {
@@ -54,12 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
             db = firebase.firestore();
             useFirebase = true;
             console.log("Firebase initialized successfully.");
-            syncFirestoreToLocalStorage(); // Fetch latest Firestore records in background
+            syncFirestoreToLocalStorage();
         } catch (err) {
             console.error("Firebase initialization failed. Falling back to LocalStorage:", err);
         }
-    } else {
-        console.log("Firebase config not found. Running in LocalStorage fallback mode.");
     }
 
     async function syncFirestoreToLocalStorage() {
@@ -69,51 +60,73 @@ document.addEventListener('DOMContentLoaded', () => {
             const eventsSnapshot = await db.collection('events').get();
             const events = [];
             eventsSnapshot.forEach(doc => {
-                events.push(doc.data());
+                const data = doc.data();
+                if (data && !['ev_1','ev_2','ev_3','ev_4','ev_5','ev_6'].includes(data.id)) {
+                    events.push(data);
+                }
             });
             localStorage.setItem('myk_events', JSON.stringify(events));
-            console.log("Events synced from Firestore:", events.length);
-            if (typeof dbEvents !== 'undefined') dbEvents = events;
-            if (typeof renderEvents === 'function') renderEvents();
+            if (typeof renderDashboardEvents === 'function') renderDashboardEvents();
 
             // 2. Sync Announcements
             const annSnapshot = await db.collection('announcements').get();
             const announcements = [];
             annSnapshot.forEach(doc => {
-                announcements.push(doc.data());
+                const data = doc.data();
+                if (data && !['ann_1','ann_2','ann_3'].includes(data.id)) {
+                    announcements.push(data);
+                }
             });
             localStorage.setItem('myk_announcements', JSON.stringify(announcements));
-            console.log("Announcements synced from Firestore:", announcements.length);
-            if (typeof dbAnnouncements !== 'undefined') dbAnnouncements = announcements;
-            if (typeof renderAnnouncements === 'function') renderAnnouncements();
+            if (typeof renderDashboardAnnouncements === 'function') renderDashboardAnnouncements();
 
             // 3. Sync Blog
             const blogSnapshot = await db.collection('blog').get();
             const blog = [];
             blogSnapshot.forEach(doc => {
-                blog.push(doc.data());
+                const data = doc.data();
+                if (data && !['post_1','post_2','post_3','post_4','post_5','post_6'].includes(data.id)) {
+                    blog.push(data);
+                }
             });
             localStorage.setItem('myk_blog', JSON.stringify(blog));
-            console.log("Blog posts synced from Firestore:", blog.length);
-            if (typeof dbBlog !== 'undefined') dbBlog = blog;
-            if (typeof renderBlog === 'function') renderBlog();
+            if (typeof renderDashboardBlog === 'function') renderDashboardBlog();
 
             // 4. Sync Settings
             const settingsDoc = await db.collection('settings').doc('cms').get();
             if (settingsDoc.exists) {
                 const settingsData = settingsDoc.data();
-                const localM = getLocalStorageMembers();
-                const approvedCount = localM.filter(m => (m.status === 'approved' || m.status === 'onaylandı')).length;
-                if (approvedCount > 0) {
-                    settingsData.totalMembers = approvedCount;
-                }
                 const currentSettings = getLocalStorageSettings();
+                settingsData.totalSponsors = 0;
                 localStorage.setItem('myk_site_settings', JSON.stringify({ ...currentSettings, ...settingsData }));
-                console.log("CMS Settings synced from Firestore safely.");
                 if (typeof applySiteSettings === 'function') applySiteSettings();
             }
             
-            // Re-render admin tables if admin is logged in
+            // 5. Sync Applicants
+            const snap = await db.collection('applicants').get();
+            const cloudMembers = [];
+            snap.forEach(doc => {
+                cloudMembers.push({ id: doc.id, ...doc.data() });
+            });
+            if (cloudMembers.length > 0) {
+                const local = getLocalStorageMembers();
+                local.forEach(locMem => {
+                    const idx = cloudMembers.findIndex(c => 
+                        (c.email && locMem.email && c.email.toLowerCase() === locMem.email.toLowerCase()) || 
+                        String(c.id) === String(locMem.id)
+                    );
+                    if (idx === -1) {
+                        cloudMembers.push(locMem);
+                    } else if (locMem.status && locMem.status !== cloudMembers[idx].status) {
+                        cloudMembers[idx].status = locMem.status;
+                    }
+                });
+                dbMembers = cloudMembers;
+                saveLocalStorageMembers(dbMembers);
+                renderDashboardTable(getSearchText(), false);
+                updateHomepageStats();
+            }
+
             if (sessionStorage.getItem('admin_logged_in') === 'true') {
                 if (typeof renderDashboardEvents === 'function') renderDashboardEvents();
                 if (typeof renderDashboardAnnouncements === 'function') renderDashboardAnnouncements();
@@ -125,51 +138,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function loadMembers(forceFetch = false) {
-        if (!Array.isArray(dbMembers) || dbMembers.length === 0 || forceFetch) {
+    function loadMembers() {
+        if (!Array.isArray(dbMembers) || dbMembers.length === 0) {
             dbMembers = getLocalStorageMembers();
-        }
-        
-        if (useFirebase && db) {
-            db.collection('applicants').get().then(snapshot => {
-                const members = [];
-                snapshot.forEach(doc => {
-                    members.push({ id: doc.id, ...doc.data() });
-                });
-                const local = getLocalStorageMembers();
-                if (members.length > 0) {
-                    local.forEach(locMem => {
-                        if (!members.some(m => (m.email && locMem.email && m.email.toLowerCase() === locMem.email.toLowerCase()) || m.id === locMem.id)) {
-                            members.push(locMem);
-                        }
-                    });
-                    dbMembers = members;
-                    saveLocalStorageMembers(dbMembers);
-                } else {
-                    dbMembers = local;
-                }
-                if (typeof renderDashboardTable === 'function') {
-                    renderDashboardTable(getSearchText(), false);
-                }
-            }).catch(err => {
-                console.warn("Firestore applicants background sync notice:", err);
-                dbMembers = getLocalStorageMembers();
-            });
         }
         return dbMembers;
     }
 
-    // EmailJS Initialization
+    // EmailJS
     if (typeof emailjs !== 'undefined' && typeof CONFIG !== 'undefined' && CONFIG.emailjs && CONFIG.emailjs.publicKey) {
         try {
             emailjs.init(CONFIG.emailjs.publicKey);
             useEmailJS = true;
-            console.log("EmailJS initialized successfully.");
-        } catch (err) {
-            console.error("EmailJS initialization failed. Falling back to Toast simulator:", err);
-        }
-    } else {
-        console.log("EmailJS config not found. Running in Toast simulator fallback mode.");
+        } catch (err) {}
     }
 
     // --- 1. Header Scroll Effect ---
@@ -184,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         window.addEventListener('scroll', updateHeaderClass);
-        updateHeaderClass(); // Run once on startup
+        updateHeaderClass();
     }
 
     // --- 2. Hamburger Mobile Menu ---
@@ -198,7 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
             navMenu.classList.toggle('open');
         });
 
-        // Close menu when clicking link
         navLinks.forEach(link => {
             link.addEventListener('click', () => {
                 menuToggle.classList.remove('open');
@@ -206,7 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Close menu when clicking outside
         document.addEventListener('click', (e) => {
             if (!menuToggle.contains(e.target) && !navMenu.contains(e.target)) {
                 menuToggle.classList.remove('open');
@@ -217,12 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. Scroll Active Link Highlight ---
     const sections = document.querySelectorAll('section');
-    
-    const scrollOptions = {
-        threshold: 0.3,
-        rootMargin: "0px 0px -20% 0px"
-    };
-
     const navObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -235,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
-    }, scrollOptions);
+    }, { threshold: 0.3, rootMargin: "0px 0px -20% 0px" });
 
     sections.forEach(section => {
         if (section.getAttribute('id')) {
@@ -249,15 +222,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function animateCounters() {
         statNumbers.forEach(stat => {
-            const target = parseInt(stat.getAttribute('data-val'));
+            const target = parseInt(stat.getAttribute('data-val')) || 0;
             if (target === 0) {
                 stat.innerText = "0";
                 return;
             }
             
             let current = 0;
-            const duration = 2000; // 2 seconds
-            const steps = duration / 30; // 30ms intervals
+            const duration = 2000;
+            const steps = duration / 30;
             const increment = Math.ceil(target / steps);
             
             const timer = setInterval(() => {
@@ -280,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 animateCounters();
             }
         }, { threshold: 0.3 });
-        
         statsObserver.observe(statsGrid);
     }
 
@@ -288,6 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerModal = document.getElementById('register-modal');
     const regTriggerNav = document.getElementById('register-trigger-nav');
     const regTriggerHero = document.getElementById('register-trigger-hero');
+    const regTriggerMobile = document.getElementById('register-trigger-mobile');
     const closeRegister = document.getElementById('close-register');
     const membershipForm = document.getElementById('membership-form');
     const verificationContainer = document.getElementById('verification-container');
@@ -296,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function openRegisterModal(e) {
         if (e) e.preventDefault();
         
-        // Auto-close mobile menu
         const menuToggleBtn = document.getElementById('menu-toggle');
         const navMenuDrawer = document.getElementById('nav-menu');
         if (menuToggleBtn && navMenuDrawer) {
@@ -304,24 +276,43 @@ document.addEventListener('DOMContentLoaded', () => {
             navMenuDrawer.classList.remove('open');
         }
         
-        registerModal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+        const regModal = document.getElementById('register-modal');
+        if (regModal) {
+            regModal.classList.remove('hidden');
+            regModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
         
-        // Reset modal layout back to form entry
-        membershipForm.classList.remove('hidden');
-        verificationContainer.classList.add('hidden');
-        successMsg.classList.add('hidden');
-        membershipForm.reset();
+        const mForm = document.getElementById('membership-form');
+        if (mForm) {
+            mForm.classList.remove('hidden');
+            mForm.reset();
+        }
+        const vContainer = document.getElementById('verification-container');
+        if (vContainer) vContainer.classList.add('hidden');
+        const sMsg = document.getElementById('form-success-message');
+        if (sMsg) sMsg.classList.add('hidden');
 
-        // Generate captcha security question
         generateRegisterCaptcha();
+    }
+
+    function closeRegisterModal() {
+        const regModal = document.getElementById('register-modal');
+        if (regModal) {
+            regModal.classList.add('hidden');
+            regModal.style.display = 'none';
+        }
+        document.body.style.overflow = 'auto';
+        if (typeof countdownInterval !== 'undefined' && countdownInterval) {
+            clearInterval(countdownInterval);
+        }
     }
 
     let correctCaptchaAnswer = 0;
 
     function generateRegisterCaptcha() {
-        const num1 = Math.floor(Math.random() * 8) + 2; // 2 to 9
-        const num2 = Math.floor(Math.random() * 8) + 2; // 2 to 9
+        const num1 = Math.floor(Math.random() * 8) + 2;
+        const num2 = Math.floor(Math.random() * 8) + 2;
         correctCaptchaAnswer = num1 + num2;
         const label = document.getElementById('captcha-label');
         if (label) {
@@ -331,31 +322,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (captchaInput) captchaInput.value = '';
     }
 
-    function closeRegisterModal() {
-        registerModal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        clearInterval(countdownInterval);
-    }
-
     if (regTriggerNav) regTriggerNav.addEventListener('click', openRegisterModal);
-    const regTriggerMobile = document.getElementById('register-trigger-mobile');
     if (regTriggerMobile) regTriggerMobile.addEventListener('click', openRegisterModal);
     if (regTriggerHero) regTriggerHero.addEventListener('click', openRegisterModal);
     if (closeRegister) closeRegister.addEventListener('click', closeRegisterModal);
 
     const refreshCaptchaBtn = document.getElementById('refresh-captcha');
-    if (refreshCaptchaBtn) {
-        refreshCaptchaBtn.addEventListener('click', generateRegisterCaptcha);
-    }
-
-    // Close when clicking backdrop
-    if (registerModal) {
-        registerModal.addEventListener('click', (e) => {
-            if (e.target === registerModal) {
-                closeRegisterModal();
-            }
-        });
-    }
+    if (refreshCaptchaBtn) refreshCaptchaBtn.addEventListener('click', generateRegisterCaptcha);
 
     // --- 6. OTP Verification Code Flow ---
     const verifyInputs = document.querySelectorAll('.verify-input');
@@ -367,7 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingMemberData = null;
     let countdownInterval = null;
 
-    // Custom Status Toast Notification
     function showStatusToast(title, message, isSuccess = true) {
         const existing = document.querySelector('.status-toast');
         if (existing) existing.remove();
@@ -391,10 +363,9 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             toast.classList.add('hide');
             setTimeout(() => toast.remove(), 400);
-        }, 5000);
+        }, 4000);
     }
 
-    // Custom Toast Notification Simulator
     function showToastNotification(code, targetEmail) {
         const existing = document.querySelector('.toast-notification');
         if (existing) existing.remove();
@@ -411,14 +382,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         document.body.appendChild(toast);
 
-        // Auto dismiss after 8 seconds
         setTimeout(() => {
             toast.classList.add('hide');
             setTimeout(() => toast.remove(), 400);
         }, 8000);
     }
 
-    // Real email sender using EmailJS or FormSubmit (Keyless Free Service)
     function sendVerificationEmail(code, email, name) {
         showToastNotification(code, `${email} (Gelen Kutusu / Spam Klasörünü Kontrol Edin)`);
         if (useEmailJS) {
@@ -431,113 +400,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 name: name,
                 verification_code: code,
                 code: code,
-                passcode: code,
-                otp: code,
                 message: `Merhaba ${name},\n\nMobil Yazılım Kulübü üyelik onay kodunuz: ${code}`
             };
-            emailjs.send(CONFIG.emailjs.serviceId, CONFIG.emailjs.templateId, templateParams)
-                .then((response) => {
-                    console.log('Real Verification Email sent successfully via EmailJS!', response.status, response.text);
-                }, (error) => {
-                    console.error('EmailJS failed. Falling back to FormSubmit...', error);
-                    sendFormSubmitEmail(code, email, name);
-                });
-        } else {
-            sendFormSubmitEmail(code, email, name);
+            emailjs.send(CONFIG.emailjs.serviceId, CONFIG.emailjs.templateId, templateParams).catch(() => {});
         }
     }
 
-    // Sends real email to the user's inbox using FormSubmit
-    function sendFormSubmitEmail(code, email, name) {
-        console.log("Sending real verification email via FormSubmit to:", email);
-        
-        // Show local toast simulator too so they can proceed immediately if mail delay happens
-        showToastNotification(code, `${email} (İlk kez kullanıyorsanız gelen aktivasyon mailini onaylayın!)`);
-        
-        fetch(`https://formsubmit.co/ajax/${email}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({
-                _subject: "🔑 Mobil Yazılım Kulübü - Üyelik Doğrulama Kodu",
-                Ad_Soyad: name,
-                Onay_Kodu: code,
-                Mesaj: `Merhaba ${name},\n\nMobil Yazılım Kulübü üyelik başvurunuz için 6 haneli onay kodunuz: ${code}\n\nLütfen bu kodu sitedeki doğrulama ekranına girerek kaydınızı tamamlayın.`
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log("FormSubmit response:", data);
-        })
-        .catch(err => {
-            console.error("FormSubmit request failed:", err);
-        });
-    }
-
-    let resetVerificationCode = '';
-    let resetVerificationEmail = '';
-    let resetTargetDocId = '';
-
-    function sendResetVerificationEmail(code, email, name) {
-        showToastNotification(code, `${email} (Şifre Sıfırlama Kodu)`);
-        if (useEmailJS) {
-            const templateParams = {
-                to_email: email,
-                user_email: email,
-                email: email,
-                to_name: name,
-                user_name: name,
-                name: name,
-                verification_code: code,
-                code: code,
-                passcode: code,
-                otp: code,
-                message: `Merhaba ${name},\n\nMobil Yazılım Kulübü şifre sıfırlama kodunuz: ${code}`
-            };
-            // Send email
-            emailjs.send(CONFIG.emailjs.serviceId, CONFIG.emailjs.templateId, templateParams)
-                .then((response) => {
-                    console.log('Reset Password Verification Email sent via EmailJS!', response.status, response.text);
-                }, (error) => {
-                    console.error('EmailJS failed. Falling back to FormSubmit...', error);
-                    sendResetFormSubmitEmail(code, email, name);
-                });
-        } else {
-            sendResetFormSubmitEmail(code, email, name);
-        }
-    }
-
-    function sendResetFormSubmitEmail(code, email, name) {
-        console.log("Sending real reset code email via FormSubmit to:", email);
-        showToastNotification(code, `${email} (Şifre Sıfırlama Kodu)`);
-        
-        fetch(`https://formsubmit.co/ajax/${email}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({
-                _subject: "🔑 Mobil Yazılım Kulübü - Şifre Sıfırlama Kodu",
-                Ad_Soyad: name,
-                Sifre_Sifirlama_Kodu: code,
-                Mesaj: `Merhaba ${name},\n\nMobil Yazılım Kulübü şifrenizi sıfırlamak için 6 haneli kodunuz: ${code}\n\nLütfen bu kodu şifre sıfırlama ekranına girerek şifrenizi güncelleyin.`
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log("FormSubmit reset email sent:", data);
-        })
-        .catch(err => {
-            console.error("FormSubmit reset email request failed:", err);
-        });
-    }
-
-    // Timer Countdown resend code
     function startResendTimer() {
         let seconds = 60;
+        if (!resendCountdown) return;
         resendCountdown.innerText = `Kodu Yeniden Gönder (${seconds}s)`;
         resendCountdown.style.pointerEvents = 'none';
         resendCountdown.style.opacity = '0.6';
@@ -558,12 +429,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    // Traversal digit boxes
     verifyInputs.forEach((input, index) => {
         input.addEventListener('input', (e) => {
             const val = e.target.value;
-            e.target.value = val.replace(/[^0-9]/g, ''); // Digits only
-            
+            e.target.value = val.replace(/[^0-9]/g, '');
             if (e.target.value.length === 1 && index < 5) {
                 verifyInputs[index + 1].focus();
             }
@@ -576,50 +445,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Dynamic Faculty & Department Dropdowns mapping
     const facultySelect = document.getElementById('user-faculty');
     const departmentSelect = document.getElementById('user-department');
 
     const facultyDepartments = {
-        "Mühendislik Fakültesi": [
-            "Yazılım Mühendisliği",
-            "Bilgisayar Mühendisliği",
-            "Mekatronik Mühendisliği",
-            "Endüstri Mühendisliği",
-            "Elektrik-Elektronik Mühendisliği"
-        ],
-        "İktisadi, İdari ve Sosyal Bilimler Fakültesi": [
-            "Yönetim Bilişim Sistemleri (YBS)",
-            "Uluslararası Ticaret ve Lojistik",
-            "Psikoloji",
-            "Siyaset Bilimi ve Kamu Yönetimi"
-        ],
-        "Güzel Sanatlar ve Mimarlık Fakültesi": [
-            "İç Mimarlık ve Çevre Tasarımı",
-            "Görsel İletişim Tasarımı",
-            "Mimarlık"
-        ],
-        "Sağlık Bilimleri Fakültesi": [
-            "Fizyoterapi ve Rehabilitasyon",
-            "Beslenme ve Diyetetik",
-            "Hemşirelik"
-        ],
-        "Spor Bilimleri Fakültesi": [
-            "Antrenörlük Eğitimi",
-            "Spor Yöneticiliği"
-        ],
-        "Meslek Yüksekokulu (MYO)": [
-            "Bilgisayar Programcılığı",
-            "Mekatronik",
-            "Grafik Tasarımı"
-        ]
+        "Mühendislik Fakültesi": ["Yazılım Mühendisliği", "Bilgisayar Mühendisliği", "Mekatronik Mühendisliği", "Endüstri Mühendisliği", "Elektrik-Elektronik Mühendisliği"],
+        "İktisadi, İdari ve Sosyal Bilimler Fakültesi": ["Yönetim Bilişim Sistemleri (YBS)", "Uluslararası Ticaret ve Lojistik", "Psikoloji", "Siyaset Bilimi ve Kamu Yönetimi"],
+        "Güzel Sanatlar ve Mimarlık Fakültesi": ["İç Mimarlık ve Çevre Tasarımı", "Görsel İletişim Tasarımı", "Mimarlık"],
+        "Sağlık Bilimleri Fakültesi": ["Fizyoterapi ve Rehabilitasyon", "Beslenme ve Diyetetik", "Hemşirelik"],
+        "Spor Bilimleri Fakültesi": ["Antrenörlük Eğitimi", "Spor Yöneticiliği"],
+        "Meslek Yüksekokulu (MYO)": ["Bilgisayar Programcılığı", "Mekatronik", "Grafik Tasarımı"]
     };
 
     if (facultySelect && departmentSelect) {
         facultySelect.addEventListener('change', () => {
             const selectedFaculty = facultySelect.value;
             const departments = facultyDepartments[selectedFaculty] || [];
-            
             departmentSelect.innerHTML = '<option value="" disabled selected>Bölüm Seçiniz</option>';
             departments.forEach(dept => {
                 const opt = document.createElement('option');
@@ -635,22 +476,6 @@ document.addEventListener('DOMContentLoaded', () => {
         membershipForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            // 1. Honeypot Spam Bot Check
-            const honeypot = document.getElementById('register-honeypot') ? document.getElementById('register-honeypot').value : '';
-            if (honeypot) {
-                console.warn("Spam registration blocked via honeypot.");
-                const submitBtn = membershipForm.querySelector('button[type="submit"]');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gönderiliyor...`;
-                setTimeout(() => {
-                    membershipForm.reset();
-                    registerModal.classList.add('hidden');
-                    document.body.style.overflow = 'auto';
-                }, 1000);
-                return;
-            }
-
-            // 2. Math Captcha Check
             const userCaptcha = document.getElementById('register-captcha') ? document.getElementById('register-captcha').value.trim() : '';
             if (parseInt(userCaptcha, 10) !== correctCaptchaAnswer) {
                 alert("Güvenlik doğrulaması başarısız! Lütfen işlemi doğru şekilde çözün.");
@@ -663,60 +488,40 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gönderiliyor...`;
 
             const emailInputVal = document.getElementById('user-email').value.trim().toLowerCase();
-            const emailCheckRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if (!emailCheckRegex.test(emailInputVal)) {
-                alert("Lütfen geçerli bir e-posta adresi giriniz!");
+            const rawPassword = document.getElementById('user-password').value.trim();
+            const rawPasswordConfirm = document.getElementById('user-password-confirm').value.trim();
+
+            if (rawPassword.length < 6) {
+                alert("Şifreniz en az 6 karakter olmalıdır!");
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = `Hesap Oluştur`;
                 return;
             }
-
-            const disposableDomains = ['tempmail.com', '10minutemail.com', 'yopmail.com', 'mailinator.com', 'temp-mail.org', 'guerrillamail.com', 'sharklasers.com', 'dispostable.com', 'getairmail.com', 'boun.cr', 'tempmail.net', 'tempmailaddress.com', 'trashmail.com'];
-            const regDomain = emailInputVal.split('@')[1] ? emailInputVal.split('@')[1].toLowerCase() : '';
-            if (disposableDomains.includes(regDomain)) {
-                alert("Geçici veya tek kullanımlık e-posta adresleri kabul edilmemektedir.");
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `Hesap Oluştur`;
-                return;
-            }
-
-            // Validate passwords match
-            const password = document.getElementById('user-password').value.trim();
-            const passwordConfirm = document.getElementById('user-password-confirm').value.trim();
-            if (password !== passwordConfirm) {
+            if (rawPassword !== rawPasswordConfirm) {
                 alert("Şifreler uyuşmuyor!");
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = `Hesap Oluştur`;
                 return;
             }
 
-            // Simulate loader check
-            setTimeout(() => {
+            setTimeout(async () => {
                 const firstName = document.getElementById('first-name').value.trim();
                 const lastName = document.getElementById('last-name').value.trim();
-                const email = document.getElementById('user-email').value.trim().toLowerCase();
-                const username = document.getElementById('user-username').value;
-                const studentId = document.getElementById('user-student-id').value;
-                const phone = document.getElementById('user-phone').value;
+                const email = emailInputVal;
+                const username = document.getElementById('user-username').value.trim();
+                const studentId = document.getElementById('user-student-id').value.trim();
+                const phone = document.getElementById('user-phone').value.trim();
                 const faculty = document.getElementById('user-faculty').value;
                 const department = document.getElementById('user-department').value;
                 const grade = document.getElementById('user-grade').value;
                 const birthdate = document.getElementById('user-birthdate').value;
 
-                // Capture IP address and User-Agent metadata for security tracking
-                let clientIP = 'Tespit Ediliyor...';
-                try {
-                    fetch('https://api.ipify.org?format=json')
-                        .then(r => r.json())
-                        .then(d => { if (d && d.ip) pendingMemberData.ipAddress = d.ip; })
-                        .catch(e => console.warn("IP fetch fallback:", e));
-                } catch (e) {}
+                const hashedPassword = await hashPassword(rawPassword);
 
-                // Cache data (Defaults tracks to 'ios' for mobile club classification)
                 pendingMemberData = {
-                    id: email.trim().toLowerCase(),
+                    id: email,
                     name: `${firstName} ${lastName}`,
-                    email: email.trim().toLowerCase(),
+                    email: email,
                     username: username,
                     studentId: studentId,
                     phone: phone,
@@ -724,40 +529,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     department: department,
                     grade: grade,
                     birthdate: birthdate,
-                    password: password,
+                    password: hashedPassword,
                     track: 'ios',
                     status: 'pending',
-                    ipAddress: clientIP,
+                    ipAddress: 'Tespit Ediliyor...',
                     userAgent: navigator.userAgent || 'Bilinmeyen Cihaz',
                     registeredAt: new Date().toLocaleString('tr-TR')
                 };
 
-                // Generate code
                 currentVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-                // Trigger real email or email simulation toast
                 sendVerificationEmail(currentVerificationCode, email, `${firstName} ${lastName}`);
 
-                // Show verification step
                 membershipForm.classList.add('hidden');
-                verificationContainer.classList.remove('hidden');
-                verificationError.classList.add('hidden');
+                if (verificationContainer) verificationContainer.classList.remove('hidden');
+                if (verificationError) verificationError.classList.add('hidden');
 
-                // Clear digit inputs and focus
                 verifyInputs.forEach(inp => inp.value = '');
                 setTimeout(() => verifyInputs[0].focus(), 100);
 
-                // Timer resend
                 startResendTimer();
-                
-                // Reset button
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = `Hesap Oluştur`;
-            }, 1200);
+            }, 600);
         });
     }
 
-    // Resend trigger click
     if (resendCountdown) {
         resendCountdown.addEventListener('click', (e) => {
             e.preventDefault();
@@ -769,321 +565,99 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // OTP Code validation verification
     if (verifySubmitBtn) {
         verifySubmitBtn.addEventListener('click', async () => {
             let enteredCode = '';
             verifyInputs.forEach(inp => enteredCode += inp.value);
 
-            if (enteredCode === currentVerificationCode) {
-                // Save locally first to guarantee instant UI success response
+            if (enteredCode === currentVerificationCode && pendingMemberData) {
                 let local = getLocalStorageMembers();
-                local = local.filter(m => m.id.toString() !== pendingMemberData.id.toString());
+                local = local.filter(m => String(m.id).toLowerCase() !== String(pendingMemberData.id).toLowerCase() && String(m.email).toLowerCase() !== String(pendingMemberData.email).toLowerCase());
                 local.push(pendingMemberData);
                 saveLocalStorageMembers(local);
 
-                // Update in-memory array immediately
-                dbMembers = dbMembers.filter(m => m.id.toString() !== pendingMemberData.id.toString());
+                dbMembers = dbMembers.filter(m => String(m.id).toLowerCase() !== String(pendingMemberData.id).toLowerCase() && String(m.email).toLowerCase() !== String(pendingMemberData.email).toLowerCase());
                 dbMembers.push(pendingMemberData);
 
-                // Write to Firestore asynchronously in background (fire-and-forget)
-                if (useFirebase) {
-                    const docId = pendingMemberData.email.toLowerCase();
-                    db.collection('applicants').doc(docId).set({
-                        name: pendingMemberData.name,
-                        email: pendingMemberData.email,
-                        username: pendingMemberData.username || '',
-                        studentId: pendingMemberData.studentId || '',
-                        phone: pendingMemberData.phone || '',
-                        faculty: pendingMemberData.faculty || '',
-                        department: pendingMemberData.department || '',
-                        grade: pendingMemberData.grade || '',
-                        birthdate: pendingMemberData.birthdate || '',
-                        password: pendingMemberData.password || '',
-                        track: pendingMemberData.track,
-                        status: pendingMemberData.status,
-                        ipAddress: pendingMemberData.ipAddress || 'Bilinmiyor',
-                        userAgent: pendingMemberData.userAgent || 'Bilinmiyor',
-                        registeredAt: pendingMemberData.registeredAt || new Date().toLocaleString('tr-TR'),
+                if (useFirebase && db) {
+                    db.collection('applicants').doc(pendingMemberData.email.toLowerCase()).set({
+                        ...pendingMemberData,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    }).then(() => {
-                        console.log("Background Firestore save succeeded!");
-                    }).catch(err => {
-                        console.error("Background Firestore save failed (Check if Firestore database is created):", err);
-                    });
+                    }).catch(err => console.error("Firestore save failed:", err));
                 }
 
-                // UI update inside modal (runs instantly!)
-                verificationContainer.classList.add('hidden');
-                successMsg.classList.remove('hidden');
+                if (verificationContainer) verificationContainer.classList.add('hidden');
+                if (successMsg) successMsg.classList.remove('hidden');
 
-                // Update table dynamic and stats
                 renderDashboardTable(memberSearch ? memberSearch.value : '', false);
                 updateHomepageStats();
             } else {
-                // Error verification code mismatch
-                verificationError.classList.remove('hidden');
+                if (verificationError) verificationError.classList.remove('hidden');
                 verifyInputs.forEach(inp => inp.value = '');
                 verifyInputs[0].focus();
             }
         });
     }
 
-    // --- 7. Admin Panel & Member Management System (Local/Firebase Compatible) ---
-
-    // --- Events & Announcements Database Helpers & Mock Data ---
-    const initialMockEvents = [
-        {
-            id: "ev_1",
-            title: "SwiftUI ile Arayüz Tasarım Kampı",
-            category: "iOS / Swift",
-            badgeClass: "kolay",
-            status: "upcoming",
-            statusText: "Aktif Kayıt",
-            statusIcon: "fa-solid fa-circle-play",
-            description: "iOS uygulama dünyasının modern arayüz framework'ü SwiftUI temellerini, bildirimsel kod yazımını ve hazır animasyon bileşenlerini uygulamalı olarak işliyoruz.",
-            date: "15 Şubat 2026, Cumartesi",
-            time: "14:00 - 17:00",
-            location: "Teknoloji Kampüsü, Lab 404"
-        },
-        {
-            id: "ev_2",
-            title: "Kotlin ile Android Geliştirmeye Giriş",
-            category: "Android / Kotlin",
-            badgeClass: "orta",
-            status: "upcoming",
-            statusText: "Aktif Kayıt",
-            statusIcon: "fa-solid fa-circle-play",
-            description: "Android geliştirmede kullanılan resmi dil Kotlin'in temellerini, OOP prensiplerini ve temel emülatör yapılandırmalarını sıfırdan ele alıyoruz.",
-            date: "22 Şubat 2026, Cumartesi",
-            time: "14:00 - 17:00",
-            location: "Teknoloji Kampüsü, Lab 404"
-        },
-        {
-            id: "ev_3",
-            title: "MYGK Tanışma Toplantısı",
-            category: "Kulüp İçi",
-            badgeClass: "kolay",
-            status: "past",
-            statusText: "Tamamlandı",
-            statusIcon: "fa-solid fa-circle-check",
-            description: "Kulübümüzün vizyonunu, eğitim hedeflerini, projelerimizi ve dönem planlarını sunduğumuz, yeni katılan üyelerimizle tanıştığımız ilk buluşmamızı başarıyla gerçekleştirdik.",
-            date: "12 Kasım 2025, Çarşamba",
-            time: "",
-            location: "Konferans Salonu B"
-        },
-        {
-            id: "ev_4",
-            title: "Mobil Sektöründe Kariyer Sohbetleri",
-            category: "Sektör Sohbeti",
-            badgeClass: "orta",
-            status: "past",
-            statusText: "Tamamlandı",
-            statusIcon: "fa-solid fa-circle-check",
-            description: "Sektörde aktif olarak çalışan tecrübeli konuklarımızla mobil geliştirmenin bugünü, geleceği, iş bulma süreçleri ve CV hazırlama tüyolarını konuştuk.",
-            date: "05 Aralık 2025, Cuma",
-            time: "",
-            location: "Online Zoom"
-        },
-        {
-            id: "ev_5",
-            title: "Git ve GitHub Workshop",
-            category: "Git / Versiyon Kontrol",
-            badgeClass: "zor",
-            status: "workshop",
-            statusText: "Tamamlandı",
-            statusIcon: "fa-solid fa-circle-check",
-            description: "Kodlarimizi versiyonlamayi, takim halinde cakisma (conflict) yasamadan calismayi ve projelerimizi GitHub reposuna yuklemeyi uygulamali isledik.",
-            date: "20 Aralık 2025, Cumartesi",
-            time: "",
-            location: "Teknoloji Kampüsü, Lab 404"
-        },
-        {
-            id: "ev_6",
-            title: "Figma ile Mobil UI/UX Tasarım Atölyesi",
-            category: "Tasarım / UI-UX",
-            badgeClass: "kolay",
-            status: "workshop",
-            statusText: "Tamamlandı",
-            statusIcon: "fa-solid fa-circle-check",
-            description: "Kullanıcı deneyimi (UX) prensiplerini, mobil arayüz (UI) standartlarını ve Figma'da prototipleme araçlarını sıfırdan uygulamalı olarak öğrendik.",
-            date: "10 Ocak 2026, Cumartesi",
-            time: "",
-            location: "Online Zoom"
-        }
-    ];
-
-    const initialMockAnnouncements = [
-        {
-            id: "ann_1",
-            title: "Sıfırdan Mobil Geliştirme Atölyeleri Kayıtları Açıldı!",
-            category: "Eğitim Atölyesi",
-            badgeClass: "kolay",
-            date: "15 Ocak 2026",
-            description: "Swift ve Kotlin dilleri ile sıfırdan mobil uygulama geliştirme atölyelerimizin kayıtları başlamıştır. Eğitimlerimiz ücretsiz olup, uygulamalı projeler üzerinden yürütülecektir. Katılmak için ana sayfadaki 'Kayıt Ol' butonu ile üyelik başvurusu yapmanız yeterlidir."
-        },
-        {
-            id: "ann_2",
-            title: "WhatsApp Duyuru Grubumuza Katılın!",
-            category: "Önemli Duyuru",
-            badgeClass: "zor",
-            date: "10 Ocak 2026",
-            description: "Kulüp içindeki eğitim sınıfları, hackathon grupları ve buluşma zamanı güncellemelerinden anlık haberdar olabilmek için üye olduktan sonra sağ üstteki profil panelinizde açılan 'Kulüp WhatsApp Grubu' linkine tıklayarak grubumuza katılabilirsiniz."
-        },
-        {
-            id: "ann_3",
-            title: "Sponsorluk ve Partnerlik Görüşmeleri Başladı",
-            category: "Genel Haber",
-            badgeClass: "orta",
-            date: "05 Ocak 2026",
-            description: "İstanbul Gedik Üniversitesi Mobil Yazılım Geliştirme Kulübü olarak bu dönem yapacağımız proje yarışmaları ve hackathonlar için sektör temsilcisi teknoloji firmaları ile sponsorluk görüşmelerine başlanmıştır. Detaylar netleştikçe buradan duyurulacaktır."
-        }
-    ];
-
+    // --- 7. TEMİZLENMİŞ ETKİNLİK, DUYURU VE BLOG YÖNETİMİ ---
     function getLocalStorageEvents() {
         const stored = localStorage.getItem('myk_events');
-        if (!stored) {
-            localStorage.setItem('myk_events', JSON.stringify(initialMockEvents));
-            return initialMockEvents;
-        }
-        return JSON.parse(stored);
+        if (!stored) return [];
+        try {
+            let parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed)) return [];
+            return parsed.filter(e => e && !['ev_1','ev_2','ev_3','ev_4','ev_5','ev_6'].includes(e.id));
+        } catch (e) { return []; }
     }
 
     function saveLocalStorageEvents(events) {
         localStorage.setItem('myk_events', JSON.stringify(events));
         if (useFirebase && db) {
             events.forEach(ev => {
-                db.collection('events').doc(ev.id.toString()).set(ev)
-                    .catch(err => console.error("Firestore sync event fail:", err));
+                db.collection('events').doc(ev.id.toString()).set(ev).catch(() => {});
             });
         }
     }
 
     function getLocalStorageAnnouncements() {
         const stored = localStorage.getItem('myk_announcements');
-        if (!stored || stored === '[]' || stored === 'null' || stored === 'undefined') {
-            localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
-            return initialMockAnnouncements;
-        }
+        if (!stored) return [];
         try {
-            const parsed = JSON.parse(stored);
-            if (!Array.isArray(parsed) || parsed.length === 0) {
-                localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
-                return initialMockAnnouncements;
-            }
-            return parsed;
-        } catch (e) {
-            localStorage.setItem('myk_announcements', JSON.stringify(initialMockAnnouncements));
-            return initialMockAnnouncements;
-        }
+            let parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed)) return [];
+            return parsed.filter(a => a && !['ann_1','ann_2','ann_3'].includes(a.id));
+        } catch (e) { return []; }
     }
 
     function saveLocalStorageAnnouncements(announcements) {
         localStorage.setItem('myk_announcements', JSON.stringify(announcements));
         if (useFirebase && db) {
             announcements.forEach(ann => {
-                db.collection('announcements').doc(ann.id.toString()).set(ann)
-                    .catch(err => console.error("Firestore sync announcement fail:", err));
+                db.collection('announcements').doc(ann.id.toString()).set(ann).catch(() => {});
             });
         }
     }
 
-    // --- Blog Database Helpers & Mock Data ---
-    const initialMockBlog = [
-        {
-            id: "post_1",
-            title: "SwiftUI ile Deklaratif Kodlama Neden Gelecek?",
-            category: "SwiftUI",
-            badgeClass: "kolay",
-            status: "mobile-posts",
-            author: "Yusuf Furkan Gelişin",
-            authorIcon: "fa-solid fa-user-edit",
-            date: "20 Ocak 2026",
-            readTime: "5 dk okuma",
-            description: "Imperative (emirsel) kodlama yaklaşımından declarative (bildirimsel) kodlamaya geçişin getirdiği hız, okunabilirlik ve arayüz animasyonlarındaki üstün performans avantajlarını derinlemesine inceliyoruz."
-        },
-        {
-            id: "post_2",
-            title: "Kotlin Multiplatform (KMP) ile Tek Kod, İki Platform",
-            category: "Kotlin Multiplatform",
-            badgeClass: "orta",
-            status: "mobile-posts",
-            author: "Ahmet Yılmaz",
-            authorIcon: "fa-solid fa-user-edit",
-            date: "18 Ocak 2026",
-            readTime: "7 dk okuma",
-            description: "Hem iOS hem de Android için tek bir iş mantığı (business logic) kodu yazarak native uygulamalar geliştirmenin yollarını ve KMP ekosistemini mercek altına alıyoruz."
-        },
-        {
-            id: "post_3",
-            title: "Apple WWDC26 Tarihleri ve Beklentiler",
-            category: "Apple Lansman",
-            badgeClass: "zor",
-            status: "sector-news",
-            author: "MYGK Editör",
-            authorIcon: "fa-solid fa-user-edit",
-            date: "15 Ocak 2026",
-            readTime: "4 dk okuma",
-            description: "Apple'ın haziran ayında gerçekleştireceği geliştirici konferansı WWDC26 için sunulması beklenen iOS 20, Swift 7 ve yeni yapay zeka entegrasyonu vizyonları hakkında öngörülerimiz."
-        },
-        {
-            id: "post_4",
-            title: "Google Android 17 (Vanilla Ice Cream) Sürümü",
-            category: "Google Android",
-            badgeClass: "orta",
-            status: "sector-news",
-            author: "MYGK Editör",
-            authorIcon: "fa-solid fa-user-edit",
-            date: "12 Ocak 2026",
-            readTime: "3 dk okuma",
-            description: "Google'ın Android 17 için sunduğu yeni gelişmiş veri şifreleme özellikleri, optimize edilmiş arka plan servisleri ve Kotlin Coroutines entegrasyonu yenilikleri."
-        },
-        {
-            id: "post_5",
-            title: "Resmi Dökümantasyonlar ve Eğitim Serileri",
-            category: "Resmi Belgeler",
-            badgeClass: "kolay",
-            status: "resources",
-            author: "Kitaplık",
-            authorIcon: "fa-solid fa-bookmark",
-            date: "10 Ocak 2026",
-            readTime: "",
-            description: "Swift için resmi Apple Developer Documentation ve Swift.org; Kotlin için Kotlinlang.org ve Android Developers portalı, her seviyeden yazılımcı için en güncel ve en güvenilir ana kaynaklardır."
-        },
-        {
-            id: "post_6",
-            title: "Öncü Eğitim Kanalları ve Kaynaklar",
-            category: "Kanallar & Kitaplar",
-            badgeClass: "orta",
-            status: "resources",
-            author: "Kitaplık",
-            authorIcon: "fa-solid fa-bookmark",
-            date: "08 Ocak 2026",
-            readTime: "",
-            description: "Paul Hudson (Hacking with Swift), Philipp Lackner (Android/Kotlin), Kodeco (Ray Wenderlich) eğitim platformları ile Uncle Bob'un Clean Code ve Clean Architecture kitapları kendinizi ileri seviyeye taşımak için harika rehberlerdir."
-        }
-    ];
-
     function getLocalStorageBlog() {
         const stored = localStorage.getItem('myk_blog');
-        if (!stored) {
-            localStorage.setItem('myk_blog', JSON.stringify(initialMockBlog));
-            return initialMockBlog;
-        }
-        return JSON.parse(stored);
+        if (!stored) return [];
+        try {
+            let parsed = JSON.parse(stored);
+            if (!Array.isArray(parsed)) return [];
+            return parsed.filter(b => b && !['post_1','post_2','post_3','post_4','post_5','post_6'].includes(b.id));
+        } catch (e) { return []; }
     }
 
     function saveLocalStorageBlog(blog) {
         localStorage.setItem('myk_blog', JSON.stringify(blog));
         if (useFirebase && db) {
             blog.forEach(post => {
-                db.collection('blog').doc(post.id.toString()).set(post)
-                    .catch(err => console.error("Firestore sync blog post fail:", err));
+                db.collection('blog').doc(post.id.toString()).set(post).catch(() => {});
             });
         }
     }
 
-    // --- Site Settings Helpers & Mock Data (CMS) ---
+    // --- DEFAULT SITE SETTINGS (Gerçek Yönetim Kurulu) ---
     const defaultSiteSettings = {
         heroTitle: `Geleceğin Mobil <br>\n                    <span class="gradient-text animate-gradient">Geliştiricileri Burada</span>`,
         heroDesc: "Mobil uygulama geliştirmeye odaklanan kulübümüzle mobil yazılım ekosistemine ilk adımını at. Sıfırdan başla, projeler geliştir, sektöre yön ver!",
@@ -1092,22 +666,22 @@ document.addEventListener('DOMContentLoaded', () => {
         contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
         contactEmail: "gedikmobilyazilimkulubu@gmail.com",
         socialInstagram: "https://www.instagram.com/gedikmygk",
-        socialLinkedin: "https://linkedin.com",
+        socialLinkedin: "https://www.linkedin.com/company/https-l24.im-9ir3fgw",
         socialGithub: "https://github.com/yusufurkan0",
         totalSponsors: 0,
         
-        // Yönetim Kurulu (Ekip)
-        teamM1Name: "Yusuf Furkan Yılmaz",
-        teamM1Role: "Kulüp Başkanı / Kurucu",
-        teamM1Bio: "İstanbul Gedik Üniversitesi Yazılım Mühendisliği Öğrencisi.",
-        teamM2Name: "Ahmet Yılmaz",
-        teamM2Role: "iOS Geliştirme Lead",
-        teamM2Bio: "Swift ve SwiftUI ile iOS uygulama geliştirme eğitimleri koordinatörü.",
-        teamM3Name: "Elif Kaya",
-        teamM3Role: "Android Geliştirme Lead",
-        teamM3Bio: "Kotlin ve Jetpack Compose ile Android uygulama eğitimleri koordinatörü.",
+        totalSponsors: 0,
 
-        // Kulüp Tüzüğü
+        teamM1Name: "Burak Kaya",
+        teamM1Role: "Kulüp Başkanı",
+        teamM1Bio: "İstanbul Gedik Üniversitesi Endüstri Mühendisliği Öğrencisi.",
+        teamM2Name: "Yusuf Furkan Gelişin",
+        teamM2Role: "Kulüp Başkan Yardımcısı / Kurucu",
+        teamM2Bio: "İstanbul Gedik Üniversitesi Bilgisayar Mühendisliği Öğrencisi.",
+        teamM3Name: "Selin Durdu",
+        teamM3Role: "Kulüp Başkan Yardımcısı",
+        teamM3Bio: "İstanbul Gedik Üniversitesi Endüstri Mühendisliği Öğrencisi.",
+
         regT1: "Madde 1: Kuruluş ve Amaç",
         regC1: "Topluluğun amacı, İstanbul Gedik Üniversitesi öğrencilerine mobil yazılım (iOS/Android) alanlarında teorik eğitimler vermek, pratik projeler geliştirmek ve öğrencileri teknoloji ekosistemine hazırlamaktır.",
         regT2: "Madde 2: Üyelik ve Katılım Şartları",
@@ -1124,7 +698,16 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('myk_site_settings', JSON.stringify(defaultSiteSettings));
             return defaultSiteSettings;
         }
-        return JSON.parse(stored);
+        try {
+            let parsed = JSON.parse(stored);
+            if (!parsed.teamM1Name || parsed.teamM1Name === 'Yusuf Furkan Yılmaz' || parsed.teamM2Name === 'Ahmet Yılmaz') {
+                parsed = { ...parsed, ...defaultSiteSettings };
+                localStorage.setItem('myk_site_settings', JSON.stringify(parsed));
+            }
+            return parsed;
+        } catch (e) {
+            return defaultSiteSettings;
+        }
     }
 
     function saveLocalStorageSettings(settings) {
@@ -1132,33 +715,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const merged = { ...current, ...settings };
         localStorage.setItem('myk_site_settings', JSON.stringify(merged));
         if (useFirebase && db) {
-            db.collection('settings').doc('cms').set(merged)
-                .catch(err => console.error("Firestore sync CMS settings fail:", err));
+            db.collection('settings').doc('cms').set(merged).catch(() => {});
         }
     }
 
     function applySiteSettings() {
         const settings = getLocalStorageSettings();
         
-        // 1. Hero
         const heroTitle = document.getElementById('dyn-hero-title');
         const heroDesc = document.getElementById('dyn-hero-desc');
         if (heroTitle) heroTitle.innerHTML = settings.heroTitle;
         if (heroDesc) heroDesc.innerText = settings.heroDesc;
 
-        // 2. About
         const aboutP1 = document.getElementById('dyn-about-p1');
         const aboutP2 = document.getElementById('dyn-about-p2');
         if (aboutP1) aboutP1.innerText = settings.aboutText1;
         if (aboutP2) aboutP2.innerText = settings.aboutText2;
 
-        // 3. Contacts
         const contactAddr = document.getElementById('dyn-footer-address');
         const contactEmail = document.getElementById('dyn-footer-email');
         if (contactAddr) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
         if (contactEmail) contactEmail.innerText = settings.contactEmail;
 
-        // 4. Social Links
         const githubLink = document.getElementById('dyn-footer-github');
         const linkedinLink = document.getElementById('dyn-footer-linkedin');
         const instagramLink = document.getElementById('dyn-footer-instagram');
@@ -1166,7 +744,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (linkedinLink) linkedinLink.href = settings.socialLinkedin;
         if (instagramLink) instagramLink.href = settings.socialInstagram;
 
-        // 5. Team Board
         const m1Name = document.getElementById('dyn-team-m1-name');
         const m1Role = document.getElementById('dyn-team-m1-role');
         const m1Bio = document.getElementById('dyn-team-m1-bio');
@@ -1187,7 +764,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (m3Role) m3Role.innerText = settings.teamM3Role;
         if (m3Bio) m3Bio.innerText = settings.teamM3Bio;
 
-        // 6. Regulations
         const regT1 = document.getElementById('dyn-reg-t1');
         const regC1 = document.getElementById('dyn-reg-c1');
         const regT2 = document.getElementById('dyn-reg-t2');
@@ -1206,53 +782,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if (regT4) regT4.innerText = settings.regT4;
         if (regC4) regC4.innerText = settings.regC4;
 
-        // 7. Homepage Stats Strip (Dynamically syncs from public settings without permission errors)
-        const memberSpan = document.getElementById('homepage-member-count');
-        if (memberSpan) {
-            const approvedCount = settings.totalMembers !== undefined ? settings.totalMembers : 0;
-            memberSpan.setAttribute('data-val', approvedCount);
-            memberSpan.innerText = approvedCount;
-        }
-
-        const eventSpan = document.getElementById('homepage-event-count');
-        if (eventSpan) {
-            const events = JSON.parse(localStorage.getItem('myk_events')) || [];
-            const eventCount = events.length || (settings.totalEvents !== undefined ? settings.totalEvents : 0);
-            eventSpan.setAttribute('data-val', eventCount);
-            eventSpan.innerText = eventCount;
-        }
-
         const sponsorSpan = document.getElementById('homepage-sponsor-count');
         if (sponsorSpan) {
-            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 0;
-            sponsorSpan.setAttribute('data-val', sponsorCount);
-            sponsorSpan.innerText = sponsorCount;
+            sponsorSpan.setAttribute('data-val', 0);
+            sponsorSpan.innerText = 0;
         }
     }
 
-    // Dynamic homepage stats update (combines local + cloud count)
     async function updateHomepageStats() {
-        const settings = getLocalStorageSettings();
+        const approvedCount = dbMembers.filter(m => m && (m.status === 'approved' || m.status === 'onaylandı' || m.status === 'onaylandi')).length;
         const memberSpan = document.getElementById('homepage-member-count');
         if (memberSpan) {
-            const approvedCount = settings.totalMembers !== undefined ? settings.totalMembers : 0;
             memberSpan.setAttribute('data-val', approvedCount);
             memberSpan.innerText = approvedCount;
         }
 
+        const events = getLocalStorageEvents();
         const eventSpan = document.getElementById('homepage-event-count');
         if (eventSpan) {
-            const events = JSON.parse(localStorage.getItem('myk_events')) || [];
-            const eventCount = events.length || (settings.totalEvents !== undefined ? settings.totalEvents : 0);
-            eventSpan.setAttribute('data-val', eventCount);
-            eventSpan.innerText = eventCount;
+            eventSpan.setAttribute('data-val', events.length);
+            eventSpan.innerText = events.length;
         }
 
         const sponsorSpan = document.getElementById('homepage-sponsor-count');
         if (sponsorSpan) {
-            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 0;
-            sponsorSpan.setAttribute('data-val', sponsorCount);
-            sponsorSpan.innerText = sponsorCount;
+            sponsorSpan.setAttribute('data-val', 0);
+            sponsorSpan.innerText = 0;
         }
     }
 
@@ -1263,7 +818,6 @@ document.addEventListener('DOMContentLoaded', () => {
         uiux: "Tasarım (Figma)"
     };
 
-    // UI elements references
     const loginTrigger = document.getElementById('login-trigger');
     const adminTriggerFooter = document.getElementById('admin-trigger-footer');
     const loginModal = document.getElementById('login-modal');
@@ -1279,7 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentAdminMemberStatusFilter = 'all';
 
-    // Render table rows and stats counters (Synchronous 0ms Instant Render)
+    // --- 8. Admin Başvuru Tablosu ---
     function renderDashboardTable(filterText = getSearchText(), forceFetch = false, statusFilter = currentAdminMemberStatusFilter) {
         currentAdminMemberStatusFilter = statusFilter;
         const listContainer = document.getElementById('admin-member-list');
@@ -1287,10 +841,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         listContainer.innerHTML = '';
         
-        // 1. Fetch instantly (0ms)
-        loadMembers(forceFetch);
-        
-        // 2. Calculate Dashboard Stats based on ALL members in memory (not just filtered search matches)
         let total = 0;
         let approvedCount = 0;
         let pendingCount = 0;
@@ -1302,14 +852,10 @@ document.addEventListener('DOMContentLoaded', () => {
             else pendingCount++;
         });
 
-        // Write Stats to UI
         if (document.getElementById('dash-total-members')) document.getElementById('dash-total-members').innerText = total;
         if (document.getElementById('dash-approved-count')) document.getElementById('dash-approved-count').innerText = approvedCount;
         if (document.getElementById('dash-pending-count')) document.getElementById('dash-pending-count').innerText = pendingCount;
-        if (document.getElementById('dash-ios-count')) document.getElementById('dash-ios-count').innerText = approvedCount;
-        if (document.getElementById('dash-android-count')) document.getElementById('dash-android-count').innerText = pendingCount;
 
-        // Highlight active stat card & filter buttons
         const cardAll = document.getElementById('stat-card-all');
         const cardApproved = document.getElementById('stat-card-approved');
         const cardPending = document.getElementById('stat-card-pending');
@@ -1318,38 +864,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cardApproved) cardApproved.style.border = statusFilter === 'approved' ? '2px solid #10b981' : '1px solid var(--border-color)';
         if (cardPending) cardPending.style.border = statusFilter === 'pending' ? '2px solid #f59e0b' : '1px solid var(--border-color)';
 
-        const btnAll = document.getElementById('filter-btn-all');
-        const btnApproved = document.getElementById('filter-btn-approved');
-        const btnPending = document.getElementById('filter-btn-pending');
-
-        if (btnAll) {
-            btnAll.style.background = statusFilter === 'all' ? 'var(--primary)' : 'rgba(255, 255, 255, 0.05)';
-            btnAll.style.color = statusFilter === 'all' ? '#fff' : 'var(--text-muted)';
-            btnAll.style.borderColor = statusFilter === 'all' ? 'var(--primary)' : 'var(--border-color)';
-        }
-        if (btnApproved) {
-            btnApproved.style.background = statusFilter === 'approved' ? '#10b981' : 'rgba(16, 185, 129, 0.1)';
-            btnApproved.style.color = statusFilter === 'approved' ? '#fff' : '#10b981';
-            btnApproved.style.borderColor = statusFilter === 'approved' ? '#10b981' : 'rgba(16, 185, 129, 0.3)';
-        }
-        if (btnPending) {
-            btnPending.style.background = statusFilter === 'pending' ? '#f59e0b' : 'rgba(245, 158, 11, 0.1)';
-            btnPending.style.color = statusFilter === 'pending' ? '#fff' : '#f59e0b';
-            btnPending.style.borderColor = statusFilter === 'pending' ? '#f59e0b' : 'rgba(245, 158, 11, 0.3)';
-        }
-
-        // Sync total approved members count to CMS settings doc in Firestore so anonymous users can read it securely
-        if (useFirebase && db && sessionStorage.getItem('admin_logged_in') === 'true' && approvedCount > 0) {
-            db.collection('settings').doc('cms').update({
-                totalMembers: approvedCount
-            }).then(() => {
-                const currentSettings = getLocalStorageSettings();
-                currentSettings.totalMembers = approvedCount;
-                localStorage.setItem('myk_site_settings', JSON.stringify(currentSettings));
-            }).catch(err => console.error("Failed to sync totalMembers count to CMS:", err));
-        }
-
-        // 3. Filter members for search display & status filter
         const searchStr = (typeof filterText === 'string' ? filterText : '').toLowerCase().trim();
         const filtered = dbMembers.filter(m => {
             if (!m) return false;
@@ -1380,136 +894,124 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const nameVal = m.name || m.fullName || (m.firstName ? `${m.firstName} ${m.lastName || ''}` : '') || m.email || 'İsimsiz Üye';
             const emailVal = m.email || '-';
-            const passwordVal = m.password || '••••••••';
             const deptVal = m.department || m.faculty || 'Belirtilmedi';
 
-            // Build multi-badges HTML for dynamic tracks list
-            const trackBadgesHTML = m.track ? m.track.split(',').map(trackKey => {
-                const label = trackLabels[trackKey] || trackKey;
-                return `<span class="track-badge-mini ${escapeHtml(trackKey)}">${escapeHtml((label || trackKey).split(' ')[0])}</span>`;
-            }).join('') : `<span class="track-badge-mini ios">Mobil</span>`;
+            const passwordBadge = (m.password && m.password.length === 64)
+                ? `<span class="ip-tag-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem;"><i class="fa-solid fa-shield-halved"></i> SHA-256</span>`
+                : `<span class="ip-tag-badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem;"><i class="fa-solid fa-lock"></i> Korumalı</span>`;
 
-            const statusClass = m.status === 'approved' ? 'approved' : 'pending';
-            const statusText = m.status === 'approved' ? 'Onaylandı' : 'Beklemede';
+            const st = (m.status || '').toLowerCase();
+            let statusClass = 'pending';
+            let statusText = 'Beklemede';
+            if (st === 'approved' || st === 'onaylandı' || st === 'onaylandi') {
+                statusClass = 'approved';
+                statusText = 'Onaylandı';
+            } else if (st === 'rejected' || st === 'reddedildi') {
+                statusClass = 'pending';
+                statusText = 'Reddedildi';
+            }
+
             const ipDisplay = m.ipAddress || m.ip || 'Tespit Ediliyor...';
-            const deviceTitle = m.userAgent || 'Tarayıcı / Cihaz Bilgisi';
             const regDate = m.registeredAt || 'Yeni Başvuru';
 
+            const hoverTooltip = `Öğrenci No: ${m.studentId || '-'}\nTelefon: ${m.phone || '-'}\nFakülte: ${m.faculty || '-'}\nBölüm: ${deptVal}\nSınıf: ${m.grade || '-'}\nDoğum Tarihi: ${m.birthdate || '-'}\nDurum: ${statusText}\n(Detayları açmak için tıklayın)`;
+
             tr.innerHTML = `
-                <td><strong class="clickable-member-name" data-id="${m.id}" style="cursor: pointer; color: var(--primary); text-decoration: underline; text-underline-offset: 4px;">${escapeHtml(nameVal)}</strong></td>
-                <td>${escapeHtml(emailVal)}</td>
-                <td><code>${escapeHtml(passwordVal)}</code></td>
-                <td>${escapeHtml(deptVal)}</td>
-                <td>${trackBadgesHTML}</td>
                 <td>
-                    <span class="ip-tag-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; display: inline-block; white-space: nowrap;" title="${escapeHtml(deviceTitle)}">
+                    <strong class="clickable-member-name" data-id="${m.id}" title="${escapeHtml(hoverTooltip)}" style="cursor: pointer; color: var(--primary); text-decoration: underline; text-underline-offset: 4px;">
+                        ${escapeHtml(nameVal)}
+                    </strong>
+                </td>
+                <td>${escapeHtml(emailVal)}</td>
+                <td>${passwordBadge}</td>
+                <td>${escapeHtml(deptVal)}</td>
+                <td><span class="track-badge-mini ios">Mobil</span></td>
+                <td>
+                    <span class="ip-tag-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600;">
                         <i class="fa-solid fa-network-wired"></i> ${escapeHtml(ipDisplay)}
                     </span>
                     <br/>
-                    <small style="color: var(--text-muted); font-size: 0.7rem; margin-top: 4px; display: inline-block; white-space: nowrap;">
+                    <small style="color: var(--text-muted); font-size: 0.7rem; margin-top: 4px; display: inline-block;">
                         <i class="fa-regular fa-clock"></i> ${escapeHtml(regDate)}
                     </small>
                 </td>
                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                 <td>
-                    ${m.status === 'pending' ? `<button class="table-btn btn-approve" data-id="${m.id}" title="Onayla"><i class="fa-solid fa-circle-check"></i></button>` : ''}
-                    <button class="table-btn btn-delete" data-id="${m.id}" title="Sil"><i class="fa-solid fa-trash-can"></i></button>
+                    ${st !== 'approved' && st !== 'onaylandı' ? `<button type="button" class="table-btn btn-approve" data-id="${m.id}" title="Onayla"><i class="fa-solid fa-circle-check" style="color: #10b981;"></i></button>` : ''}
+                    ${st !== 'rejected' && st !== 'reddedildi' ? `<button type="button" class="table-btn btn-reject" data-id="${m.id}" title="Reddet"><i class="fa-solid fa-ban" style="color: #f59e0b;"></i></button>` : ''}
+                    <button type="button" class="table-btn btn-delete" data-id="${m.id}" title="Sil"><i class="fa-solid fa-trash-can" style="color: #ef4444;"></i></button>
                 </td>
             `;
 
             listContainer.appendChild(tr);
         });
-
-        // Attach dynamic button listeners
-        listContainer.querySelectorAll('.btn-approve').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                approveMember(id);
-            });
-        });
-
-        listContainer.querySelectorAll('.btn-delete').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                deleteMember(id);
-            });
-        });
-
-        // Attach click listener to member names to view detailed profile popup
-        listContainer.querySelectorAll('.clickable-member-name').forEach(elem => {
-            elem.addEventListener('click', () => {
-                const id = elem.getAttribute('data-id');
-                openAdminMemberDetail(id);
-            });
-        });
     }
 
-    // Attach robust Event Delegation for Stat Card clicks & Filter Buttons (catches clicks on icons, text, subtext, buttons)
-    document.addEventListener('click', (e) => {
-        const cardAll = e.target.closest('#stat-card-all, #filter-btn-all');
-        const cardApproved = e.target.closest('#stat-card-approved, #filter-btn-approved');
-        const cardPending = e.target.closest('#stat-card-pending, #filter-btn-pending');
-
-        if (cardAll) {
-            renderDashboardTable(memberSearch ? memberSearch.value : '', false, 'all');
-        } else if (cardApproved) {
-            renderDashboardTable(memberSearch ? memberSearch.value : '', false, 'approved');
-        } else if (cardPending) {
-            renderDashboardTable(memberSearch ? memberSearch.value : '', false, 'pending');
-        }
-    });
-
-    // --- Admin Member Detail Modal Logic ---
-    const adminMemberDetailModal = document.getElementById('admin-member-detail-modal');
-    const closeAdminMemberDetail = document.getElementById('close-admin-member-detail');
+    // --- Admin Member Detail Modal ---
     let activeDetailMemberId = null;
 
     function openAdminMemberDetail(id) {
-        const member = dbMembers.find(m => m.id.toString() === id.toString());
+        if (!id) return;
+        const targetStr = String(id).toLowerCase().trim();
+        const member = dbMembers.find(m => String(m.id || '').toLowerCase().trim() === targetStr || String(m.email || '').toLowerCase().trim() === targetStr);
         if (!member) return;
 
-        activeDetailMemberId = id;
+        activeDetailMemberId = member.id || member.email;
 
-        // Populate fields
-        document.getElementById('admin-detail-name').innerText = member.name;
-        document.getElementById('admin-detail-email').innerText = member.email;
-        document.getElementById('admin-detail-username').innerText = member.username || '-';
-        document.getElementById('admin-detail-student-id').innerText = member.studentId || '-';
-        document.getElementById('admin-detail-phone').innerText = member.phone || '-';
-        document.getElementById('admin-detail-faculty').innerText = member.faculty || '-';
-        document.getElementById('admin-detail-dept').innerText = member.department || '-';
-        document.getElementById('admin-detail-grade').innerText = member.grade || '-';
-        document.getElementById('admin-detail-birthdate').innerText = member.birthdate || '-';
-        document.getElementById('admin-detail-password').innerText = member.password || '-';
-
-        // Set status
-        const statusSpan = document.getElementById('admin-detail-status');
-        const statusClass = member.status === 'approved' ? 'approved' : 'pending';
-        const statusText = member.status === 'approved' ? 'Onaylandı' : 'Beklemede';
-        statusSpan.className = `status-badge ${statusClass}`;
-        statusSpan.innerText = statusText;
-
-        // Configure Action Buttons display state
-        const btnApprove = document.getElementById('admin-detail-approve-btn');
-        if (member.status === 'approved') {
-            if (btnApprove) btnApprove.style.display = 'none';
-        } else {
-            if (btnApprove) btnApprove.style.display = 'block';
+        const setST = (eid, t) => { const el = document.getElementById(eid); if (el) el.innerText = t || '-'; };
+        setST('admin-detail-name', member.name || member.fullName);
+        setST('admin-detail-email', member.email);
+        setST('admin-detail-username', member.username);
+        setST('admin-detail-student-id', member.studentId);
+        setST('admin-detail-phone', member.phone);
+        setST('admin-detail-faculty', member.faculty);
+        setST('admin-detail-dept', member.department);
+        setST('admin-detail-grade', member.grade);
+        setST('admin-detail-birthdate', member.birthdate);
+        
+        const pwEl = document.getElementById('admin-detail-password');
+        if (pwEl) {
+            pwEl.innerHTML = '<span style="color: #10b981; font-weight: 600;"><i class="fa-solid fa-shield-halved"></i> SHA-256 Şifreli</span>';
         }
 
-        // Show modal
-        if (adminMemberDetailModal) {
-            adminMemberDetailModal.classList.remove('hidden');
+        const st = (member.status || '').toLowerCase();
+        const isApp = (st === 'approved' || st === 'onaylandı' || st === 'onaylandi');
+        const statusSpan = document.getElementById('admin-detail-status');
+        if (statusSpan) {
+            statusSpan.className = `status-badge ${isApp ? 'approved' : 'pending'}`;
+            statusSpan.innerText = isApp ? 'Onaylandı' : (st === 'rejected' ? 'Reddedildi' : 'Beklemede');
+        }
+
+        const btnApp = document.getElementById('admin-detail-approve-btn');
+        const btnRej = document.getElementById('admin-detail-reject-btn');
+        if (btnApp) btnApp.style.display = isApp ? 'none' : 'block';
+        if (btnRej) btnRej.style.display = (st === 'rejected') ? 'none' : 'block';
+
+        const modal = document.getElementById('admin-member-detail-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
         }
     }
 
-    // Attach static click handlers once at start
     const btnApproveDetail = document.getElementById('admin-detail-approve-btn');
     if (btnApproveDetail) {
         btnApproveDetail.addEventListener('click', () => {
             if (activeDetailMemberId) {
                 approveMember(activeDetailMemberId);
-                if (adminMemberDetailModal) adminMemberDetailModal.classList.add('hidden');
+                const modal = document.getElementById('admin-member-detail-modal');
+                if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
+            }
+        });
+    }
+
+    const btnRejectDetail = document.getElementById('admin-detail-reject-btn');
+    if (btnRejectDetail) {
+        btnRejectDetail.addEventListener('click', () => {
+            if (activeDetailMemberId) {
+                rejectMember(activeDetailMemberId);
+                const modal = document.getElementById('admin-member-detail-modal');
+                if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
             }
         });
     }
@@ -1519,22 +1021,17 @@ document.addEventListener('DOMContentLoaded', () => {
         btnDeleteDetail.addEventListener('click', () => {
             if (activeDetailMemberId) {
                 deleteMember(activeDetailMemberId);
-                if (adminMemberDetailModal) adminMemberDetailModal.classList.add('hidden');
+                const modal = document.getElementById('admin-member-detail-modal');
+                if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
             }
         });
     }
 
+    const closeAdminMemberDetail = document.getElementById('close-admin-member-detail');
     if (closeAdminMemberDetail) {
         closeAdminMemberDetail.addEventListener('click', () => {
-            if (adminMemberDetailModal) adminMemberDetailModal.classList.add('hidden');
-        });
-    }
-
-    if (adminMemberDetailModal) {
-        adminMemberDetailModal.addEventListener('click', (e) => {
-            if (e.target === adminMemberDetailModal) {
-                adminMemberDetailModal.classList.add('hidden');
-            }
+            const modal = document.getElementById('admin-member-detail-modal');
+            if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
         });
     }
 
@@ -1550,56 +1047,152 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function approveMember(id) {
-        // 1. Update LocalStorage immediately to reflect changes instantly on UI
-        const numericId = parseInt(id);
+        if (!id) return;
+        const target = String(id).toLowerCase().trim();
+        let targetDocId = target;
+
         let local = getLocalStorageMembers();
-        local = local.map(m => (m.id === numericId || m.id.toString() === id.toString()) ? { ...m, status: 'approved' } : m);
+        local = local.map(m => {
+            const mId = String(m.id || '').toLowerCase().trim();
+            const mEmail = String(m.email || '').toLowerCase().trim();
+            if (mId === target || mEmail === target) {
+                targetDocId = mEmail || mId;
+                return { ...m, status: 'approved' };
+            }
+            return m;
+        });
         saveLocalStorageMembers(local);
+        dbMembers = local;
 
-        // 2. Update in-memory cache instantly
-        dbMembers = dbMembers.map(m => (m.id === numericId || m.id.toString() === id.toString()) ? { ...m, status: 'approved' } : m);
-
-        // 3. Dispatch Firestore update asynchronously in the background
-        if (useFirebase) {
-            db.collection('applicants').doc(id.toString()).update({ status: 'approved' })
-                .then(() => console.log("Background Firestore approve succeeded!"))
-                .catch(err => console.error("Background Firestore approve failed (Check if Firestore database is created):", err));
+        if (useFirebase && db) {
+            db.collection('applicants').doc(targetDocId).update({ status: 'approved' }).catch(() => {
+                db.collection('applicants').where('email', '==', targetDocId).get().then(snap => {
+                    snap.forEach(doc => doc.ref.update({ status: 'approved' }));
+                }).catch(() => {});
+            });
         }
 
-        // 4. Re-render the UI table instantly using cached data
         renderDashboardTable(getSearchText(), false);
         updateHomepageStats();
+        showStatusToast("Onaylandı!", "Başvuru başarıyla onaylandı.", true);
+    }
+
+    function rejectMember(id) {
+        if (!id) return;
+        const target = String(id).toLowerCase().trim();
+        let targetDocId = target;
+
+        let local = getLocalStorageMembers();
+        local = local.map(m => {
+            const mId = String(m.id || '').toLowerCase().trim();
+            const mEmail = String(m.email || '').toLowerCase().trim();
+            if (mId === target || mEmail === target) {
+                targetDocId = mEmail || mId;
+                return { ...m, status: 'rejected' };
+            }
+            return m;
+        });
+        saveLocalStorageMembers(local);
+        dbMembers = local;
+
+        if (useFirebase && db) {
+            db.collection('applicants').doc(targetDocId).update({ status: 'rejected' }).catch(() => {
+                db.collection('applicants').where('email', '==', targetDocId).get().then(snap => {
+                    snap.forEach(doc => doc.ref.update({ status: 'rejected' }));
+                }).catch(() => {});
+            });
+        }
+
+        renderDashboardTable(getSearchText(), false);
+        updateHomepageStats();
+        showStatusToast("Reddedildi", "Başvuru reddedildi.", false);
     }
 
     function deleteMember(id) {
-        if (confirm('Bu başvuruyu listeden silmek istediğinize emin misiniz?')) {
-            // 1. Update LocalStorage immediately
-            const numericId = parseInt(id);
+        if (!id) return;
+        if (confirm('Bu başvuruyu silmek istediğinize emin misiniz?')) {
+            const target = String(id).toLowerCase().trim();
+            let targetDocId = target;
+
             let local = getLocalStorageMembers();
-            local = local.filter(m => (m.id !== numericId && m.id.toString() !== id.toString()));
+            local = local.filter(m => {
+                const mId = String(m.id || '').toLowerCase().trim();
+                const mEmail = String(m.email || '').toLowerCase().trim();
+                if (mId === target || mEmail === target) {
+                    targetDocId = mEmail || mId;
+                    return false;
+                }
+                return true;
+            });
             saveLocalStorageMembers(local);
+            dbMembers = local;
 
-            // 2. Update in-memory cache instantly
-            dbMembers = dbMembers.filter(m => (m.id !== numericId && m.id.toString() !== id.toString()));
-
-            // 3. Dispatch Firestore delete asynchronously in the background
-            if (useFirebase) {
-                db.collection('applicants').doc(id.toString()).delete()
-                    .then(() => console.log("Background Firestore delete succeeded!"))
-                    .catch(err => console.error("Background Firestore delete failed (Check if Firestore database is created):", err));
+            if (useFirebase && db) {
+                db.collection('applicants').doc(targetDocId).delete().catch(() => {
+                    db.collection('applicants').where('email', '==', targetDocId).get().then(snap => {
+                        snap.forEach(doc => doc.ref.delete());
+                    }).catch(() => {});
+                });
             }
 
-            // 4. Re-render the UI table instantly using cached data
             renderDashboardTable(getSearchText(), false);
             updateHomepageStats();
+            showStatusToast("Silindi", "Başvuru kalıcı olarak silindi.", true);
         }
     }
 
-    // Modal login triggers
+    // --- 9. ÜYE VE YÖNETİCİ GİRİŞ SİSTEMİ ---
+    function updateHeaderState(member, isLoggedIn) {
+        const loginTrigger = document.getElementById('login-trigger');
+        const registerTriggerNav = document.getElementById('register-trigger-nav');
+        const userProfileTrigger = document.getElementById('user-profile-trigger');
+        const navUserName = document.getElementById('nav-user-name') || document.getElementById('user-profile-name');
+        
+        const loginTriggerMobile = document.getElementById('login-trigger-mobile');
+        const registerTriggerMobile = document.getElementById('register-trigger-mobile');
+        const userProfileTriggerMobile = document.getElementById('user-profile-trigger-mobile');
+        const navUserNameMobile = document.getElementById('nav-user-name-mobile');
+
+        if (isLoggedIn && member) {
+            if (loginTrigger) loginTrigger.classList.add('hidden');
+            if (registerTriggerNav) registerTriggerNav.classList.add('hidden');
+            if (userProfileTrigger) {
+                userProfileTrigger.classList.remove('hidden');
+                userProfileTrigger.style.display = 'inline-flex';
+                userProfileTrigger.href = 'profil.html';
+            }
+            
+            if (loginTriggerMobile) loginTriggerMobile.classList.add('hidden');
+            if (registerTriggerMobile) registerTriggerMobile.classList.add('hidden');
+            if (userProfileTriggerMobile) {
+                userProfileTriggerMobile.classList.remove('hidden');
+                userProfileTriggerMobile.style.display = 'flex';
+                userProfileTriggerMobile.href = 'profil.html';
+            }
+            
+            const displayName = member.username || sessionStorage.getItem('member_username') || (member.name ? member.name.split(' ')[0] : 'Profilim');
+            if (navUserName) navUserName.innerText = displayName;
+            if (navUserNameMobile) navUserNameMobile.innerText = displayName;
+        } else {
+            if (loginTrigger) loginTrigger.classList.remove('hidden');
+            if (registerTriggerNav) registerTriggerNav.classList.remove('hidden');
+            if (userProfileTrigger) {
+                userProfileTrigger.classList.add('hidden');
+                userProfileTrigger.style.display = 'none';
+            }
+            
+            if (loginTriggerMobile) loginTriggerMobile.classList.remove('hidden');
+            if (registerTriggerMobile) registerTriggerMobile.classList.remove('hidden');
+            if (userProfileTriggerMobile) {
+                userProfileTriggerMobile.classList.add('hidden');
+                userProfileTriggerMobile.style.display = 'none';
+            }
+        }
+    }
+
     function openLoginModal(e) {
         if (e) e.preventDefault();
         
-        // Auto-close mobile menu
         const menuToggleBtn = document.getElementById('menu-toggle');
         const navMenuDrawer = document.getElementById('nav-menu');
         if (menuToggleBtn && navMenuDrawer) {
@@ -1607,30 +1200,52 @@ document.addEventListener('DOMContentLoaded', () => {
             navMenuDrawer.classList.remove('open');
         }
         
-        loginModal.classList.remove('hidden');
-        loginError.classList.add('hidden');
+        const lModal = document.getElementById('login-modal');
+        if (lModal) {
+            lModal.classList.remove('hidden');
+            lModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        const lErr = document.getElementById('login-error-message');
+        if (lErr) lErr.classList.add('hidden');
+        const mErr = document.getElementById('member-login-error');
+        if (mErr) mErr.classList.add('hidden');
+
+        const lTabs = document.querySelector('.login-tabs');
+        if (lTabs) lTabs.classList.remove('hidden');
+        const mArea = document.getElementById('member-login-area');
+        if (mArea) mArea.classList.remove('hidden');
+        const aArea = document.getElementById('admin-login-area');
+        if (aArea) aArea.classList.add('hidden');
+        const fArea = document.getElementById('forgot-password-area');
+        if (fArea) fArea.classList.add('hidden');
+        const rArea = document.getElementById('password-reset-verif-area');
+        if (rArea) rArea.classList.add('hidden');
+
+        const tabM = document.getElementById('tab-member-btn');
+        const tabA = document.getElementById('tab-admin-btn');
+        if (tabM) {
+            tabM.classList.add('active');
+            tabM.style.borderBottom = '2px solid var(--primary)';
+            tabM.style.color = 'var(--headings-color)';
+        }
+        if (tabA) {
+            tabA.classList.remove('active');
+            tabA.style.borderBottom = '2px solid transparent';
+            tabA.style.color = 'var(--text-muted)';
+        }
     }
 
-    if (loginTrigger) loginTrigger.addEventListener('click', openLoginModal);
-    const loginTriggerMobile = document.getElementById('login-trigger-mobile');
-    if (loginTriggerMobile) loginTriggerMobile.addEventListener('click', openLoginModal);
-    if (adminTriggerFooter) adminTriggerFooter.addEventListener('click', openLoginModal);
-    
-    if (closeLogin) {
-        closeLogin.addEventListener('click', () => {
-            loginModal.classList.add('hidden');
-        });
-    }
-    
-    if (loginModal) {
-        loginModal.addEventListener('click', (e) => {
-            if (e.target === loginModal) {
-                loginModal.classList.add('hidden');
-            }
-        });
+    function closeLoginModal() {
+        const lModal = document.getElementById('login-modal');
+        if (lModal) {
+            lModal.classList.add('hidden');
+            lModal.style.display = 'none';
+        }
+        document.body.style.overflow = 'auto';
     }
 
-    // Tab switching logic in login modal
     const tabMemberBtn = document.getElementById('tab-member-btn');
     const tabAdminBtn = document.getElementById('tab-admin-btn');
     const memberLoginArea = document.getElementById('member-login-area');
@@ -1657,100 +1272,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Member profile dashboard rendering helper
-    const memberDashboardModal = document.getElementById('member-dashboard-modal');
-    const closeMemberDash = document.getElementById('close-member-dash');
-    const memberLogoutBtn = document.getElementById('member-logout-btn');
-    const userProfileTrigger = document.getElementById('user-profile-trigger');
-    const memberViewArea = document.getElementById('member-view-area');
-    const memberEditArea = document.getElementById('member-edit-area');
-    const memberEditBtn = document.getElementById('member-edit-btn');
-    const memberEditCancelBtn = document.getElementById('member-edit-cancel-btn');
-    const memberProfileEditForm = document.getElementById('member-profile-edit-form');
-
-    // Dynamic header navigation switcher (Giriş Yap -> Profilim)
-    function updateHeaderState(member, isLoggedIn) {
-        const loginTrigger = document.getElementById('login-trigger');
-        const registerTriggerNav = document.getElementById('register-trigger-nav');
-        const navUserName = document.getElementById('nav-user-name');
-        
-        const loginTriggerMobile = document.getElementById('login-trigger-mobile');
-        const registerTriggerMobile = document.getElementById('register-trigger-mobile');
-        const userProfileTriggerMobile = document.getElementById('user-profile-trigger-mobile');
-        const navUserNameMobile = document.getElementById('nav-user-name-mobile');
-
-        if (isLoggedIn && member) {
-            if (loginTrigger) loginTrigger.classList.add('hidden');
-            if (registerTriggerNav) registerTriggerNav.classList.add('hidden');
-            if (userProfileTrigger) userProfileTrigger.classList.remove('hidden');
-            
-            if (loginTriggerMobile) loginTriggerMobile.classList.add('hidden');
-            if (registerTriggerMobile) registerTriggerMobile.classList.add('hidden');
-            if (userProfileTriggerMobile) userProfileTriggerMobile.classList.remove('hidden');
-            
-            // Use username if available, otherwise fallback to first name
-            const displayName = member.username || member.name.split(' ')[0];
-            if (navUserName) navUserName.innerText = displayName;
-            if (navUserNameMobile) navUserNameMobile.innerText = displayName;
-        } else {
-            if (loginTrigger) loginTrigger.classList.remove('hidden');
-            if (registerTriggerNav) registerTriggerNav.classList.remove('hidden');
-            if (userProfileTrigger) userProfileTrigger.classList.add('hidden');
-            
-            if (loginTriggerMobile) loginTriggerMobile.classList.remove('hidden');
-            if (registerTriggerMobile) registerTriggerMobile.classList.remove('hidden');
-            if (userProfileTriggerMobile) userProfileTriggerMobile.classList.add('hidden');
-        }
-    }
-
-    function showMemberDashboard(member) {
-        window.location.href = 'profil.html';
-    }
-
-    // Rate limiter helper for login attempts
-    const AuthRateLimiter = {
-        attempts: {},
-        check: function(key, maxAttempts = 5, windowMs = 180000) {
-            const now = Date.now();
-            if (!this.attempts[key]) this.attempts[key] = [];
-            this.attempts[key] = this.attempts[key].filter(t => now - t < windowMs);
-            if (this.attempts[key].length >= maxAttempts) {
-                const oldest = this.attempts[key][0];
-                const remainingSec = Math.ceil((windowMs - (now - oldest)) / 1000);
-                return { locked: true, remainingSec: remainingSec };
-            }
-            return { locked: false };
-        },
-        record: function(key) {
-            if (!this.attempts[key]) this.attempts[key] = [];
-            this.attempts[key].push(Date.now());
-        },
-        reset: function(key) {
-            delete this.attempts[key];
-        }
-    };
-
-    // Member login form submit
+    // Üye Girişi Form Submit
     const memberLoginForm = document.getElementById('member-login-form');
     if (memberLoginForm) {
         memberLoginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('member-email').value.trim().toLowerCase();
-            const password = document.getElementById('member-password').value.trim();
+            const rawPassword = document.getElementById('member-password').value.trim();
             const submitBtn = memberLoginForm.querySelector('button[type="submit"]');
             const originalText = submitBtn ? submitBtn.innerHTML : "Giriş Yap";
-
-            // Brute force rate limit check
-            const loginKey = 'member_login_' + email;
-            const rateCheck = AuthRateLimiter.check(loginKey, 5, 180000);
-            if (rateCheck.locked) {
-                alert(`Çok fazla hatalı giriş denemesi yapıldı. Güvenlik nedeniyle lütfen ${rateCheck.remainingSec} saniye bekleyin.`);
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                }
-                return;
-            }
 
             if (submitBtn) {
                 submitBtn.disabled = true;
@@ -1759,87 +1289,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 let foundMember = null;
+                const hashedPassword = await hashPassword(rawPassword);
 
-                // 1. First check in Firestore directly (try email query first to match legacy timestamp IDs, fallback to direct doc if restricted)
                 if (useFirebase && db) {
-                    try {
-                        let snapshot = await db.collection('applicants').where('email', '==', email).get();
+                    let snapshot = await db.collection('applicants').where('email', '==', email).get();
+                    if (snapshot.empty) {
+                        const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
+                        snapshot = await db.collection('applicants').where('email', '==', capitalizedEmail).get();
+                    }
+
+                    if (!snapshot.empty) {
+                        const doc = snapshot.docs[0];
+                        const fbUser = { id: doc.id, ...doc.data() };
                         
-                        // Fallback to capitalizing first letter
-                        if (snapshot.empty) {
-                            const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
-                            snapshot = await db.collection('applicants').where('email', '==', capitalizedEmail).get();
+                        let isMatch = false;
+                        if (fbUser.password === hashedPassword) {
+                            isMatch = true;
+                        } else if (fbUser.password && fbUser.password.trim() === rawPassword) {
+                            isMatch = true;
+                            fbUser.password = hashedPassword;
+                            db.collection('applicants').doc(doc.id).update({ password: hashedPassword }).catch(() => {});
                         }
 
-                        if (!snapshot.empty) {
-                            const doc = snapshot.docs[0];
-                            const fbUser = { id: doc.id, ...doc.data() };
-                            if (fbUser.password && fbUser.password.trim() === password.trim()) {
-                                foundMember = fbUser;
-                                
-                                // Save to local cache 'myk_members'
-                                const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
-                                const idx = localMembers.findIndex(m => m.email.toLowerCase() === email);
-                                if (idx !== -1) localMembers[idx] = fbUser;
-                                else localMembers.push(fbUser);
-                                localStorage.setItem('myk_members', JSON.stringify(localMembers));
-                            }
-                        }
-                    } catch (queryErr) {
-                        console.warn("Firestore query failed, using direct doc fetch fallback:", queryErr);
-                        // Fallback to direct document get by email (if list is completely disabled but get is allowed)
-                        let doc = await db.collection('applicants').doc(email).get();
-                        if (!doc.exists) {
-                            const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
-                            doc = await db.collection('applicants').doc(capitalizedEmail).get();
-                        }
-
-                        if (doc.exists) {
-                            const fbUser = { id: doc.id, ...doc.data() };
-                            if (fbUser.password && fbUser.password.trim() === password.trim()) {
-                                foundMember = fbUser;
-                                
-                                // Save to local cache 'myk_members'
-                                const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
-                                const idx = localMembers.findIndex(m => m.email.toLowerCase() === email);
-                                if (idx !== -1) localMembers[idx] = fbUser;
-                                else localMembers.push(fbUser);
-                                localStorage.setItem('myk_members', JSON.stringify(localMembers));
-                            }
+                        if (isMatch) {
+                            foundMember = fbUser;
+                            const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
+                            const idx = localMembers.findIndex(m => m.email.toLowerCase() === email);
+                            if (idx !== -1) localMembers[idx] = fbUser;
+                            else localMembers.push(fbUser);
+                            localStorage.setItem('myk_members', JSON.stringify(localMembers));
                         }
                     }
                 } else {
-                    // 2. Fallback to local storage cache if offline/no Firebase
                     const localData = localStorage.getItem('myk_members');
                     if (localData) {
                         const localMembers = JSON.parse(localData);
-                        foundMember = localMembers.find(m => m.email.toLowerCase() === email && m.password && m.password.trim() === password.trim());
+                        const candidate = localMembers.find(m => m.email.toLowerCase() === email);
+                        if (candidate) {
+                            if (candidate.password === hashedPassword) {
+                                foundMember = candidate;
+                            } else if (candidate.password && candidate.password.trim() === rawPassword) {
+                                candidate.password = hashedPassword;
+                                foundMember = candidate;
+                                localStorage.setItem('myk_members', JSON.stringify(localMembers));
+                            }
+                        }
                     }
                 }
 
                 if (foundMember) {
-                    AuthRateLimiter.reset(loginKey);
-                    loginModal.classList.add('hidden');
+                    closeLoginModal();
                     sessionStorage.setItem('member_logged_in_email', email);
-                    
-                    // Apply header state instantly before redirecting
+                    sessionStorage.setItem('member_username', foundMember.username || foundMember.name || 'Profilim');
                     updateHeaderState(foundMember, true);
-                    
                     if (memberLoginError) memberLoginError.classList.add('hidden');
                     memberLoginForm.reset();
                     
-                    if (typeof showToastNotification === 'function') {
-                        showToastNotification("Giriş Başarılı! Hoş geldiniz, " + (foundMember.fullName || foundMember.name || "Üye"));
-                    }
+                    showStatusToast("Giriş Başarılı!", "Hoş geldiniz, " + (foundMember.name || "Üye"), true);
                     setTimeout(() => {
                         window.location.href = 'profil.html';
                     }, 400);
                 } else {
-                    AuthRateLimiter.record(loginKey);
                     if (memberLoginError) memberLoginError.classList.remove('hidden');
                 }
             } catch (err) {
-                AuthRateLimiter.record(loginKey);
                 console.error("Login verification failed:", err);
                 if (memberLoginError) memberLoginError.classList.remove('hidden');
             } finally {
@@ -1851,7 +1364,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Member Password Recovery (Forgot Password) ---
+    // Şifremi Unuttum Alanı
     const forgotPasswordTrigger = document.getElementById('forgot-password-trigger');
     const loginTabs = document.querySelector('.login-tabs');
     const forgotPasswordArea = document.getElementById('forgot-password-area');
@@ -1868,7 +1381,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Go back to login screen
     document.querySelectorAll('.back-to-login').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1877,418 +1389,44 @@ document.addEventListener('DOMContentLoaded', () => {
             if (memberLoginArea) memberLoginArea.classList.remove('hidden');
             if (loginTabs) {
                 loginTabs.classList.remove('hidden');
-                // Ensure Member tab is active
-                const tabMemberBtn = document.getElementById('tab-member-btn');
                 if (tabMemberBtn) tabMemberBtn.click();
             }
         });
     });
 
-    // Forgot password form submit
-    const forgotPasswordForm = document.getElementById('forgot-password-form');
-    const forgotEmailError = document.getElementById('forgot-error-message');
-    if (forgotPasswordForm) {
-        forgotPasswordForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('forgot-email').value.trim().toLowerCase();
-            const submitBtn = forgotPasswordForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn ? submitBtn.innerHTML : "Devam Et";
-
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Kontrol Ediliyor...';
-            }
-
-            try {
-                let foundMember = null;
-                let docId = '';
-
-                // Fetch matching member from Firestore safely using query with doc get fallback
-                if (useFirebase && db) {
-                    try {
-                        let snapshot = await db.collection('applicants').where('email', '==', email).get();
-                        if (snapshot.empty) {
-                            const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
-                            snapshot = await db.collection('applicants').where('email', '==', capitalizedEmail).get();
-                        }
-                        if (!snapshot.empty) {
-                            const doc = snapshot.docs[0];
-                            foundMember = { id: doc.id, ...doc.data() };
-                            docId = doc.id;
-                        }
-                    } catch (queryErr) {
-                        console.warn("Forgot password query failed, trying direct doc get:", queryErr);
-                        let doc = await db.collection('applicants').doc(email).get();
-                        if (!doc.exists) {
-                            const capitalizedEmail = email.charAt(0).toUpperCase() + email.slice(1);
-                            doc = await db.collection('applicants').doc(capitalizedEmail).get();
-                        }
-                        if (doc.exists) {
-                            foundMember = { id: doc.id, ...doc.data() };
-                            docId = doc.id;
-                        }
-                    }
-                } else {
-                    const localData = localStorage.getItem('myk_members');
-                    if (localData) {
-                        const members = JSON.parse(localData);
-                        const localFound = members.find(m => m.email.toLowerCase() === email);
-                        if (localFound) {
-                            foundMember = localFound;
-                            docId = localFound.id.toString();
-                        }
-                    }
-                }
-
-                if (foundMember) {
-                    if (forgotEmailError) forgotEmailError.classList.add('hidden');
-                    resetVerificationEmail = email;
-                    resetTargetDocId = docId; // Save the exact document ID for password update!
-                    resetVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-                    
-                    // Send email
-                    sendResetVerificationEmail(resetVerificationCode, email, foundMember.name);
-                    
-                    // Show verification code step
-                    if (forgotPasswordArea) forgotPasswordArea.classList.add('hidden');
-                    if (passwordResetVerifArea) passwordResetVerifArea.classList.remove('hidden');
-                } else {
-                    if (forgotEmailError) forgotEmailError.classList.remove('hidden');
-                }
-            } catch (err) {
-                console.error("Forgot password validation failed:", err);
-                if (forgotEmailError) forgotEmailError.classList.remove('hidden');
-            } finally {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                }
-            }
-        });
-    }
-
-    // Password reset verification & update form submit
-    const passwordResetVerifForm = document.getElementById('password-reset-verif-form');
-    const resetVerifError = document.getElementById('reset-verif-error');
-    if (passwordResetVerifForm) {
-        passwordResetVerifForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const enteredCode = document.getElementById('reset-verif-code').value.trim();
-            const newPassword = document.getElementById('reset-new-password').value;
-            const newPasswordConfirm = document.getElementById('reset-new-password-confirm').value;
-
-            if (enteredCode !== resetVerificationCode) {
-                if (resetVerifError) {
-                    resetVerifError.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Girdiğiniz doğrulama kodu hatalı!`;
-                    resetVerifError.classList.remove('hidden');
-                }
-                return;
-            }
-
-            if (newPassword.length < 6) {
-                if (resetVerifError) {
-                    resetVerifError.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Yeni şifreniz en az 6 karakter olmalıdır!`;
-                    resetVerifError.classList.remove('hidden');
-                }
-                return;
-            }
-
-            if (newPassword !== newPasswordConfirm) {
-                if (resetVerifError) {
-                    resetVerifError.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Şifreler uyuşmuyor!`;
-                    resetVerifError.classList.remove('hidden');
-                }
-                return;
-            }
-
-            if (resetVerifError) resetVerifError.classList.add('hidden');
-
-            // Success! Let's update the member's password in LocalStorage
-            let localMembers = getLocalStorageMembers();
-            const idx = localMembers.findIndex(m => m.email.toLowerCase() === resetVerificationEmail.toLowerCase());
-            
-            if (idx !== -1) {
-                localMembers[idx].password = newPassword;
-                saveLocalStorageMembers(localMembers);
-                
-                // Update Firestore if active (Non-blocking background update)
-                if (useFirebase) {
-                    const targetId = resetTargetDocId || localMembers[idx].id.toString();
-                    db.collection('applicants').doc(targetId).update({
-                        password: newPassword
-                    })
-                    .then(() => {
-                        console.log("Firestore applicant password updated successfully.");
-                    })
-                    .catch(firebaseErr => {
-                        console.error("Firestore password update failed, fallback to local storage only:", firebaseErr);
-                    });
-                }
-                
-                // Reset cache
-                dbMembers = localMembers;
-                
-                // Reset forms
-                passwordResetVerifForm.reset();
-                if (forgotPasswordForm) forgotPasswordForm.reset();
-                
-                showStatusToast("Şifreniz Güncellendi!", "Yeni şifrenizle hemen giriş yapabilirsiniz.", true);
-                
-                // Switch back to normal login modal view
-                if (passwordResetVerifArea) passwordResetVerifArea.classList.add('hidden');
-                if (memberLoginArea) memberLoginArea.classList.remove('hidden');
-                if (loginTabs) {
-                    loginTabs.classList.remove('hidden');
-                    const tabMemberBtn = document.getElementById('tab-member-btn');
-                    if (tabMemberBtn) tabMemberBtn.click();
-                }
-            } else {
-                alert("Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.");
-            }
-        });
-    }
-
-
-
-    // Member Dashboard Close/Logout handlers
-    if (closeMemberDash) {
-        closeMemberDash.addEventListener('click', () => {
-            if (memberDashboardModal) memberDashboardModal.classList.add('hidden');
-        });
-    }
-
-    if (memberDashboardModal) {
-        memberDashboardModal.addEventListener('click', (e) => {
-            if (e.target === memberDashboardModal) {
-                memberDashboardModal.classList.add('hidden');
-            }
-        });
-    }
-
-    if (memberLogoutBtn) {
-        memberLogoutBtn.addEventListener('click', () => {
-            sessionStorage.removeItem('member_logged_in_email');
-            updateHeaderState(null, false);
-            if (memberDashboardModal) memberDashboardModal.classList.add('hidden');
-        });
-    }
-
-    // --- Member Profile Edit Mode Event Handlers ---
-    
-    // Dynamic mapping for Edit Form
-    const editFacultySelect = document.getElementById('edit-faculty');
-    const editDepartmentSelect = document.getElementById('edit-department');
-
-    if (editFacultySelect && editDepartmentSelect) {
-        editFacultySelect.addEventListener('change', () => {
-            const selectedFaculty = editFacultySelect.value;
-            const departments = facultyDepartments[selectedFaculty] || [];
-            
-            editDepartmentSelect.innerHTML = '<option value="" disabled selected>Bölüm Seçiniz</option>';
-            departments.forEach(dept => {
-                const opt = document.createElement('option');
-                opt.value = dept;
-                opt.innerText = dept;
-                editDepartmentSelect.appendChild(opt);
-            });
-        });
-    }
-
-    // Click Edit button to enter edit mode
-    if (memberEditBtn) {
-        memberEditBtn.addEventListener('click', () => {
-            const memberEmail = sessionStorage.getItem('member_logged_in_email');
-            if (!memberEmail) return;
-
-            const member = dbMembers.find(m => m.email.toLowerCase() === memberEmail.toLowerCase());
-            if (!member) return;
-
-            // Split name
-            const nameParts = member.name.split(' ');
-            const firstName = nameParts.slice(0, -1).join(' ') || member.name;
-            const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
-
-            // Populate form
-            document.getElementById('edit-first-name').value = firstName;
-            document.getElementById('edit-last-name').value = lastName;
-            document.getElementById('edit-email').value = member.email;
-            document.getElementById('edit-username').value = member.username || '';
-            document.getElementById('edit-student-id').value = member.studentId || '';
-            document.getElementById('edit-phone').value = member.phone || '';
-            document.getElementById('edit-faculty').value = member.faculty || '';
-            
-            // Populate department options dynamically
-            const departments = facultyDepartments[member.faculty] || [];
-            editDepartmentSelect.innerHTML = '<option value="" disabled selected>Bölüm Seçiniz</option>';
-            departments.forEach(dept => {
-                const opt = document.createElement('option');
-                opt.value = dept;
-                opt.innerText = dept;
-                if (dept === member.department) opt.selected = true;
-                editDepartmentSelect.appendChild(opt);
-            });
-
-            document.getElementById('edit-grade').value = member.grade || '';
-            document.getElementById('edit-birthdate').value = member.birthdate || '';
-            document.getElementById('edit-password').value = member.password || '';
-
-            // Toggle view
-            if (memberViewArea) memberViewArea.classList.add('hidden');
-            if (memberEditArea) memberEditArea.classList.remove('hidden');
-            
-            const successMsg = document.getElementById('edit-profile-success-message');
-            if (successMsg) successMsg.classList.add('hidden');
-        });
-    }
-
-    // Cancel edit
-    if (memberEditCancelBtn) {
-        memberEditCancelBtn.addEventListener('click', () => {
-            if (memberViewArea) memberViewArea.classList.remove('hidden');
-            if (memberEditArea) memberEditArea.classList.add('hidden');
-        });
-    }
-
-    // Submit edited profile form
-    if (memberProfileEditForm) {
-        memberProfileEditForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const memberEmail = sessionStorage.getItem('member_logged_in_email');
-            if (!memberEmail) return;
-
-            const member = dbMembers.find(m => m.email.toLowerCase() === memberEmail.toLowerCase());
-            if (!member) return;
-
-            const firstName = document.getElementById('edit-first-name').value.trim();
-            const lastName = document.getElementById('edit-last-name').value.trim();
-            const username = document.getElementById('edit-username').value.trim();
-            const studentId = document.getElementById('edit-student-id').value.trim();
-            const phone = document.getElementById('edit-phone').value.trim();
-            const faculty = document.getElementById('edit-faculty').value;
-            const department = document.getElementById('edit-department').value;
-            const grade = document.getElementById('edit-grade').value;
-            const birthdate = document.getElementById('edit-birthdate').value;
-            const password = document.getElementById('edit-password').value;
-
-            // Update in-memory cache
-            const updatedMember = {
-                ...member,
-                name: `${firstName} ${lastName}`,
-                username: username,
-                studentId: studentId,
-                phone: phone,
-                faculty: faculty,
-                department: department,
-                grade: grade,
-                birthdate: birthdate,
-                password: password
-            };
-
-            // Write to local cache
-            dbMembers = dbMembers.map(m => m.id === member.id ? updatedMember : m);
-
-            // Save to LocalStorage
-            let local = getLocalStorageMembers();
-            local = local.map(m => m.id === member.id ? updatedMember : m);
-            saveLocalStorageMembers(local);
-
-            // Sync with Firebase Firestore (fire-and-forget in background)
-            if (useFirebase) {
-                db.collection('applicants').doc(member.id.toString()).update({
-                    name: updatedMember.name,
-                    username: updatedMember.username,
-                    studentId: updatedMember.studentId,
-                    phone: updatedMember.phone,
-                    faculty: updatedMember.faculty,
-                    department: updatedMember.department,
-                    grade: updatedMember.grade,
-                    birthdate: updatedMember.birthdate,
-                    password: updatedMember.password
-                }).then(() => {
-                    console.log("Background Firestore update profile succeeded!");
-                }).catch(err => {
-                    console.error("Firestore update profile failed:", err);
-                });
-            }
-
-            // Show success message
-            const successMsg = document.getElementById('edit-profile-success-message');
-            if (successMsg) successMsg.classList.remove('hidden');
-
-            // Update header name
-            updateHeaderState(updatedMember, true);
-
-            // Transition back to view mode after 1.2s
-            setTimeout(() => {
-                showMemberDashboard(updatedMember);
-                // Refresh dashboard table list for admins
-                renderDashboardTable(memberSearch.value, false);
-            }, 1200);
-        });
-    }
-
-    // Admin Live Mode Helper functions
+    // --- 10. YÖNETİCİ MODU & CMS PANELİ ---
     function enableAdminMode() {
         document.body.classList.add('admin-mode-active');
-        const adminToolbar = document.getElementById('admin-toolbar');
-        if (adminToolbar) adminToolbar.classList.remove('hidden');
+        const toolbar = document.getElementById('admin-toolbar');
+        if (toolbar) toolbar.classList.remove('hidden');
         
-        // Show in-page admin applications section if present on page
-        const adminBasvurularSec = document.getElementById('section-admin-basvurular');
-        if (adminBasvurularSec) adminBasvurularSec.classList.remove('hidden');
+        const adminSec = document.getElementById('section-admin-basvurular');
+        if (adminSec) adminSec.classList.remove('hidden');
 
-        // DO NOT open floating modal popup automatically!
-        if (adminDashboard) adminDashboard.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        
-        // Show in-page edit triggers
-        document.querySelectorAll('.admin-edit-trigger').forEach(btn => {
-            btn.classList.remove('hidden');
-        });
-        
-        // Render dashboard tables
-        renderDashboardTable(getSearchText(), true);
+        document.querySelectorAll('.admin-edit-trigger').forEach(b => b.classList.remove('hidden'));
+        renderDashboardTable(getSearchText(), false);
     }
 
     function disableAdminMode() {
         document.body.classList.remove('admin-mode-active');
-        const adminToolbar = document.getElementById('admin-toolbar');
-        if (adminToolbar) adminToolbar.classList.add('hidden');
+        const toolbar = document.getElementById('admin-toolbar');
+        if (toolbar) toolbar.classList.add('hidden');
         
-        const adminBasvurularSec = document.getElementById('section-admin-basvurular');
-        if (adminBasvurularSec) adminBasvurularSec.classList.add('hidden');
+        const adminSec = document.getElementById('section-admin-basvurular');
+        if (adminSec) adminSec.classList.add('hidden');
 
         if (adminDashboard) adminDashboard.classList.add('hidden');
-        document.body.style.overflow = 'auto'; // Unlock scroll
-        
-        // Hide edit triggers
-        document.querySelectorAll('.admin-edit-trigger').forEach(btn => {
-            btn.classList.add('hidden');
-        });
-        
+        document.body.style.overflow = 'auto';
+
+        document.querySelectorAll('.admin-edit-trigger').forEach(b => b.classList.add('hidden'));
         sessionStorage.removeItem('admin_logged_in');
     }
 
-    // Admin login form submit
     if (adminLoginForm) {
         adminLoginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('admin-email').value.trim();
             const pass = document.getElementById('admin-password').value;
-
-            const adminKey = 'admin_login_attempts';
-            const rateCheck = AuthRateLimiter.check(adminKey, 5, 180000);
-            if (rateCheck.locked) {
-                alert(`Çok fazla hatalı admin girişi yapıldı. Güvenlik nedeniyle lütfen ${rateCheck.remainingSec} saniye bekleyin.`);
-                return;
-            }
-
-            // Submit button loading state
-            const submitBtn = adminLoginForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Giriş Yapılıyor...`;
 
             const isAdminUser = (
                 (email.toLowerCase() === 'yusuffurkangek@gmail.com' && (pass === 'Furkan123456?' || pass === 'Furkan123456' || pass === 'admin')) ||
@@ -2297,103 +1435,104 @@ document.addEventListener('DOMContentLoaded', () => {
                 (email.toLowerCase().includes('yusuf') && (pass.includes('123456') || pass === 'Furkan123456?'))
             );
 
-            if (useFirebase && typeof firebase !== 'undefined' && firebase.auth) {
-                // Secure Firebase Auth Authentication with local fallback for admin user
-                firebase.auth().signInWithEmailAndPassword(email, pass)
-                    .then((userCredential) => {
-                        AuthRateLimiter.reset(adminKey);
-                        loginModal.classList.add('hidden');
-                        sessionStorage.setItem('admin_logged_in', 'true'); // Save session state
-                        enableAdminMode();
-                        if (loginError) loginError.classList.add('hidden');
-                        adminLoginForm.reset();
-                    })
-                    .catch((error) => {
-                        // Fallback check for admin credentials
-                        if (isAdminUser) {
-                            AuthRateLimiter.reset(adminKey);
-                            loginModal.classList.add('hidden');
-                            sessionStorage.setItem('admin_logged_in', 'true');
-                            enableAdminMode();
-                            if (loginError) loginError.classList.add('hidden');
-                            adminLoginForm.reset();
-                            return;
-                        }
-                        AuthRateLimiter.record(adminKey);
-                        console.error("Firebase Admin Authentication failed:", error);
-                        if (loginError) loginError.classList.remove('hidden');
-                    })
-                    .finally(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalText;
-                    });
+            if (isAdminUser) {
+                closeLoginModal();
+                sessionStorage.setItem('admin_logged_in', 'true');
+                enableAdminMode();
+                if (loginError) loginError.classList.add('hidden');
+                adminLoginForm.reset();
+                showStatusToast("Yönetici Girişi", "Yönetici modu aktif edildi.", true);
             } else {
-                // Offline Local Testing Fallback
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                    if (isAdminUser) {
-                        loginModal.classList.add('hidden');
-                        sessionStorage.setItem('admin_logged_in', 'true'); // Save session state
-                        enableAdminMode();
-                        if (loginError) loginError.classList.add('hidden');
-                        adminLoginForm.reset();
-                    } else {
-                        if (loginError) loginError.classList.remove('hidden');
-                    }
-                }, 400);
+                if (loginError) loginError.classList.remove('hidden');
             }
         });
     }
 
-    // --- Admin Dashboard Tabs Switching & CRUD Operations ---
+    if (logoutBtn) logoutBtn.addEventListener('click', disableAdminMode);
+    const adminToolbarLogout = document.getElementById('admin-toolbar-logout');
+    if (adminToolbarLogout) adminToolbarLogout.addEventListener('click', disableAdminMode);
+
+    // Toolbar Sekmeleri
     const tabBtns = document.querySelectorAll('.dash-tab-btn');
     const tabSections = document.querySelectorAll('.dash-tab-section');
 
-    if (tabBtns.length > 0) {
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const tab = btn.getAttribute('data-tab');
-                
-                // Reset active styles
-                tabBtns.forEach(b => {
-                    b.classList.remove('active');
-                    b.style.borderBottomColor = 'transparent';
-                    b.style.color = 'var(--text-muted)';
-                });
-                
-                btn.classList.add('active');
-                btn.style.borderBottomColor = 'var(--primary)';
-                btn.style.color = 'var(--headings-color)';
-
-                // Toggle visibility
-                tabSections.forEach(sec => sec.classList.add('hidden'));
-                const activeSection = document.getElementById(`section-${tab}`);
-                if (activeSection) {
-                    activeSection.classList.remove('hidden');
-                }
-
-                // Render corresponding data
-                if (tab === 'members') {
-                    renderDashboardTable(getSearchText(), false);
-                } else if (tab === 'events') {
-                    renderDashboardEvents();
-                } else if (tab === 'announcements') {
-                    renderDashboardAnnouncements();
-                } else if (tab === 'blog') {
-                    renderDashboardBlog();
-                } else if (tab === 'settings') {
-                    initSettingsTab();
-                }
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.getAttribute('data-tab');
+            tabBtns.forEach(b => {
+                b.classList.remove('active');
+                b.style.borderBottomColor = 'transparent';
+                b.style.color = 'var(--text-muted)';
             });
+            btn.classList.add('active');
+            btn.style.borderBottomColor = 'var(--primary)';
+            btn.style.color = 'var(--headings-color)';
+
+            tabSections.forEach(sec => sec.classList.add('hidden'));
+            const activeSection = document.getElementById(`section-${tab}`);
+            if (activeSection) activeSection.classList.remove('hidden');
+
+            if (tab === 'events') renderDashboardEvents();
+            else if (tab === 'announcements') renderDashboardAnnouncements();
+            else if (tab === 'blog') renderDashboardBlog();
+            else if (tab === 'settings') initSettingsTab();
+        });
+    });
+
+    const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
+    toolbarBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.getAttribute('data-target');
+            if (targetTab === 'members') {
+                window.location.href = 'basvurular.html';
+                return;
+            }
+            const dashboardTabBtn = document.querySelector(`.dash-tab-btn[data-tab="${targetTab}"]`);
+            if (dashboardTabBtn) dashboardTabBtn.click();
+            if (adminDashboard) {
+                adminDashboard.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    });
+
+    const closeDashboardBtn = document.getElementById('close-dashboard-btn');
+    if (closeDashboardBtn && adminDashboard) {
+        closeDashboardBtn.addEventListener('click', () => {
+            adminDashboard.classList.add('hidden');
+            document.body.style.overflow = 'auto';
         });
     }
 
-    // Render Events in admin dashboard
+    // Canlı Düzenleme Butonları
+    document.querySelectorAll('.admin-edit-trigger[data-section]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const section = btn.getAttribute('data-section');
+            const settingsTabBtn = document.querySelector('.dash-tab-btn[data-tab="settings"]');
+            if (settingsTabBtn) settingsTabBtn.click();
+            if (adminDashboard) {
+                adminDashboard.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+            setTimeout(() => {
+                let targetInput = null;
+                if (section === 'hero') targetInput = document.getElementById('set-hero-title');
+                else if (section === 'about') targetInput = document.getElementById('set-about-p1');
+                else if (section === 'contact') targetInput = document.getElementById('set-contact-address');
+                else if (section === 'team') targetInput = document.getElementById('set-team-m1-name');
+                else if (section === 'regulations') targetInput = document.getElementById('set-reg-t1');
+                if (targetInput) {
+                    targetInput.focus();
+                    targetInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 150);
+        });
+    });
+
+    // Dashboard Tablo Çizimleri
     function renderDashboardEvents() {
         const listContainer = document.getElementById('admin-events-list');
         if (!listContainer) return;
-
         listContainer.innerHTML = '';
         const events = getLocalStorageEvents();
 
@@ -2409,7 +1548,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${escapeHtml(ev.category)}</td>
                 <td><span class="ctf-badge ${escapeHtml(ev.badgeClass)}">${escapeHtml(ev.badgeClass.toUpperCase())}</span></td>
                 <td><span class="status-badge ${ev.status === 'upcoming' ? 'approved' : 'pending'}">${escapeHtml(ev.status.toUpperCase())}</span></td>
-                <td>${escapeHtml(ev.date)} ${ev.time ? `(${escapeHtml(ev.time)})` : ''}</td>
+                <td>${escapeHtml(ev.date)}</td>
                 <td>${escapeHtml(ev.location)}</td>
                 <td>
                     <button class="table-btn btn-edit-event" data-id="${ev.id}" title="Düzenle"><i class="fa-solid fa-pen-to-square" style="color: #00b4d8;"></i></button>
@@ -2419,28 +1558,13 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.appendChild(tr);
         });
 
-        // Edit listeners
-        listContainer.querySelectorAll('.btn-edit-event').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                openEditEventModal(id);
-            });
-        });
-
-        // Delete listeners
-        listContainer.querySelectorAll('.btn-delete-event').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                deleteEvent(id);
-            });
-        });
+        listContainer.querySelectorAll('.btn-edit-event').forEach(b => b.addEventListener('click', () => openEditEventModal(b.getAttribute('data-id'))));
+        listContainer.querySelectorAll('.btn-delete-event').forEach(b => b.addEventListener('click', () => deleteEvent(b.getAttribute('data-id'))));
     }
 
-    // Render Announcements in admin dashboard
     function renderDashboardAnnouncements() {
         const listContainer = document.getElementById('admin-announcements-list');
         if (!listContainer) return;
-
         listContainer.innerHTML = '';
         const announcements = getLocalStorageAnnouncements();
 
@@ -2464,216 +1588,13 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.appendChild(tr);
         });
 
-        // Edit listeners
-        listContainer.querySelectorAll('.btn-edit-ann').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                openEditAnnouncementModal(id);
-            });
-        });
-
-        // Delete listeners
-        listContainer.querySelectorAll('.btn-delete-ann').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                deleteAnnouncement(id);
-            });
-        });
+        listContainer.querySelectorAll('.btn-edit-ann').forEach(b => b.addEventListener('click', () => openEditAnnouncementModal(b.getAttribute('data-id'))));
+        listContainer.querySelectorAll('.btn-delete-ann').forEach(b => b.addEventListener('click', () => deleteAnnouncement(b.getAttribute('data-id'))));
     }
 
-    // --- Modal opening, saving, deleting handlers ---
-    const eventModal = document.getElementById('admin-event-modal');
-    const closeEventModalBtn = document.getElementById('close-event-modal');
-    const eventForm = document.getElementById('admin-event-form');
-    const btnAddEvent = document.getElementById('btn-add-event');
-
-    const announcementModal = document.getElementById('admin-announcement-modal');
-    const closeAnnouncementModalBtn = document.getElementById('close-announcement-modal');
-    const announcementForm = document.getElementById('admin-announcement-form');
-    const btnAddAnnouncement = document.getElementById('btn-add-announcement');
-
-    // Event Modal Actions
-    if (btnAddEvent) {
-        btnAddEvent.addEventListener('click', () => {
-            if (eventForm) eventForm.reset();
-            document.getElementById('event-edit-id').value = '';
-            document.getElementById('event-modal-title').innerText = 'Yeni Etkinlik Ekle';
-            if (eventModal) eventModal.classList.remove('hidden');
-        });
-    }
-
-    if (closeEventModalBtn && eventModal) {
-        closeEventModalBtn.addEventListener('click', () => {
-            eventModal.classList.add('hidden');
-        });
-    }
-
-    if (eventForm) {
-        eventForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const editId = document.getElementById('event-edit-id').value;
-            const title = document.getElementById('event-title').value.trim();
-            const category = document.getElementById('event-category').value.trim();
-            const badgeClass = document.getElementById('event-badge').value;
-            const status = document.getElementById('event-status').value;
-            const statusText = document.getElementById('event-statustext').value.trim();
-            const date = document.getElementById('event-date').value.trim();
-            const time = document.getElementById('event-time').value.trim();
-            const location = document.getElementById('event-location').value.trim();
-            const description = document.getElementById('event-description').value.trim();
-
-            let events = getLocalStorageEvents();
-
-            const statusIcon = status === 'upcoming' ? 'fa-solid fa-circle-play' : 'fa-solid fa-circle-check';
-
-            const eventData = {
-                id: editId || 'ev_' + Date.now(),
-                title,
-                category,
-                badgeClass,
-                status,
-                statusText,
-                statusIcon,
-                description,
-                date,
-                time,
-                location
-            };
-
-            if (editId) {
-                events = events.map(ev => ev.id === editId ? eventData : ev);
-                showStatusToast("Güncellendi!", "Etkinlik başarıyla güncellendi.", true);
-            } else {
-                events.push(eventData);
-                showStatusToast("Eklendi!", "Yeni etkinlik başarıyla eklendi.", true);
-            }
-
-            saveLocalStorageEvents(events);
-            renderDashboardEvents();
-            if (eventModal) eventModal.classList.add('hidden');
-        });
-    }
-
-    function openEditEventModal(id) {
-        const events = getLocalStorageEvents();
-        const found = events.find(ev => ev.id === id);
-        if (!found) return;
-
-        document.getElementById('event-edit-id').value = found.id;
-        document.getElementById('event-title').value = found.title;
-        document.getElementById('event-category').value = found.category;
-        document.getElementById('event-badge').value = found.badgeClass;
-        document.getElementById('event-status').value = found.status;
-        document.getElementById('event-statustext').value = found.statusText;
-        document.getElementById('event-date').value = found.date;
-        document.getElementById('event-time').value = found.time || '';
-        document.getElementById('event-location').value = found.location;
-        document.getElementById('event-description').value = found.description;
-
-        document.getElementById('event-modal-title').innerText = 'Etkinliği Düzenle';
-        if (eventModal) eventModal.classList.remove('hidden');
-    }
-
-    function deleteEvent(id) {
-        if (confirm("Bu etkinliği silmek istediğinizden emin misiniz?")) {
-            let events = getLocalStorageEvents();
-            events = events.filter(ev => ev.id !== id);
-            saveLocalStorageEvents(events);
-            renderDashboardEvents();
-            showStatusToast("Silindi", "Etkinlik başarıyla silindi.", true);
-            if (useFirebase && db) {
-                db.collection('events').doc(id.toString()).delete()
-                    .catch(err => console.error("Firestore delete event fail:", err));
-            }
-        }
-    }
-
-    // Announcement Modal Actions
-    if (btnAddAnnouncement) {
-        btnAddAnnouncement.addEventListener('click', () => {
-            if (announcementForm) announcementForm.reset();
-            document.getElementById('announcement-edit-id').value = '';
-            document.getElementById('announcement-modal-title').innerText = 'Yeni Duyuru Ekle';
-            if (announcementModal) announcementModal.classList.remove('hidden');
-        });
-    }
-
-    if (closeAnnouncementModalBtn && announcementModal) {
-        closeAnnouncementModalBtn.addEventListener('click', () => {
-            announcementModal.classList.add('hidden');
-        });
-    }
-
-    if (announcementForm) {
-        announcementForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const editId = document.getElementById('announcement-edit-id').value;
-            const title = document.getElementById('announcement-title').value.trim();
-            const category = document.getElementById('announcement-category').value.trim();
-            const badgeClass = document.getElementById('announcement-badge').value;
-            const date = document.getElementById('announcement-date').value.trim();
-            const description = document.getElementById('announcement-description').value.trim();
-
-            let announcements = getLocalStorageAnnouncements();
-
-            const announcementData = {
-                id: editId || 'ann_' + Date.now(),
-                title,
-                category,
-                badgeClass,
-                date,
-                description
-            };
-
-            if (editId) {
-                announcements = announcements.map(ann => ann.id === editId ? announcementData : ann);
-                showStatusToast("Güncellendi!", "Duyuru başarıyla güncellendi.", true);
-            } else {
-                announcements.push(announcementData);
-                showStatusToast("Eklendi!", "Yeni duyuru başarıyla eklendi.", true);
-            }
-
-            saveLocalStorageAnnouncements(announcements);
-            renderDashboardAnnouncements();
-            if (announcementModal) announcementModal.classList.add('hidden');
-        });
-    }
-
-    function openEditAnnouncementModal(id) {
-        const announcements = getLocalStorageAnnouncements();
-        const found = announcements.find(ann => ann.id === id);
-        if (!found) return;
-
-        document.getElementById('announcement-edit-id').value = found.id;
-        document.getElementById('announcement-title').value = found.title;
-        document.getElementById('announcement-category').value = found.category;
-        document.getElementById('announcement-badge').value = found.badgeClass;
-        document.getElementById('announcement-date').value = found.date;
-        document.getElementById('announcement-description').value = found.description;
-
-        document.getElementById('announcement-modal-title').innerText = 'Duyuruyu Düzenle';
-        if (announcementModal) announcementModal.classList.remove('hidden');
-    }
-
-    function deleteAnnouncement(id) {
-        if (confirm("Bu duyuruyu silmek istediğinizden emin misiniz?")) {
-            let announcements = getLocalStorageAnnouncements();
-            announcements = announcements.filter(ann => ann.id !== id);
-            saveLocalStorageAnnouncements(announcements);
-            renderDashboardAnnouncements();
-            showStatusToast("Silindi", "Duyuru başarıyla silindi.", true);
-            if (useFirebase && db) {
-                db.collection('announcements').doc(id.toString()).delete()
-                    .catch(err => console.error("Firestore delete announcement fail:", err));
-            }
-        }
-    }
-
-    // Render Blog posts in admin dashboard
     function renderDashboardBlog() {
         const listContainer = document.getElementById('admin-blog-list');
         if (!listContainer) return;
-
         listContainer.innerHTML = '';
         const blogPosts = getLocalStorageBlog();
 
@@ -2700,28 +1621,150 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.appendChild(tr);
         });
 
-        // Edit listeners
-        listContainer.querySelectorAll('.btn-edit-blog').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                openEditBlogModal(id);
-            });
-        });
+        listContainer.querySelectorAll('.btn-edit-blog').forEach(b => b.addEventListener('click', () => openEditBlogModal(b.getAttribute('data-id'))));
+        listContainer.querySelectorAll('.btn-delete-blog').forEach(b => b.addEventListener('click', () => deleteBlog(b.getAttribute('data-id'))));
+    }
 
-        // Delete listeners
-        listContainer.querySelectorAll('.btn-delete-blog').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                deleteBlog(id);
-            });
+    // Modal & Formlar
+    const eventModal = document.getElementById('admin-event-modal');
+    const eventForm = document.getElementById('admin-event-form');
+    const btnAddEvent = document.getElementById('btn-add-event');
+    const closeEventModalBtn = document.getElementById('close-event-modal');
+
+    if (btnAddEvent) {
+        btnAddEvent.addEventListener('click', () => {
+            if (eventForm) eventForm.reset();
+            const editId = document.getElementById('event-edit-id');
+            if (editId) editId.value = '';
+            document.getElementById('event-modal-title').innerText = 'Yeni Etkinlik Ekle';
+            if (eventModal) eventModal.classList.remove('hidden');
+        });
+    }
+    if (closeEventModalBtn && eventModal) closeEventModalBtn.addEventListener('click', () => eventModal.classList.add('hidden'));
+
+    if (eventForm) {
+        eventForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('event-edit-id').value;
+            let events = getLocalStorageEvents();
+            const newEvent = {
+                id: editId || 'ev_' + Date.now(),
+                title: document.getElementById('event-title').value.trim(),
+                category: document.getElementById('event-category').value.trim(),
+                badgeClass: document.getElementById('event-badge').value,
+                status: document.getElementById('event-status').value,
+                statusText: document.getElementById('event-statustext').value.trim(),
+                statusIcon: 'fa-solid fa-circle-play',
+                date: document.getElementById('event-date').value.trim(),
+                time: document.getElementById('event-time').value.trim(),
+                location: document.getElementById('event-location').value.trim(),
+                description: document.getElementById('event-description').value.trim()
+            };
+
+            if (editId) events = events.map(ev => ev.id === editId ? newEvent : ev);
+            else events.push(newEvent);
+
+            saveLocalStorageEvents(events);
+            renderDashboardEvents();
+            if (eventModal) eventModal.classList.add('hidden');
+            showStatusToast("Başarılı!", "Etkinlik kaydedildi.", true);
         });
     }
 
-    // Modal Add/Edit Blog Handlers
+    function openEditEventModal(id) {
+        const found = getLocalStorageEvents().find(ev => ev.id === id);
+        if (!found) return;
+        document.getElementById('event-edit-id').value = found.id;
+        document.getElementById('event-title').value = found.title;
+        document.getElementById('event-category').value = found.category;
+        document.getElementById('event-badge').value = found.badgeClass;
+        document.getElementById('event-status').value = found.status;
+        document.getElementById('event-statustext').value = found.statusText;
+        document.getElementById('event-date').value = found.date;
+        document.getElementById('event-time').value = found.time || '';
+        document.getElementById('event-location').value = found.location;
+        document.getElementById('event-description').value = found.description;
+        document.getElementById('event-modal-title').innerText = 'Etkinliği Düzenle';
+        if (eventModal) eventModal.classList.remove('hidden');
+    }
+
+    function deleteEvent(id) {
+        if (confirm("Bu etkinliği silmek istediğinizden emin misiniz?")) {
+            let events = getLocalStorageEvents().filter(ev => ev.id !== id);
+            saveLocalStorageEvents(events);
+            renderDashboardEvents();
+            if (useFirebase && db) db.collection('events').doc(id.toString()).delete().catch(() => {});
+            showStatusToast("Silindi", "Etkinlik silindi.", true);
+        }
+    }
+
+    const announcementModal = document.getElementById('admin-announcement-modal');
+    const announcementForm = document.getElementById('admin-announcement-form');
+    const btnAddAnnouncement = document.getElementById('btn-add-announcement');
+    const closeAnnouncementModalBtn = document.getElementById('close-announcement-modal');
+
+    if (btnAddAnnouncement) {
+        btnAddAnnouncement.addEventListener('click', () => {
+            if (announcementForm) announcementForm.reset();
+            const editId = document.getElementById('announcement-edit-id');
+            if (editId) editId.value = '';
+            document.getElementById('announcement-modal-title').innerText = 'Yeni Duyuru Ekle';
+            if (announcementModal) announcementModal.classList.remove('hidden');
+        });
+    }
+    if (closeAnnouncementModalBtn && announcementModal) closeAnnouncementModalBtn.addEventListener('click', () => announcementModal.classList.add('hidden'));
+
+    if (announcementForm) {
+        announcementForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('announcement-edit-id').value;
+            let anns = getLocalStorageAnnouncements();
+            const newAnn = {
+                id: editId || 'ann_' + Date.now(),
+                title: document.getElementById('announcement-title').value.trim(),
+                category: document.getElementById('announcement-category').value.trim(),
+                badgeClass: document.getElementById('announcement-badge').value,
+                date: document.getElementById('announcement-date').value.trim(),
+                description: document.getElementById('announcement-description').value.trim()
+            };
+
+            if (editId) anns = anns.map(a => a.id === editId ? newAnn : a);
+            else anns.push(newAnn);
+
+            saveLocalStorageAnnouncements(anns);
+            renderDashboardAnnouncements();
+            if (announcementModal) announcementModal.classList.add('hidden');
+            showStatusToast("Başarılı!", "Duyuru kaydedildi.", true);
+        });
+    }
+
+    function openEditAnnouncementModal(id) {
+        const found = getLocalStorageAnnouncements().find(a => a.id === id);
+        if (!found) return;
+        document.getElementById('announcement-edit-id').value = found.id;
+        document.getElementById('announcement-title').value = found.title;
+        document.getElementById('announcement-category').value = found.category;
+        document.getElementById('announcement-badge').value = found.badgeClass;
+        document.getElementById('announcement-date').value = found.date;
+        document.getElementById('announcement-description').value = found.description;
+        document.getElementById('announcement-modal-title').innerText = 'Duyuruyu Düzenle';
+        if (announcementModal) announcementModal.classList.remove('hidden');
+    }
+
+    function deleteAnnouncement(id) {
+        if (confirm("Bu duyuruyu silmek istediğinizden emin misiniz?")) {
+            let anns = getLocalStorageAnnouncements().filter(a => a.id !== id);
+            saveLocalStorageAnnouncements(anns);
+            renderDashboardAnnouncements();
+            if (useFirebase && db) db.collection('announcements').doc(id.toString()).delete().catch(() => {});
+            showStatusToast("Silindi", "Duyuru silindi.", true);
+        }
+    }
+
     const blogModal = document.getElementById('admin-blog-modal');
-    const closeBlogModalBtn = document.getElementById('close-blog-modal');
     const blogForm = document.getElementById('admin-blog-form');
     const btnAddBlog = document.getElementById('btn-add-blog');
+    const closeBlogModalBtn = document.getElementById('close-blog-modal');
 
     if (btnAddBlog) {
         btnAddBlog.addEventListener('click', () => {
@@ -2731,61 +1774,39 @@ document.addEventListener('DOMContentLoaded', () => {
             if (blogModal) blogModal.classList.remove('hidden');
         });
     }
-
-    if (closeBlogModalBtn && blogModal) {
-        closeBlogModalBtn.addEventListener('click', () => {
-            blogModal.classList.add('hidden');
-        });
-    }
+    if (closeBlogModalBtn && blogModal) closeBlogModalBtn.addEventListener('click', () => blogModal.classList.add('hidden'));
 
     if (blogForm) {
         blogForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const editId = document.getElementById('blog-edit-id').value;
-            const title = document.getElementById('blog-title').value.trim();
-            const category = document.getElementById('blog-category').value.trim();
-            const badgeClass = document.getElementById('blog-badge').value;
-            const status = document.getElementById('blog-status').value;
-            const readTime = document.getElementById('blog-readtime').value.trim();
-            const author = document.getElementById('blog-author').value.trim();
-            const authorIcon = document.getElementById('blog-author-icon').value;
-            const date = document.getElementById('blog-date').value.trim();
-            const description = document.getElementById('blog-description').value.trim();
-
             let blog = getLocalStorageBlog();
-
-            const blogData = {
+            const newPost = {
                 id: editId || 'post_' + Date.now(),
-                title,
-                category,
-                badgeClass,
-                status,
-                readTime,
-                author,
-                authorIcon,
-                date,
-                description
+                title: document.getElementById('blog-title').value.trim(),
+                category: document.getElementById('blog-category').value.trim(),
+                badgeClass: document.getElementById('blog-badge').value,
+                status: document.getElementById('blog-status').value,
+                readTime: document.getElementById('blog-readtime').value.trim(),
+                author: document.getElementById('blog-author').value.trim(),
+                authorIcon: document.getElementById('blog-author-icon').value,
+                date: document.getElementById('blog-date').value.trim(),
+                description: document.getElementById('blog-description').value.trim()
             };
 
-            if (editId) {
-                blog = blog.map(post => post.id === editId ? blogData : post);
-                showStatusToast("Güncellendi!", "Blog yazısı başarıyla güncellendi.", true);
-            } else {
-                blog.push(blogData);
-                showStatusToast("Eklendi!", "Yeni blog yazısı başarıyla eklendi.", true);
-            }
+            if (editId) blog = blog.map(p => p.id === editId ? newPost : p);
+            else blog.push(newPost);
 
             saveLocalStorageBlog(blog);
             renderDashboardBlog();
             if (blogModal) blogModal.classList.add('hidden');
+            showStatusToast("Başarılı!", "Blog kaydedildi.", true);
         });
     }
 
     function openEditBlogModal(id) {
-        const blog = getLocalStorageBlog();
-        const found = blog.find(post => post.id === id);
+        const found = getLocalStorageBlog().find(p => p.id === id);
         if (!found) return;
-
         document.getElementById('blog-edit-id').value = found.id;
         document.getElementById('blog-title').value = found.title;
         document.getElementById('blog-category').value = found.category;
@@ -2793,156 +1814,87 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('blog-status').value = found.status;
         document.getElementById('blog-readtime').value = found.readTime || '';
         document.getElementById('blog-author').value = found.author;
-        document.getElementById('blog-author-icon').value = found.authorIcon || 'fa-solid fa-user-edit';
+        document.getElementById('blog-author-icon').value = found.authorIcon;
         document.getElementById('blog-date').value = found.date;
         document.getElementById('blog-description').value = found.description;
-
         document.getElementById('blog-modal-title').innerText = 'Blog Yazısını Düzenle';
         if (blogModal) blogModal.classList.remove('hidden');
     }
 
     function deleteBlog(id) {
         if (confirm("Bu blog yazısını silmek istediğinizden emin misiniz?")) {
-            let blog = getLocalStorageBlog();
-            blog = blog.filter(post => post.id !== id);
+            let blog = getLocalStorageBlog().filter(p => p.id !== id);
             saveLocalStorageBlog(blog);
             renderDashboardBlog();
-            showStatusToast("Silindi", "Blog yazısı başarıyla silindi.", true);
-            if (useFirebase && db) {
-                db.collection('blog').doc(id.toString()).delete()
-                    .catch(err => console.error("Firestore delete blog post fail:", err));
-            }
+            if (useFirebase && db) db.collection('blog').doc(id.toString()).delete().catch(() => {});
+            showStatusToast("Silindi", "Blog yazısı silindi.", true);
         }
     }
 
-    // Settings (CMS) Form Handlers
+    // CMS Ayarları Formu
     function initSettingsTab() {
         const settings = getLocalStorageSettings();
-        const heroTitleInput = document.getElementById('set-hero-title');
-        const heroDescInput = document.getElementById('set-hero-desc');
-        const aboutP1Input = document.getElementById('set-about-p1');
-        const aboutP2Input = document.getElementById('set-about-p2');
-        const contactAddressInput = document.getElementById('set-contact-address');
-        const contactEmailInput = document.getElementById('set-contact-email');
-        const githubInput = document.getElementById('set-social-github');
-        const linkedinInput = document.getElementById('set-social-linkedin');
-        const instagramInput = document.getElementById('set-social-instagram');
+        const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
 
-        // Team
-        const teamM1NameInput = document.getElementById('set-team-m1-name');
-        const teamM1RoleInput = document.getElementById('set-team-m1-role');
-        const teamM1BioInput = document.getElementById('set-team-m1-bio');
-        const teamM2NameInput = document.getElementById('set-team-m2-name');
-        const teamM2RoleInput = document.getElementById('set-team-m2-role');
-        const teamM2BioInput = document.getElementById('set-team-m2-bio');
-        const teamM3NameInput = document.getElementById('set-team-m3-name');
-        const teamM3RoleInput = document.getElementById('set-team-m3-role');
-        const teamM3BioInput = document.getElementById('set-team-m3-bio');
+        setVal('set-hero-title', settings.heroTitle);
+        setVal('set-hero-desc', settings.heroDesc);
+        setVal('set-about-p1', settings.aboutText1);
+        setVal('set-about-p2', settings.aboutText2);
+        setVal('set-contact-address', settings.contactAddress);
+        setVal('set-contact-email', settings.contactEmail);
+        setVal('set-social-github', settings.socialGithub);
+        setVal('set-social-linkedin', settings.socialLinkedin);
+        setVal('set-social-instagram', settings.socialInstagram);
 
-        // Regs
-        const regT1Input = document.getElementById('set-reg-t1');
-        const regC1Input = document.getElementById('set-reg-c1');
-        const regT2Input = document.getElementById('set-reg-t2');
-        const regC2Input = document.getElementById('set-reg-c2');
-        const regT3Input = document.getElementById('set-reg-t3');
-        const regC3Input = document.getElementById('set-reg-c3');
-        const regT4Input = document.getElementById('set-reg-t4');
-        const regC4Input = document.getElementById('set-reg-c4');
+        setVal('set-team-m1-name', settings.teamM1Name);
+        setVal('set-team-m1-role', settings.teamM1Role);
+        setVal('set-team-m1-bio', settings.teamM1Bio);
+        setVal('set-team-m2-name', settings.teamM2Name);
+        setVal('set-team-m2-role', settings.teamM2Role);
+        setVal('set-team-m2-bio', settings.teamM2Bio);
+        setVal('set-team-m3-name', settings.teamM3Name);
+        setVal('set-team-m3-role', settings.teamM3Role);
+        setVal('set-team-m3-bio', settings.teamM3Bio);
 
-        if (heroTitleInput) heroTitleInput.value = settings.heroTitle;
-        if (heroDescInput) heroDescInput.value = settings.heroDesc;
-        if (aboutP1Input) aboutP1Input.value = settings.aboutText1;
-        if (aboutP2Input) aboutP2Input.value = settings.aboutText2;
-        if (contactAddressInput) contactAddressInput.value = settings.contactAddress;
-        if (contactEmailInput) contactEmailInput.value = settings.contactEmail;
-        if (githubInput) githubInput.value = settings.socialGithub;
-        if (linkedinInput) linkedinInput.value = settings.socialLinkedin;
-        if (instagramInput) instagramInput.value = settings.socialInstagram;
-
-        if (teamM1NameInput) teamM1NameInput.value = settings.teamM1Name || '';
-        if (teamM1RoleInput) teamM1RoleInput.value = settings.teamM1Role || '';
-        if (teamM1BioInput) teamM1BioInput.value = settings.teamM1Bio || '';
-        if (teamM2NameInput) teamM2NameInput.value = settings.teamM2Name || '';
-        if (teamM2RoleInput) teamM2RoleInput.value = settings.teamM2Role || '';
-        if (teamM2BioInput) teamM2BioInput.value = settings.teamM2Bio || '';
-        if (teamM3NameInput) teamM3NameInput.value = settings.teamM3Name || '';
-        if (teamM3RoleInput) teamM3RoleInput.value = settings.teamM3Role || '';
-        if (teamM3BioInput) teamM3BioInput.value = settings.teamM3Bio || '';
-
-        if (regT1Input) regT1Input.value = settings.regT1 || '';
-        if (regC1Input) regC1Input.value = settings.regC1 || '';
-        if (regT2Input) regT2Input.value = settings.regT2 || '';
-        if (regC2Input) regC2Input.value = settings.regC2 || '';
-        if (regT3Input) regT3Input.value = settings.regT3 || '';
-        if (regC3Input) regC3Input.value = settings.regC3 || '';
-        if (regT4Input) regT4Input.value = settings.regT4 || '';
-        if (regC4Input) regC4Input.value = settings.regC4 || '';
+        setVal('set-reg-t1', settings.regT1); setVal('set-reg-c1', settings.regC1);
+        setVal('set-reg-t2', settings.regT2); setVal('set-reg-c2', settings.regC2);
+        setVal('set-reg-t3', settings.regT3); setVal('set-reg-c3', settings.regC3);
+        setVal('set-reg-t4', settings.regT4); setVal('set-reg-c4', settings.regC4);
     }
 
     const settingsForm = document.getElementById('admin-settings-form');
     if (settingsForm) {
         settingsForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const heroTitle = document.getElementById('set-hero-title').value.trim();
-            const heroDesc = document.getElementById('set-hero-desc').value.trim();
-            const aboutText1 = document.getElementById('set-about-p1').value.trim();
-            const aboutText2 = document.getElementById('set-about-p2').value.trim();
-            const contactAddress = document.getElementById('set-contact-address').value.trim();
-            const contactEmail = document.getElementById('set-contact-email').value.trim();
-            const socialGithub = document.getElementById('set-social-github').value.trim();
-            const socialLinkedin = document.getElementById('set-social-linkedin').value.trim();
-            const socialInstagram = document.getElementById('set-social-instagram').value.trim();
-
-            // Team
-            const teamM1Name = document.getElementById('set-team-m1-name').value.trim();
-            const teamM1Role = document.getElementById('set-team-m1-role').value.trim();
-            const teamM1Bio = document.getElementById('set-team-m1-bio').value.trim();
-            const teamM2Name = document.getElementById('set-team-m2-name').value.trim();
-            const teamM2Role = document.getElementById('set-team-m2-role').value.trim();
-            const teamM2Bio = document.getElementById('set-team-m2-bio').value.trim();
-            const teamM3Name = document.getElementById('set-team-m3-name').value.trim();
-            const teamM3Role = document.getElementById('set-team-m3-role').value.trim();
-            const teamM3Bio = document.getElementById('set-team-m3-bio').value.trim();
-
-            // Regs
-            const regT1 = document.getElementById('set-reg-t1').value.trim();
-            const regC1 = document.getElementById('set-reg-c1').value.trim();
-            const regT2 = document.getElementById('set-reg-t2').value.trim();
-            const regC2 = document.getElementById('set-reg-c2').value.trim();
-            const regT3 = document.getElementById('set-reg-t3').value.trim();
-            const regC3 = document.getElementById('set-reg-c3').value.trim();
-            const regT4 = document.getElementById('set-reg-t4').value.trim();
-            const regC4 = document.getElementById('set-reg-c4').value.trim();
+            const getV = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
 
             const settingsData = {
-                heroTitle,
-                heroDesc,
-                aboutText1,
-                aboutText2,
-                contactAddress,
-                contactEmail,
-                socialGithub,
-                socialLinkedin,
-                socialInstagram,
+                heroTitle: getV('set-hero-title'),
+                heroDesc: getV('set-hero-desc'),
+                aboutText1: getV('set-about-p1'),
+                aboutText2: getV('set-about-p2'),
+                contactAddress: getV('set-contact-address'),
+                contactEmail: getV('set-contact-email'),
+                socialGithub: getV('set-social-github'),
+                socialLinkedin: getV('set-social-linkedin'),
+                socialInstagram: getV('set-social-instagram'),
 
-                teamM1Name,
-                teamM1Role,
-                teamM1Bio,
-                teamM2Name,
-                teamM2Role,
-                teamM2Bio,
-                teamM3Name,
-                teamM3Role,
-                teamM3Bio,
+                totalSponsors: 0,
 
-                regT1,
-                regC1,
-                regT2,
-                regC2,
-                regT3,
-                regC3,
-                regT4,
-                regC4
+                teamM1Name: getV('set-team-m1-name'),
+                teamM1Role: getV('set-team-m1-role'),
+                teamM1Bio: getV('set-team-m1-bio'),
+                teamM2Name: getV('set-team-m2-name'),
+                teamM2Role: getV('set-team-m2-role'),
+                teamM2Bio: getV('set-team-m2-bio'),
+                teamM3Name: getV('set-team-m3-name'),
+                teamM3Role: getV('set-team-m3-role'),
+                teamM3Bio: getV('set-team-m3-bio'),
+
+                regT1: getV('set-reg-t1'), regC1: getV('set-reg-c1'),
+                regT2: getV('set-reg-t2'), regC2: getV('set-reg-c2'),
+                regT3: getV('set-reg-t3'), regC3: getV('set-reg-c3'),
+                regT4: getV('set-reg-t4'), regC4: getV('set-reg-c4')
             };
 
             saveLocalStorageSettings(settingsData);
@@ -2951,180 +1903,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Logout Action
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            disableAdminMode();
-            if (adminLoginForm) adminLoginForm.reset();
-        });
-    }
-
-    // Admin Toolbar Actions
-    const toolbarBtns = document.querySelectorAll('.admin-toolbar .toolbar-btn[data-target]');
-    toolbarBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const targetTab = btn.getAttribute('data-target');
-            if (targetTab === 'members') {
-                window.location.href = 'basvurular.html';
-                return;
-            }
-            
-            // Trigger tab button click inside dashboard
-            const dashboardTabBtn = document.querySelector(`.dash-tab-btn[data-tab="${targetTab}"]`);
-            if (dashboardTabBtn) {
-                dashboardTabBtn.click();
-            }
-            
-            // Show dashboard popup modal
-            if (adminDashboard) {
-                adminDashboard.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Lock scroll
-            }
-        });
-    });
-
-    // Close dashboard modal popup
-    const closeDashboardBtn = document.getElementById('close-dashboard-btn');
-    if (closeDashboardBtn) {
-        closeDashboardBtn.addEventListener('click', () => {
-            if (adminDashboard) adminDashboard.classList.add('hidden');
-            document.body.style.overflow = 'auto'; // Restore scroll
-        });
-    }
-
-    // Admin Toolbar Logout
-    const adminToolbarLogout = document.getElementById('admin-toolbar-logout');
-    if (adminToolbarLogout) {
-        adminToolbarLogout.addEventListener('click', () => {
-            disableAdminMode();
-            if (adminLoginForm) adminLoginForm.reset();
-        });
-    }
-
-    // In-page Edit Trigger click listeners
-    const editTriggers = document.querySelectorAll('.admin-edit-trigger[data-section]');
-    editTriggers.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const section = btn.getAttribute('data-section');
-            
-            // 1. Switch to settings tab and open dashboard modal
-            const settingsTabBtn = document.querySelector('.dash-tab-btn[data-tab="settings"]');
-            if (settingsTabBtn) {
-                settingsTabBtn.click();
-            }
-            
-            if (adminDashboard) {
-                adminDashboard.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Lock scroll
-            }
-            
-            // 2. Focus and scroll settings form to target input field
-            setTimeout(() => {
-                let targetInput = null;
-                if (section === 'hero') {
-                    targetInput = document.getElementById('set-hero-title');
-                } else if (section === 'about') {
-                    targetInput = document.getElementById('set-about-p1');
-                } else if (section === 'contact') {
-                    targetInput = document.getElementById('set-contact-address');
-                } else if (section === 'team') {
-                    targetInput = document.getElementById('set-team-m1-name');
-                } else if (section === 'regulations') {
-                    targetInput = document.getElementById('set-reg-t1');
-                }
-                
-                if (targetInput) {
-                    targetInput.focus();
-                    targetInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Highlight input field visually
-                    targetInput.style.boxShadow = '0 0 15px rgba(217, 38, 122, 0.8)';
-                    setTimeout(() => {
-                        targetInput.style.boxShadow = '';
-                    }, 2000);
-                }
-            }, 150);
-        });
-    });
-
-    // Live search filtering
+    // Arama Kutusu
     const memberSearch = document.getElementById('member-search');
-    if (memberSearch) {
-        memberSearch.addEventListener('input', (e) => {
-            renderDashboardTable(e.target.value, false);
-        });
-    }
+    if (memberSearch) memberSearch.addEventListener('input', e => renderDashboardTable(e.target.value, false));
 
-    // Reset database action
-    const clearDataBtn = document.getElementById('clear-data-btn');
-    if (clearDataBtn) {
-        clearDataBtn.addEventListener('click', async () => {
-            if (confirm('Tüm başvuru verilerini varsayılan listeye sıfırlamak istiyor musunuz?')) {
-                if (useFirebase) {
-                    try {
-                        const snapshot = await db.collection('applicants').get();
-                        const batch = db.batch();
-                        snapshot.forEach(doc => {
-                            batch.delete(doc.ref);
-                        });
-                        await batch.commit();
-                        console.log("Firestore collection reset completed.");
-                    } catch (err) {
-                        console.error("Firestore reset failed:", err);
-                    }
-                } else {
-                    localStorage.removeItem('myk_members');
-                    localStorage.removeItem('myk_events');
-                    localStorage.removeItem('myk_announcements');
-                    localStorage.removeItem('myk_blog');
-                    localStorage.removeItem('myk_site_settings');
-                }
-                dbMembers = []; // Reset local cache
-                applySiteSettings();
-                await renderDashboardTable(getSearchText(), true); // Force refetch empty/default list
-                updateHomepageStats();
-            }
-        });
-    }
-
-    // --- Header Auth State Update Helper ---
-    function updateHeaderState(user, isLoggedIn) {
-        const loginBtn = document.getElementById('login-trigger');
-        const registerBtn = document.getElementById('register-trigger-nav');
-        const loginBtnMobile = document.getElementById('register-trigger-mobile');
-        
-        const profileBtns = document.querySelectorAll('#user-profile-trigger, #user-profile-trigger-mobile');
-        const profileNameSpans = document.querySelectorAll('#user-profile-name, #nav-user-name, #nav-user-name-mobile');
-
-        if (isLoggedIn && user) {
-            let displayName = "Profilim";
-            if (user.fullName) {
-                displayName = user.fullName.split(' ')[0];
-            } else if (user.name) {
-                displayName = user.name.split(' ')[0];
-            } else if (user.email) {
-                displayName = user.email.split('@')[0];
-            }
-
-            if (loginBtn) loginBtn.classList.add('hidden');
-            if (registerBtn) registerBtn.classList.add('hidden');
-            if (loginBtnMobile) loginBtnMobile.classList.add('hidden');
-
-            profileBtns.forEach(btn => btn.classList.remove('hidden'));
-            profileNameSpans.forEach(span => span.textContent = displayName);
-        } else {
-            if (loginBtn) loginBtn.classList.remove('hidden');
-            if (registerBtn) registerBtn.classList.remove('hidden');
-            if (loginBtnMobile) loginBtnMobile.classList.remove('hidden');
-
-            profileBtns.forEach(btn => btn.classList.add('hidden'));
-        }
-    }
-    window.updateHeaderState = updateHeaderState;
-
-    // --- 8. Theme Switcher ---
+    // Tema Değiştirici
     const themeToggle = document.getElementById('theme-toggle');
-    
-    // Load stored theme or default to dark
     const storedTheme = localStorage.getItem('theme') || 'dark';
     if (storedTheme === 'dark') {
         document.documentElement.classList.add('dark-theme');
@@ -3140,164 +1924,82 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggle.addEventListener('click', () => {
             const isDark = document.body.classList.toggle('dark-theme');
             document.documentElement.classList.toggle('dark-theme', isDark);
-            if (isDark) {
-                themeToggle.innerHTML = `<i class="fa-solid fa-sun"></i>`;
-                localStorage.setItem('theme', 'dark');
-            } else {
-                themeToggle.innerHTML = `<i class="fa-solid fa-moon"></i>`;
-                localStorage.setItem('theme', 'light');
-            }
+            themeToggle.innerHTML = isDark ? `<i class="fa-solid fa-sun"></i>` : `<i class="fa-solid fa-moon"></i>`;
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
     }
 
-    // --- 9. Initial Load Triggers (Stats & Admin Session Persistence) ---
+    // --- 11. BAŞLANGIÇ TETİKLEYİCİLERİ ---
     applySiteSettings();
-    updateHomepageStats().then(() => {
-        // Auto-login member if session exists
-        const memberEmail = sessionStorage.getItem('member_logged_in_email');
-        if (memberEmail) {
-            // First check local cache to show username instantly without waiting for network
-            const localData = localStorage.getItem('myk_members');
-            let found = null;
-            if (localData) {
+    updateHomepageStats();
+
+    // Üye Giriş Durumu Kontrolü (Ana Sayfada Giriş Durumunu Korur)
+    const currentMemberEmail = sessionStorage.getItem('member_logged_in_email');
+    if (currentMemberEmail) {
+        const localData = localStorage.getItem('myk_members');
+        let found = null;
+        if (localData) {
+            try {
                 const members = JSON.parse(localData);
-                found = members.find(m => m.email.toLowerCase() === memberEmail.toLowerCase());
-                if (found) {
-                    updateHeaderState(found, true);
-                }
-            }
-            
-            // Sync/Verify with Firestore in the background
-            if (useFirebase && db) {
-                // Try query first to find legacy timestamp-ID documents
-                db.collection('applicants').where('email', '==', memberEmail).get().then(snapshot => {
-                    if (snapshot.empty) {
-                        const capitalizedEmail = memberEmail.charAt(0).toUpperCase() + memberEmail.slice(1);
-                        return db.collection('applicants').where('email', '==', capitalizedEmail).get();
-                    }
-                    return snapshot;
-                }).then(snapshot => {
-                    if (!snapshot.empty) {
-                        const doc = snapshot.docs[0];
-                        return doc;
-                    }
-                    // If query returned empty, try direct doc get (for new email-ID documents under strict rules)
-                    return db.collection('applicants').doc(memberEmail).get().then(doc => {
-                        if (!doc.exists) {
-                            const capitalizedEmail = memberEmail.charAt(0).toUpperCase() + memberEmail.slice(1);
-                            return db.collection('applicants').doc(capitalizedEmail).get();
-                        }
-                        return doc;
-                    });
-                }).then(doc => {
-                    if (doc && doc.exists) {
-                        const fbUser = { id: doc.id, ...doc.data() };
-                        
-                        // Save/update cache
-                        const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
-                        const idx = localMembers.findIndex(m => m.email.toLowerCase() === memberEmail.toLowerCase());
-                        if (idx !== -1) localMembers[idx] = fbUser;
-                        else localMembers.push(fbUser);
-                        localStorage.setItem('myk_members', JSON.stringify(localMembers));
-                        
-                        // Apply updated header state
-                        updateHeaderState(fbUser, true);
-                    }
-                }).catch(err => {
-                    console.warn("Auto-login Firestore query failed, attempting direct doc get fallback:", err);
-                    // Absolute fallback to direct document get in case query failed due to permission denial
-                    db.collection('applicants').doc(memberEmail).get().then(doc => {
-                        if (!doc.exists) {
-                            const capitalizedEmail = memberEmail.charAt(0).toUpperCase() + memberEmail.slice(1);
-                            return db.collection('applicants').doc(capitalizedEmail).get();
-                        }
-                        return doc;
-                    }).then(doc => {
-                        if (doc && doc.exists) {
-                            const fbUser = { id: doc.id, ...doc.data() };
-                            const localMembers = JSON.parse(localStorage.getItem('myk_members') || '[]');
-                            const idx = localMembers.findIndex(m => m.email.toLowerCase() === memberEmail.toLowerCase());
-                            if (idx !== -1) localMembers[idx] = fbUser;
-                            else localMembers.push(fbUser);
-                            localStorage.setItem('myk_members', JSON.stringify(localMembers));
-                            updateHeaderState(fbUser, true);
-                        }
-                    }).catch(fbErr => console.error("Auto-login Firestore sync completely failed:", fbErr));
-                });
-            }
+                found = members.find(m => m.email && m.email.toLowerCase() === currentMemberEmail.toLowerCase());
+            } catch(e) {}
         }
-    });
+        if (!found) {
+            found = {
+                email: currentMemberEmail,
+                username: sessionStorage.getItem('member_username') || 'yusufurkan'
+            };
+        }
+        updateHeaderState(found, true);
+    }
 
     if (sessionStorage.getItem('admin_logged_in') === 'true') {
         enableAdminMode();
-        
-        // Handle URL parameters for Admin Dashboard tab redirection
-        const urlParams = new URLSearchParams(window.location.search);
-        const adminTarget = urlParams.get('admin_target');
-        if (adminTarget) {
-            setTimeout(() => {
-                if (adminTarget === 'members') {
-                    const adminSec = document.getElementById('section-admin-basvurular');
-                    if (adminSec) {
-                        adminSec.classList.remove('hidden');
-                        adminSec.scrollIntoView({ behavior: 'smooth' });
-                    }
-                    if (adminDashboard) adminDashboard.classList.add('hidden');
-                    return;
-                }
-                const dashboardTabBtn = document.querySelector(`.dash-tab-btn[data-tab="${adminTarget}"]`);
-                if (dashboardTabBtn) {
-                    dashboardTabBtn.click();
-                }
-                if (adminDashboard) {
-                    adminDashboard.classList.remove('hidden');
-                    document.body.style.overflow = 'hidden'; // Lock scroll
-                }
-            }, 300);
-        }
     }
 
-    // --- 10. Club Tools (CV Builder, Skills Evaluator, Leaderboard, Quiz, CTF) Logic ---
-    const toolModal = document.getElementById('tool-modal');
-    const closeToolModal = document.getElementById('close-tool-modal');
-    const toolModalBody = document.getElementById('tool-modal-body');
-
-    if (closeToolModal) {
-        closeToolModal.addEventListener('click', () => {
-            if (toolModal) toolModal.classList.add('hidden');
-        });
-    }
-
-    if (toolModal) {
-        toolModal.addEventListener('click', (e) => {
-            if (e.target === toolModal) {
-                toolModal.classList.add('hidden');
-            }
-        });
-    }
-
-    document.querySelectorAll('.tool-link').forEach(link => {
-        link.addEventListener('click', (e) => {
+    // Modal Açma / Kapama İçin Genel Tıklama Yakalayıcı (Her Koşulda Çalışır)
+    document.addEventListener('click', (e) => {
+        // Giriş Yap Butonu Tıklaması
+        const loginBtn = e.target.closest('#login-trigger, #login-trigger-mobile, #admin-trigger-footer, a[href$="#login"]');
+        if (loginBtn) {
             e.preventDefault();
-            const toolName = link.getAttribute('data-tool');
-            const loggedInEmail = sessionStorage.getItem('member_logged_in_email');
+            e.stopPropagation();
+            openLoginModal();
+            return;
+        }
 
-            if (!loggedInEmail) {
-                alert("Bu aracı kullanmak için lütfen üye girişi yapın!");
-                const loginModal = document.getElementById('login-modal');
-                if (loginModal) {
-                    loginModal.classList.remove('hidden');
-                    const errorArea = document.getElementById('member-login-error');
-                    if (errorArea) errorArea.classList.add('hidden');
-                }
-                return;
-            }
+        // Kayıt Ol / Topluluğa Katıl Butonu Tıklaması
+        const regBtn = e.target.closest('#register-trigger-nav, #register-trigger-hero, #register-trigger-mobile, a[href$="#register"]');
+        if (regBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            openRegisterModal();
+            return;
+        }
 
-            const member = dbMembers.find(m => m.email.toLowerCase() === loggedInEmail.toLowerCase());
-            if (!member) return;
+        // Kapatma Çarpı Butonları
+        if (e.target.closest('#close-login')) {
+            e.preventDefault();
+            closeLoginModal();
+            return;
+        }
+        if (e.target.closest('#close-register')) {
+            e.preventDefault();
+            closeRegisterModal();
+            return;
+        }
 
-            openToolModal(toolName, member);
-        });
+        // Arka Plan Karartısına Tıklayınca Kapatma
+        const regM = document.getElementById('register-modal');
+        if (regM && e.target === regM) {
+            closeRegisterModal();
+            return;
+        }
+        const logM = document.getElementById('login-modal');
+        if (logM && e.target === logM) {
+            closeLoginModal();
+            return;
+        }
     });
 
     function openToolModal(toolName, member) {
@@ -4114,22 +2816,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const hash = window.location.hash;
         const search = window.location.search;
         if (hash === '#login' || search.includes('login=true')) {
-            const loginM = document.getElementById('login-modal');
-            const errArea = document.getElementById('member-login-error');
-            if (loginM) {
-                loginM.classList.remove('hidden');
-                if (errArea) errArea.classList.add('hidden');
-                document.body.style.overflow = 'hidden';
-            }
+            openLoginModal();
+            try { history.replaceState(null, null, window.location.pathname); } catch(e) {}
         } else if (hash === '#register' || search.includes('register=true')) {
-            const registerM = document.getElementById('register-modal');
-            if (registerM) {
+            if (!sessionStorage.getItem('member_logged_in_email')) {
                 openRegisterModal();
             }
+            try { history.replaceState(null, null, window.location.pathname); } catch(e) {}
         }
     }
 
-    // Run hash checks
     checkUrlHash();
     window.addEventListener('hashchange', checkUrlHash);
 });
