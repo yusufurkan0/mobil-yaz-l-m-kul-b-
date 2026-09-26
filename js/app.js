@@ -2020,8 +2020,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const storedTheme = localStorage.getItem('theme') || 'dark';
 
     function updateThemeLogos(isDark) {
-        document.querySelectorAll('.logo-img').forEach(img => {
+        document.querySelectorAll('header .logo-img, .header-container .logo-img, nav .logo-img').forEach(img => {
             img.src = isDark ? 'img/mygk-kulup-logosu-white.png' : 'img/mygk-kulup-logosu.png';
+        });
+        document.querySelectorAll('footer .logo-img').forEach(img => {
+            img.src = 'img/mygk-kulup-logosu-footer.png';
         });
     }
 

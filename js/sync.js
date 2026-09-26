@@ -19,10 +19,16 @@
 
     function syncLogoTheme() {
         const isDark = document.body ? (document.body.classList.contains('dark-theme') || document.documentElement.classList.contains('dark-theme')) : (document.documentElement.classList.contains('dark-theme'));
-        document.querySelectorAll('.logo-img').forEach(img => {
+        document.querySelectorAll('header .logo-img, .header-container .logo-img, nav .logo-img').forEach(img => {
             const targetSrc = isDark ? 'img/mygk-kulup-logosu-white.png' : 'img/mygk-kulup-logosu.png';
             if (!img.src.endsWith(targetSrc)) {
                 img.src = targetSrc;
+            }
+        });
+        document.querySelectorAll('footer .logo-img').forEach(img => {
+            const targetFooterSrc = 'img/mygk-kulup-logosu-footer.png';
+            if (!img.src.endsWith(targetFooterSrc)) {
+                img.src = targetFooterSrc;
             }
         });
     }
