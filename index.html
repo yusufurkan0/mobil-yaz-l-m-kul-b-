@@ -371,8 +371,7 @@
                 <h2>Temel Kurallar ve İlkeler <button class="admin-edit-trigger hidden" data-section="regulations" style="font-size: 0.75rem;"><i class="fa-solid fa-pen"></i> Düzenle</button></h2>
                 <p>Gedik Mobil Yazılım Geliştirme Kulübü (MYGK) üyelik şartları ve çalışma esasları.</p>
             </div>
-            
-            <div class="about-card-large card-glow" style="display: flex; flex-direction: column; gap: 20px; padding: 40px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color);">
+            <div class="about-card-large card-glow" id="dyn-regulations-container" style="display: flex; flex-direction: column; gap: 20px; padding: 40px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color);">
                 <div style="border-left: 3px solid var(--primary); padding-left: 20px;">
                     <h4 id="dyn-reg-t1" style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">Madde 1: Kuruluş ve Amaç</h4>
                     <p id="dyn-reg-c1" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Topluluğun amacı, İstanbul Gedik Üniversitesi öğrencilerine mobil yazılım alanlarında teorik eğitimler vermek, pratik projeler geliştirmek ve öğrencileri teknoloji ekosistemine hazırlamaktır.</p>
@@ -1016,51 +1015,17 @@
 
                         <!-- 5. Regulations (Tüzük) Section -->
                         <div style="border-top: 1px solid var(--border-color); padding-top: 15px;">
-                            <h4 style="font-size: 1rem; color: var(--primary); margin-bottom: 12px; font-weight: 700;">Kulüp Tüzüğü (Maddeler)</h4>
-                            <div style="display: flex; flex-direction: column; gap: 15px;">
-                                <div style="border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <label for="set-reg-t1">Madde 1 Başlık</label>
-                                        <input type="text" id="set-reg-t1" required placeholder="Madde 1: Kuruluş ve Amaç">
-                                    </div>
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <label for="set-reg-c1">Madde 1 Açıklama</label>
-                                        <textarea id="set-reg-c1" rows="2" required placeholder="Açıklama metni..."></textarea>
-                                    </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <h4 style="font-size: 1rem; color: var(--primary); margin: 0; font-weight: 700;">Kulüp Tüzüğü (Maddeler)</h4>
+                                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 4px 0 0 0;">Madde sınırı yoktur. Dilediğiniz kadar madde ekleyebilir, silebilir ve düzenleyebilirsiniz.</p>
                                 </div>
-
-                                <div style="border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <label for="set-reg-t2">Madde 2 Başlık</label>
-                                        <input type="text" id="set-reg-t2" required placeholder="Madde 2: Üyelik ve Katılım Şartları">
-                                    </div>
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <label for="set-reg-c2">Madde 2 Açıklama</label>
-                                        <textarea id="set-reg-c2" rows="2" required placeholder="Açıklama metni..."></textarea>
-                                    </div>
-                                </div>
-
-                                <div style="border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <label for="set-reg-t3">Madde 3 Başlık</label>
-                                        <input type="text" id="set-reg-t3" required placeholder="Madde 3: Proje ve Eğitim Esasları">
-                                    </div>
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <label for="set-reg-c3">Madde 3 Açıklama</label>
-                                        <textarea id="set-reg-c3" rows="2" required placeholder="Açıklama metni..."></textarea>
-                                    </div>
-                                </div>
-
-                                <div style="border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <label for="set-reg-t4">Madde 4 Başlık</label>
-                                        <input type="text" id="set-reg-t4" required placeholder="Madde 4: Yönetim ve Temsil">
-                                    </div>
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <label for="set-reg-c4">Madde 4 Açıklama</label>
-                                        <textarea id="set-reg-c4" rows="2" required placeholder="Açıklama metni..."></textarea>
-                                    </div>
-                                </div>
+                                <button type="button" id="btn-add-regulation" class="btn btn-outline btn-sm" style="font-size: 0.8rem; padding: 6px 14px; white-space: nowrap; border-color: var(--primary); color: var(--primary);">
+                                    <i class="fa-solid fa-plus"></i> Yeni Madde Ekle
+                                </button>
+                            </div>
+                            <div id="admin-regulations-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+                                <!-- Dinamik Maddeler Buraya Yüklenecek -->
                             </div>
                         </div>
 

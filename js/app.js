@@ -699,8 +699,35 @@ document.addEventListener('DOMContentLoaded', () => {
         regT3: "Madde 3: Proje ve Eğitim Esasları",
         regC3: "Eğitimler açık kaynaklı ve paylaşımcı kültür esasına göre yürütülür. Çalışma grupları kurularak App Store ve Google Play platformlarına uygulama yüklenmesi hedeflenir.",
         regT4: "Madde 4: Yönetim ve Temsil",
-        regC4: "Yönetim kurulu, kulüp başkanı ve odak koordinatörlerinden oluşur. Üniversite içindeki etkinlik planlamaları ve hackathon katılım organizasyonları yönetim kurulu tarafından kararlaştırılır."
+        regC4: "Yönetim kurulu, kulüp başkanı ve odak koordinatörlerinden oluşur. Üniversite içindeki etkinlik planlamaları ve hackathon katılım organizasyonları yönetim kurulu tarafından kararlaştırılır.",
+        regulations: [
+            { title: "Madde 1: Kuruluş ve Amaç", content: "Topluluğun amacı, İstanbul Gedik Üniversitesi öğrencilerine mobil yazılım (iOS/Android) alanlarında teorik eğitimler vermek, pratik projeler geliştirmek ve öğrencileri teknoloji ekosistemine hazırlamaktır." },
+            { title: "Madde 2: Üyelik ve Katılım Şartları", content: "Topluluğa üye olmak tamamen ücretsizdir. Mobil uygulama geliştirmeye ve tasarıma ilgi duyan, kendini geliştirmek isteyen tüm Gedik Üniversitesi öğrencileri üye olabilir." },
+            { title: "Madde 3: Proje ve Eğitim Esasları", content: "Eğitimler açık kaynaklı ve paylaşımcı kültür esasına göre yürütülür. Çalışma grupları kurularak App Store ve Google Play platformlarına uygulama yüklenmesi hedeflenir." },
+            { title: "Madde 4: Yönetim ve Temsil", content: "Yönetim kurulu, kulüp başkanı ve odak koordinatörlerinden oluşur. Üniversite içindeki etkinlik planlamaları ve hackathon katılım organizasyonları yönetim kurulu tarafından kararlaştırılır." }
+        ]
     };
+
+    function escapeHtml(text) {
+        if (text === null || text === undefined) return '';
+        const str = String(text);
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    function getRegulationsList(settings) {
+        if (settings && Array.isArray(settings.regulations) && settings.regulations.length > 0) {
+            return settings.regulations;
+        }
+        const list = [];
+        if (settings && (settings.regT1 || settings.regC1)) list.push({ title: settings.regT1 || 'Madde 1', content: settings.regC1 || '' });
+        if (settings && (settings.regT2 || settings.regC2)) list.push({ title: settings.regT2 || 'Madde 2', content: settings.regC2 || '' });
+        if (settings && (settings.regT3 || settings.regC3)) list.push({ title: settings.regT3 || 'Madde 3', content: settings.regC3 || '' });
+        if (settings && (settings.regT4 || settings.regC4)) list.push({ title: settings.regT4 || 'Madde 4', content: settings.regC4 || '' });
+        if (list.length === 0 && defaultSiteSettings.regulations) {
+            return defaultSiteSettings.regulations;
+        }
+        return list;
+    }
 
     function getLocalStorageSettings() {
         const stored = localStorage.getItem('myk_site_settings');
@@ -774,23 +801,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (m3Role) m3Role.innerText = settings.teamM3Role;
         if (m3Bio) m3Bio.innerText = settings.teamM3Bio;
 
-        const regT1 = document.getElementById('dyn-reg-t1');
-        const regC1 = document.getElementById('dyn-reg-c1');
-        const regT2 = document.getElementById('dyn-reg-t2');
-        const regC2 = document.getElementById('dyn-reg-c2');
-        const regT3 = document.getElementById('dyn-reg-t3');
-        const regC3 = document.getElementById('dyn-reg-c3');
-        const regT4 = document.getElementById('dyn-reg-t4');
-        const regC4 = document.getElementById('dyn-reg-c4');
-
-        if (regT1) regT1.innerText = settings.regT1;
-        if (regC1) regC1.innerText = settings.regC1;
-        if (regT2) regT2.innerText = settings.regT2;
-        if (regC2) regC2.innerText = settings.regC2;
-        if (regT3) regT3.innerText = settings.regT3;
-        if (regC3) regC3.innerText = settings.regC3;
-        if (regT4) regT4.innerText = settings.regT4;
-        if (regC4) regC4.innerText = settings.regC4;
+        const regContainer = document.getElementById('dyn-regulations-container');
+        if (regContainer) {
+            const list = getRegulationsList(settings);
+            regContainer.innerHTML = list.map((item, idx) => `
+                <div style="border-left: 3px solid var(--primary); padding-left: 20px;">
+                    <h4 style="font-size: 1.05rem; color: var(--headings-color); font-weight: 700; margin-bottom: 8px;">${escapeHtml(item.title || `Madde ${idx + 1}`)}</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; white-space: pre-line;">${escapeHtml(item.content || '')}</p>
+                </div>
+            `).join('');
+        }
 
         const sponsorSpan = document.getElementById('homepage-sponsor-count');
         if (sponsorSpan) {
@@ -1628,7 +1648,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 else if (section === 'about') targetInput = document.getElementById('set-about-p1');
                 else if (section === 'contact') targetInput = document.getElementById('set-contact-address');
                 else if (section === 'team') targetInput = document.getElementById('set-team-m1-name');
-                else if (section === 'regulations') targetInput = document.getElementById('set-reg-t1');
+                else if (section === 'regulations') targetInput = document.getElementById('btn-add-regulation') || document.getElementById('admin-regulations-list');
                 if (targetInput) {
                     targetInput.focus();
                     targetInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1964,10 +1984,66 @@ document.addEventListener('DOMContentLoaded', () => {
         setVal('set-team-m3-role', settings.teamM3Role);
         setVal('set-team-m3-bio', settings.teamM3Bio);
 
-        setVal('set-reg-t1', settings.regT1); setVal('set-reg-c1', settings.regC1);
-        setVal('set-reg-t2', settings.regT2); setVal('set-reg-c2', settings.regC2);
-        setVal('set-reg-t3', settings.regT3); setVal('set-reg-c3', settings.regC3);
-        setVal('set-reg-t4', settings.regT4); setVal('set-reg-c4', settings.regC4);
+        const adminRegList = document.getElementById('admin-regulations-list');
+        if (adminRegList) {
+            adminRegList.innerHTML = '';
+            const list = getRegulationsList(settings);
+            list.forEach((item, idx) => {
+                appendAdminRegulationRow(item.title, item.content, idx + 1);
+            });
+        }
+    }
+
+    function appendAdminRegulationRow(title = '', content = '', itemNum = null) {
+        const adminRegList = document.getElementById('admin-regulations-list');
+        if (!adminRegList) return;
+        const currentCount = adminRegList.children.length + 1;
+        const num = itemNum || currentCount;
+        
+        const row = document.createElement('div');
+        row.className = 'admin-reg-item';
+        row.style.cssText = 'border: 1px dashed var(--border-color); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px; background: rgba(255,255,255,0.02); position: relative;';
+        row.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="reg-item-badge" style="font-size: 0.85rem; font-weight: 700; color: var(--primary);"><i class="fa-solid fa-file-contract"></i> Madde ${num}</span>
+                <button type="button" class="btn-delete-reg" title="Bu Maddeyi Sil" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; cursor: pointer; padding: 4px 10px; font-size: 0.8rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-trash-can"></i> Sil
+                </button>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 0.8rem;">Madde Başlığı</label>
+                <input type="text" class="reg-title-input" required placeholder="Örn: Madde ${num}: Başlık" value="${escapeHtml(title)}">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label style="font-size: 0.8rem;">Madde Açıklaması</label>
+                <textarea class="reg-content-input" rows="2" required placeholder="Madde açıklama metni...">${escapeHtml(content)}</textarea>
+            </div>
+        `;
+
+        row.querySelector('.btn-delete-reg').addEventListener('click', () => {
+            row.remove();
+            reindexAdminRegulationRows();
+        });
+
+        adminRegList.appendChild(row);
+    }
+
+    function reindexAdminRegulationRows() {
+        const adminRegList = document.getElementById('admin-regulations-list');
+        if (!adminRegList) return;
+        Array.from(adminRegList.children).forEach((child, index) => {
+            const badge = child.querySelector('.reg-item-badge');
+            if (badge) badge.innerHTML = `<i class="fa-solid fa-file-contract"></i> Madde ${index + 1}`;
+        });
+    }
+
+    const btnAddReg = document.getElementById('btn-add-regulation');
+    if (btnAddReg) {
+        btnAddReg.addEventListener('click', () => {
+            const adminRegList = document.getElementById('admin-regulations-list');
+            const count = adminRegList ? adminRegList.children.length + 1 : 1;
+            appendAdminRegulationRow(`Madde ${count}: `, '', count);
+        });
     }
 
     const settingsForm = document.getElementById('admin-settings-form');
@@ -1975,6 +2051,19 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const getV = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+            const regItems = [];
+            document.querySelectorAll('#admin-regulations-list .admin-reg-item').forEach(row => {
+                const titleInput = row.querySelector('.reg-title-input');
+                const contentInput = row.querySelector('.reg-content-input');
+                if (titleInput && contentInput) {
+                    const t = titleInput.value.trim();
+                    const c = contentInput.value.trim();
+                    if (t || c) {
+                        regItems.push({ title: t, content: c });
+                    }
+                }
+            });
 
             const settingsData = {
                 heroTitle: getV('set-hero-title'),
@@ -1999,10 +2088,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 teamM3Role: getV('set-team-m3-role'),
                 teamM3Bio: getV('set-team-m3-bio'),
 
-                regT1: getV('set-reg-t1'), regC1: getV('set-reg-c1'),
-                regT2: getV('set-reg-t2'), regC2: getV('set-reg-c2'),
-                regT3: getV('set-reg-t3'), regC3: getV('set-reg-c3'),
-                regT4: getV('set-reg-t4'), regC4: getV('set-reg-c4')
+                regulations: regItems,
+                regT1: regItems[0] ? regItems[0].title : '',
+                regC1: regItems[0] ? regItems[0].content : '',
+                regT2: regItems[1] ? regItems[1].title : '',
+                regC2: regItems[1] ? regItems[1].content : '',
+                regT3: regItems[2] ? regItems[2].title : '',
+                regC3: regItems[2] ? regItems[2].content : '',
+                regT4: regItems[3] ? regItems[3].title : '',
+                regC4: regItems[3] ? regItems[3].content : ''
             };
 
             saveLocalStorageSettings(settingsData);
