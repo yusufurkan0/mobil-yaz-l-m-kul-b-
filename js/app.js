@@ -117,14 +117,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     );
                     if (idx === -1) {
                         cloudMembers.push(locMem);
-                    } else if (locMem.status && locMem.status !== cloudMembers[idx].status) {
-                        cloudMembers[idx].status = locMem.status;
+                    } else {
+                        // Merge local fields with cloud fields; if either is approved, it stays approved
+                        const cloudStatus = (cloudMembers[idx].status || '').toLowerCase();
+                        const localStatus = (locMem.status || '').toLowerCase();
+                        const finalStatus = (cloudStatus === 'approved' || localStatus === 'approved') 
+                            ? 'approved' 
+                            : (cloudStatus === 'rejected' || localStatus === 'rejected') 
+                                ? 'rejected' 
+                                : (cloudStatus || localStatus || 'pending');
+                        cloudMembers[idx] = { ...locMem, ...cloudMembers[idx], status: finalStatus };
                     }
                 });
                 dbMembers = cloudMembers;
                 saveLocalStorageMembers(dbMembers);
                 renderDashboardTable(getSearchText(), false);
                 updateHomepageStats();
+            } else {
+                renderDashboardTable(getSearchText(), false);
             }
 
             if (sessionStorage.getItem('admin_logged_in') === 'true') {
@@ -891,10 +901,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         filtered.forEach(m => {
             const tr = document.createElement('tr');
+            tr.setAttribute('data-id', m.id || m.email || '');
+            tr.style.cursor = 'pointer';
             
-            const nameVal = m.name || m.fullName || (m.firstName ? `${m.firstName} ${m.lastName || ''}` : '') || m.email || 'İsimsiz Üye';
+            const nameVal = m.name || m.fullName || (m.firstName ? `${m.firstName} ${m.lastName || ''}`.trim() : '') || m.email || 'İsimsiz Üye';
             const emailVal = m.email || '-';
-            const deptVal = m.department || m.faculty || 'Belirtilmedi';
+            const deptVal = m.department || m.dept || m.bolum || m.faculty || 'Belirtilmedi';
 
             const passwordBadge = (m.password && m.password.length === 64)
                 ? `<span class="ip-tag-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem;"><i class="fa-solid fa-shield-halved"></i> SHA-256</span>`
@@ -913,12 +925,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const ipDisplay = m.ipAddress || m.ip || 'Tespit Ediliyor...';
             const regDate = m.registeredAt || 'Yeni Başvuru';
+            const mKey = escapeHtml(m.id || m.email || '');
 
             const hoverTooltip = `Öğrenci No: ${m.studentId || '-'}\nTelefon: ${m.phone || '-'}\nFakülte: ${m.faculty || '-'}\nBölüm: ${deptVal}\nSınıf: ${m.grade || '-'}\nDoğum Tarihi: ${m.birthdate || '-'}\nDurum: ${statusText}\n(Detayları açmak için tıklayın)`;
 
             tr.innerHTML = `
                 <td>
-                    <strong class="clickable-member-name" data-id="${m.id}" title="${escapeHtml(hoverTooltip)}" style="cursor: pointer; color: var(--primary); text-decoration: underline; text-underline-offset: 4px;">
+                    <strong class="clickable-member-name" data-id="${mKey}" title="${escapeHtml(hoverTooltip)}" style="cursor: pointer; color: var(--primary); text-decoration: underline; text-underline-offset: 4px;">
                         ${escapeHtml(nameVal)}
                     </strong>
                 </td>
@@ -937,15 +950,92 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                 <td>
-                    ${st !== 'approved' && st !== 'onaylandı' ? `<button type="button" class="table-btn btn-approve" data-id="${m.id}" title="Onayla"><i class="fa-solid fa-circle-check" style="color: #10b981;"></i></button>` : ''}
-                    ${st !== 'rejected' && st !== 'reddedildi' ? `<button type="button" class="table-btn btn-reject" data-id="${m.id}" title="Reddet"><i class="fa-solid fa-ban" style="color: #f59e0b;"></i></button>` : ''}
-                    <button type="button" class="table-btn btn-delete" data-id="${m.id}" title="Sil"><i class="fa-solid fa-trash-can" style="color: #ef4444;"></i></button>
+                    ${st !== 'approved' && st !== 'onaylandı' ? `<button type="button" class="table-btn btn-approve" data-id="${mKey}" title="Onayla"><i class="fa-solid fa-circle-check" style="color: #10b981;"></i></button>` : ''}
+                    ${st !== 'rejected' && st !== 'reddedildi' ? `<button type="button" class="table-btn btn-reject" data-id="${mKey}" title="Reddet"><i class="fa-solid fa-ban" style="color: #f59e0b;"></i></button>` : ''}
+                    <button type="button" class="table-btn btn-delete" data-id="${mKey}" title="Sil"><i class="fa-solid fa-trash-can" style="color: #ef4444;"></i></button>
                 </td>
             `;
 
             listContainer.appendChild(tr);
         });
     }
+
+    // Attach event delegation for table actions & row clicks
+    const memberTableBody = document.getElementById('admin-member-list');
+    if (memberTableBody) {
+        memberTableBody.addEventListener('click', (e) => {
+            const btnApprove = e.target.closest('.btn-approve');
+            const btnReject = e.target.closest('.btn-reject');
+            const btnDelete = e.target.closest('.btn-delete');
+            const nameClick = e.target.closest('.clickable-member-name');
+            const rowClick = e.target.closest('tr');
+
+            if (btnApprove) {
+                e.stopPropagation();
+                const id = btnApprove.getAttribute('data-id');
+                approveMember(id);
+                return;
+            }
+            if (btnReject) {
+                e.stopPropagation();
+                const id = btnReject.getAttribute('data-id');
+                rejectMember(id);
+                return;
+            }
+            if (btnDelete) {
+                e.stopPropagation();
+                const id = btnDelete.getAttribute('data-id');
+                deleteMember(id);
+                return;
+            }
+            if (nameClick) {
+                e.stopPropagation();
+                const id = nameClick.getAttribute('data-id');
+                openAdminMemberDetail(id);
+                return;
+            }
+            if (rowClick && !e.target.closest('td:last-child')) {
+                const id = rowClick.getAttribute('data-id');
+                if (id) openAdminMemberDetail(id);
+            }
+        });
+    }
+
+    // Filter Buttons (All, Approved, Pending)
+    const filterButtons = document.querySelectorAll('.member-filter-btn');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const status = btn.getAttribute('data-status') || 'all';
+            renderDashboardTable(getSearchText(), false, status);
+            
+            filterButtons.forEach(b => {
+                b.style.background = 'transparent';
+                b.style.color = 'var(--text-color)';
+                b.style.borderColor = 'var(--border-color)';
+            });
+            if (status === 'all') {
+                btn.style.background = 'var(--primary)';
+                btn.style.color = '#fff';
+                btn.style.borderColor = 'var(--primary)';
+            } else if (status === 'approved') {
+                btn.style.background = 'rgba(16, 185, 129, 0.2)';
+                btn.style.color = '#10b981';
+                btn.style.borderColor = '#10b981';
+            } else if (status === 'pending') {
+                btn.style.background = 'rgba(245, 158, 11, 0.2)';
+                btn.style.color = '#f59e0b';
+                btn.style.borderColor = '#f59e0b';
+            }
+        });
+    });
+
+    // Stat Cards Click Listeners
+    const cardAll = document.getElementById('stat-card-all');
+    if (cardAll) cardAll.addEventListener('click', () => renderDashboardTable(getSearchText(), false, 'all'));
+    const cardApproved = document.getElementById('stat-card-approved');
+    if (cardApproved) cardApproved.addEventListener('click', () => renderDashboardTable(getSearchText(), false, 'approved'));
+    const cardPending = document.getElementById('stat-card-pending');
+    if (cardPending) cardPending.addEventListener('click', () => renderDashboardTable(getSearchText(), false, 'pending'));
 
     // --- Admin Member Detail Modal ---
     let activeDetailMemberId = null;
@@ -959,15 +1049,16 @@ document.addEventListener('DOMContentLoaded', () => {
         activeDetailMemberId = member.id || member.email;
 
         const setST = (eid, t) => { const el = document.getElementById(eid); if (el) el.innerText = t || '-'; };
-        setST('admin-detail-name', member.name || member.fullName);
-        setST('admin-detail-email', member.email);
-        setST('admin-detail-username', member.username);
-        setST('admin-detail-student-id', member.studentId);
-        setST('admin-detail-phone', member.phone);
-        setST('admin-detail-faculty', member.faculty);
-        setST('admin-detail-dept', member.department);
-        setST('admin-detail-grade', member.grade);
-        setST('admin-detail-birthdate', member.birthdate);
+        const fullName = member.name || member.fullName || (member.firstName ? `${member.firstName} ${member.lastName || ''}`.trim() : '') || member.email || '-';
+        setST('admin-detail-name', fullName);
+        setST('admin-detail-email', member.email || '-');
+        setST('admin-detail-username', member.username || (member.email ? member.email.split('@')[0] : '-'));
+        setST('admin-detail-student-id', member.studentId || member.studentNo || member.studentNumber || '-');
+        setST('admin-detail-phone', member.phone || member.phoneNumber || member.telephone || '-');
+        setST('admin-detail-faculty', member.faculty || '-');
+        setST('admin-detail-dept', member.department || member.dept || member.bolum || '-');
+        setST('admin-detail-grade', member.grade || member.sinif || member.classLevel || '-');
+        setST('admin-detail-birthdate', member.birthdate || member.birthDate || '-');
         
         const pwEl = document.getElementById('admin-detail-password');
         if (pwEl) {
@@ -1034,6 +1125,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
         });
     }
+
+    const detailModal = document.getElementById('admin-member-detail-modal');
+    if (detailModal) {
+        detailModal.addEventListener('click', (e) => {
+            if (e.target === detailModal) {
+                detailModal.classList.add('hidden');
+                detailModal.style.display = 'none';
+            }
+        });
+    }
+
+    // Export helpers to window for subpages
+    window.renderDashboardTable = renderDashboardTable;
+    window.openAdminMemberDetail = openAdminMemberDetail;
+    window.approveMember = approveMember;
+    window.rejectMember = rejectMember;
+    window.deleteMember = deleteMember;
 
     function escapeHtml(text) {
         if (text === null || text === undefined) return '';
