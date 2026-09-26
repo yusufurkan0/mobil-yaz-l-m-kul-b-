@@ -10,8 +10,10 @@
     // 1. Immediate Theme Persistence (prevent flash of light theme)
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme === 'light') {
+        document.documentElement.classList.remove('dark-theme');
         document.body.classList.remove('dark-theme');
     } else {
+        document.documentElement.classList.add('dark-theme');
         document.body.classList.add('dark-theme');
     }
 
@@ -140,7 +142,7 @@
                 }
                 const sponsorSpan = document.getElementById('homepage-sponsor-count');
                 if (sponsorSpan) {
-                    const sponsorCount = settingsData.totalSponsors !== undefined ? settingsData.totalSponsors : 5;
+                    const sponsorCount = settingsData.totalSponsors !== undefined ? settingsData.totalSponsors : 0;
                     sponsorSpan.setAttribute('data-val', sponsorCount);
                     sponsorSpan.innerText = sponsorCount;
                 }

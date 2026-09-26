@@ -7,7 +7,7 @@
    otomatik olarak tarayıcı hafızasını (localStorage) kullanacaktır.
 */
 
-const CONFIG = {
+var CONFIG = window.CONFIG || {
     // Firebase Firestore Veritabanı Yapılandırması
     firebase: {
         apiKey: "AIzaSyBt0erS3Xh_tWbpDwQzyZwn_C2ZWTcLmEk",

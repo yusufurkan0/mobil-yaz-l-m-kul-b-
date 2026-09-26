@@ -1094,6 +1094,7 @@ document.addEventListener('DOMContentLoaded', () => {
         socialInstagram: "https://www.instagram.com/gedikmygk",
         socialLinkedin: "https://linkedin.com",
         socialGithub: "https://github.com/yusufurkan0",
+        totalSponsors: 0,
         
         // Yönetim Kurulu (Ekip)
         teamM1Name: "Yusuf Furkan Yılmaz",
@@ -1223,7 +1224,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const sponsorSpan = document.getElementById('homepage-sponsor-count');
         if (sponsorSpan) {
-            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 5;
+            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 0;
             sponsorSpan.setAttribute('data-val', sponsorCount);
             sponsorSpan.innerText = sponsorCount;
         }
@@ -1249,7 +1250,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const sponsorSpan = document.getElementById('homepage-sponsor-count');
         if (sponsorSpan) {
-            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 5;
+            const sponsorCount = settings.totalSponsors !== undefined ? settings.totalSponsors : 0;
             sponsorSpan.setAttribute('data-val', sponsorCount);
             sponsorSpan.innerText = sponsorCount;
         }
@@ -4108,10 +4109,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // URL Hash Modal Checker (Enables index.html#login and #register redirection from subpages)
+    // URL Hash / Query Modal Checker (Enables index.html#login and #register redirection from subpages)
     function checkUrlHash() {
         const hash = window.location.hash;
-        if (hash === '#login') {
+        const search = window.location.search;
+        if (hash === '#login' || search.includes('login=true')) {
             const loginM = document.getElementById('login-modal');
             const errArea = document.getElementById('member-login-error');
             if (loginM) {
@@ -4119,7 +4121,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (errArea) errArea.classList.add('hidden');
                 document.body.style.overflow = 'hidden';
             }
-        } else if (hash === '#register') {
+        } else if (hash === '#register' || search.includes('register=true')) {
             const registerM = document.getElementById('register-modal');
             if (registerM) {
                 openRegisterModal();
