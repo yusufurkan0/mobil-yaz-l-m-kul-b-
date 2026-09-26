@@ -17,6 +17,34 @@
         document.body.classList.add('dark-theme');
     }
 
+    function syncLogoTheme() {
+        const isDark = document.body ? (document.body.classList.contains('dark-theme') || document.documentElement.classList.contains('dark-theme')) : (document.documentElement.classList.contains('dark-theme'));
+        document.querySelectorAll('.logo-img').forEach(img => {
+            const targetSrc = isDark ? 'img/mygk-kulup-logosu-white.png' : 'img/mygk-kulup-logosu.png';
+            if (!img.src.endsWith(targetSrc)) {
+                img.src = targetSrc;
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncLogoTheme);
+    } else {
+        syncLogoTheme();
+    }
+
+    try {
+        const themeObserver = new MutationObserver(syncLogoTheme);
+        themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        if (document.body) {
+            themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+            });
+        }
+    } catch(e) {}
+
     // Mobile hamburger menu toggle handler & Admin Toolbar sync for subpages
     document.addEventListener('DOMContentLoaded', () => {
         const menuToggle = document.getElementById('menu-toggle');

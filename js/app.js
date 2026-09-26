@@ -2018,14 +2018,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tema Değiştirici
     const themeToggle = document.getElementById('theme-toggle');
     const storedTheme = localStorage.getItem('theme') || 'dark';
+
+    function updateThemeLogos(isDark) {
+        document.querySelectorAll('.logo-img').forEach(img => {
+            img.src = isDark ? 'img/mygk-kulup-logosu-white.png' : 'img/mygk-kulup-logosu.png';
+        });
+    }
+
     if (storedTheme === 'dark') {
         document.documentElement.classList.add('dark-theme');
         document.body.classList.add('dark-theme');
         if (themeToggle) themeToggle.innerHTML = `<i class="fa-solid fa-sun"></i>`;
+        updateThemeLogos(true);
     } else {
         document.documentElement.classList.remove('dark-theme');
         document.body.classList.remove('dark-theme');
         if (themeToggle) themeToggle.innerHTML = `<i class="fa-solid fa-moon"></i>`;
+        updateThemeLogos(false);
     }
 
     if (themeToggle) {
@@ -2034,6 +2043,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.documentElement.classList.toggle('dark-theme', isDark);
             themeToggle.innerHTML = isDark ? `<i class="fa-solid fa-sun"></i>` : `<i class="fa-solid fa-moon"></i>`;
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeLogos(isDark);
         });
     }
 
