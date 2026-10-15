@@ -189,7 +189,7 @@
                             <span style="color: var(--primary); margin-top: 3px;"><i class="fa-solid fa-envelope"></i></span>
                             <div>
                                 <strong style="color: var(--headings-color); display: block;">E-posta</strong>
-                                <span style="color: var(--text-muted);">gedikmobilyazilimkulubu@gmail.com</span>
+                                <span id="dyn-contact-card-email" class="contact-email" style="color: var(--text-muted);">mygk@gedik.edu.tr</span>
                             </div>
                         </div>
                         
@@ -269,7 +269,7 @@
             <div class="footer-contact">
                 <h4>İletişim</h4>
                 <p id="dyn-footer-address"><i class="fa-solid fa-location-dot"></i> Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul</p>
-                <p id="dyn-footer-email-row"><i class="fa-solid fa-envelope"></i> <span id="dyn-footer-email" class="contact-email">gedikmobilyazilimkulubu@gmail.com</span></p>
+                <p id="dyn-footer-email-row"><i class="fa-solid fa-envelope"></i> <span id="dyn-footer-email" class="contact-email">mygk@gedik.edu.tr</span></p>
             </div>
         </div>
         
@@ -313,11 +313,27 @@
             }
 
             // Apply Site Settings
-            const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {};
+            let settings = {};
+            try {
+                settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {};
+            } catch (e) {
+                settings = {};
+            }
+
+            // Eski önbellekte kalmış mail varsa kesin olarak temizle
+            if (!settings.contactEmail || settings.contactEmail === 'gedikmobilyazilimkulubu@gmail.com') {
+                settings.contactEmail = 'mygk@gedik.edu.tr';
+                try {
+                    localStorage.setItem('myk_site_settings', JSON.stringify(settings));
+                } catch (e) {}
+            }
+
             const contactAddr = document.getElementById('dyn-footer-address');
             const contactEmail = document.getElementById('dyn-footer-email');
             if (contactAddr && settings.contactAddress) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
-            if (contactEmail && settings.contactEmail) contactEmail.innerText = settings.contactEmail;
+            if (contactEmail) contactEmail.innerText = settings.contactEmail || 'mygk@gedik.edu.tr';
+            const contactCardEmail = document.getElementById('dyn-contact-card-email');
+            if (contactCardEmail) contactCardEmail.innerText = settings.contactEmail || 'mygk@gedik.edu.tr';
             
             const githubLink = document.getElementById('dyn-footer-github');
             const linkedinLink = document.getElementById('dyn-footer-linkedin');
@@ -480,7 +496,7 @@
             }
 
             function sendViaFormSubmit(name, email, subject, message, submitBtn, originalText) {
-                fetch("https://formsubmit.co/ajax/gedikmobilyazilimkulubu@gmail.com", {
+                fetch("https://formsubmit.co/ajax/mygk@gedik.edu.tr", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -501,7 +517,7 @@
                     contactForm.reset();
                 })
                 .catch(() => {
-                    showStatusToast("Gönderilemedi", "Mesaj gönderilemedi. Lütfen doğrudan gedikmobilyazilimkulubu@gmail.com adresine mail atınız.", false);
+                    showStatusToast("Gönderilemedi", "Mesaj gönderilemedi. Lütfen doğrudan mygk@gedik.edu.tr adresine mail atınız.", false);
                 })
                 .finally(() => {
                     submitBtn.disabled = false;

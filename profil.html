@@ -634,7 +634,7 @@
             <div class="footer-contact">
                 <h4>İletişim</h4>
                 <p id="dyn-footer-address"><i class="fa-solid fa-location-dot"></i> Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul</p>
-                <p id="dyn-footer-email-row"><i class="fa-solid fa-envelope"></i> <span id="dyn-footer-email" class="contact-email">gedikmobilyazilimkulubu@gmail.com</span></p>
+                <p id="dyn-footer-email-row"><i class="fa-solid fa-envelope"></i> <span id="dyn-footer-email" class="contact-email">mygk@gedik.edu.tr</span></p>
             </div>
         </div>
         
@@ -698,7 +698,7 @@
 
             const settings = JSON.parse(localStorage.getItem('myk_site_settings')) || {
                 contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
-                contactEmail: "gedikmobilyazilimkulubu@gmail.com",
+                contactEmail: "mygk@gedik.edu.tr",
                 socialInstagram: "https://www.instagram.com/gedikmygk",
                 socialLinkedin: "https://www.linkedin.com/company/https-l24.im-9ir3fgw",
                 socialGithub: "https://github.com/yusufurkan0"
@@ -706,7 +706,8 @@
             const contactAddr = document.getElementById('dyn-footer-address');
             const contactEmail = document.getElementById('dyn-footer-email');
             if (contactAddr) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
-            if (contactEmail) contactEmail.innerText = settings.contactEmail;
+            const emailVal = (!settings.contactEmail || settings.contactEmail === 'gedikmobilyazilimkulubu@gmail.com') ? 'mygk@gedik.edu.tr' : settings.contactEmail;
+            if (contactEmail) contactEmail.innerText = emailVal;
             
             const githubLink = document.getElementById('dyn-footer-github');
             const linkedinLink = document.getElementById('dyn-footer-linkedin');

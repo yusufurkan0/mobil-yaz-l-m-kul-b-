@@ -227,10 +227,15 @@
 
     function applySyncedFooterSettings(settings) {
         if (!settings) return;
+        if (!settings.contactEmail || settings.contactEmail === 'gedikmobilyazilimkulubu@gmail.com') {
+            settings.contactEmail = 'mygk@gedik.edu.tr';
+        }
         const contactAddr = document.getElementById('dyn-footer-address');
         const contactEmail = document.getElementById('dyn-footer-email');
+        const contactCardEmail = document.getElementById('dyn-contact-card-email');
         if (contactAddr) contactAddr.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${settings.contactAddress}`;
         if (contactEmail) contactEmail.innerText = settings.contactEmail;
+        if (contactCardEmail) contactCardEmail.innerText = settings.contactEmail;
         
         const githubLink = document.getElementById('dyn-footer-github');
         const linkedinLink = document.getElementById('dyn-footer-linkedin');

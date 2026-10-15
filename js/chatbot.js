@@ -150,7 +150,7 @@
             id: 8,
             question: "Kampüsteki kulüp konumu ve iletişim bilgileri nedir?",
             keywords: ["iletişim", "adres", "nerede", "yerleşke", "konum", "kartal", "eposta", "mail", "oda", "ulaşım"],
-            answer: "Kulübümüz <b>İstanbul Gedik Üniversitesi Kartal Yerleşkesi</b>'ndedir. E-posta adresimiz: <b>gedikmobilyazilimkulubu@gmail.com</b>. Seni İletişim sayfasına yönlendiriyorum.",
+            answer: "Kulübümüz <b>İstanbul Gedik Üniversitesi Kartal Yerleşkesi</b>'ndedir. E-posta adresimiz: <b>mygk@gedik.edu.tr</b>. Seni İletişim sayfasına yönlendiriyorum.",
             action: "iletişim"
         },
         {
@@ -276,7 +276,7 @@
             id: 26,
             question: "Kulübe sponsor olmak veya iş birliği yapmak için kiminle görüşebiliriz?",
             keywords: ["sponsor olmak", "destek vermek", "iş birliği", "kurumsal", "partnerlik", "firmalar"],
-            answer: "Sponsorluk ve kurumsal iş birliği teklifleri için <b>gedikmobilyazilimkulubu@gmail.com</b> e-posta adresimiz üzerinden Yönetim Kurulumuzla iletişime geçebilirsiniz.",
+            answer: "Sponsorluk ve kurumsal iş birliği teklifleri için <b>mygk@gedik.edu.tr</b> e-posta adresimiz üzerinden Yönetim Kurulumuzla iletişime geçebilirsiniz.",
             action: "iletişim"
         },
         {
@@ -964,7 +964,7 @@
 
         // Fallback Response
         return {
-            text: "Bu soruya doğrudan karşılık gelen bir kayıt bulamadım. Ancak üst taraftaki **Hızlı Soru Etiketlerini** deneyebilir veya doğrudan <b>gedikmobilyazilimkulubu@gmail.com</b> adresinden yönetim ekibimizle iletişime geçebilirsin. İstersen sorunu farklı kelimelerle yazarak tekrar deneyebilirsin! 😊",
+            text: "Bu soruya doğrudan karşılık gelen bir kayıt bulamadım. Ancak üst taraftaki **Hızlı Soru Etiketlerini** deneyebilir veya doğrudan <b>mygk@gedik.edu.tr</b> adresinden yönetim ekibimizle iletişime geçebilirsin. İstersen sorunu farklı kelimelerle yazarak tekrar deneyebilirsin! 😊",
             action: null
         };
     }

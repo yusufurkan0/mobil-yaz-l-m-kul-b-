@@ -674,7 +674,7 @@ document.addEventListener('DOMContentLoaded', () => {
         aboutText1: "Mobil Yazılım Kulübü, geleceğin mobil uygulama ekosistemini inşa edecek geliştiricileri ve tasarımcıları bir araya getiren dinamik bir öğrenci topluluğudur. Mobil platformların gücünü keşfederek, teorik bilgiyi pratik projelerle pekiştiriyor ve üyelerimizi sektöre hazır hale getiriyoruz.",
         aboutText2: "Yeni kurulan kulübümüzle birlikte hedeflerimiz arasında; sıfırdan başlayanlar için atölyeler düzenlemek, ortak çalışma gruplarıyla App Store ve Google Play'e uygulamalar yüklemek ve hackathonlarda kampüsümüzü temsil etmek yer almaktadır.",
         contactAddress: "Cumhuriyet, İlkbahar Sk. No:1, 34876 Kartal/İstanbul",
-        contactEmail: "gedikmobilyazilimkulubu@gmail.com",
+        contactEmail: "mygk@gedik.edu.tr",
         socialInstagram: "https://www.instagram.com/gedikmygk",
         socialLinkedin: "https://www.linkedin.com/company/https-l24.im-9ir3fgw",
         socialGithub: "https://github.com/yusufurkan0",
@@ -737,8 +737,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         try {
             let parsed = JSON.parse(stored);
-            if (!parsed.teamM1Name || parsed.teamM1Name === 'Yusuf Furkan Yılmaz' || parsed.teamM2Name === 'Ahmet Yılmaz') {
-                parsed = { ...parsed, ...defaultSiteSettings };
+            if (!parsed.teamM1Name || parsed.teamM1Name === 'Yusuf Furkan Yılmaz' || parsed.teamM2Name === 'Ahmet Yılmaz' || parsed.contactEmail === 'gedikmobilyazilimkulubu@gmail.com') {
+                parsed = { ...parsed, ...defaultSiteSettings, contactEmail: 'mygk@gedik.edu.tr' };
                 localStorage.setItem('myk_site_settings', JSON.stringify(parsed));
             }
             return parsed;
@@ -2996,7 +2996,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // FormSubmit sender helper function
     function sendViaFormSubmit(name, email, subject, message, submitBtn, originalText) {
-        fetch("https://formsubmit.co/ajax/gedikmobilyazilimkulubu@gmail.com", {
+        fetch("https://formsubmit.co/ajax/mygk@gedik.edu.tr", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -3018,7 +3018,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             console.error("FormSubmit contact message failed:", error);
-            showStatusToast("Gönderilemedi", "Mesajınız gönderilirken hata oluştu. Lütfen doğrudan gedikmobilyazilimkulubu@gmail.com adresine mail atınız.", false);
+            showStatusToast("Gönderilemedi", "Mesajınız gönderilirken hata oluştu. Lütfen doğrudan mygk@gedik.edu.tr adresine mail atınız.", false);
         })
         .finally(() => {
             submitBtn.disabled = false;
