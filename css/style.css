@@ -386,11 +386,11 @@ body.subpage.dark-theme #main-header {
     margin-left: 25px; /* Shifts logo slightly to the right */
 }
 .logo-img {
-    height: 70px;
-    max-width: 180px;
+    height: 86px;
+    max-width: 220px;
     object-fit: contain;
     transform-origin: center center;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter var(--transition-fast);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), height var(--transition-fast), filter var(--transition-fast);
 }
 body.dark-theme header .logo-img,
 html.dark-theme header .logo-img,
@@ -401,10 +401,12 @@ html.dark-theme .header-container .logo-img {
 }
 footer .logo-img {
     content: url('../img/mygk-kulup-logosu-footer.png');
+    height: 100px;
+    max-width: 240px;
     filter: none;
 }
 #main-header.scrolled .logo-img {
-    height: 65px;
+    height: 78px;
 }
 .logo:hover .logo-img {
     transform: scale(1.05) translateY(-2px);
