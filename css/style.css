@@ -382,14 +382,14 @@ body.subpage.dark-theme #main-header {
     align-items: center;
     gap: 12px;
     text-decoration: none;
-    margin-right: 30px;
-    margin-left: 25px; /* Shifts logo slightly to the right */
+    margin-right: 25px;
+    margin-left: 15px;
 }
 .logo-img {
-    height: 86px;
-    max-width: 220px;
+    height: 70px;
+    max-width: 380px;
     object-fit: contain;
-    transform-origin: center center;
+    transform-origin: left center;
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), height var(--transition-fast), filter var(--transition-fast);
 }
 body.dark-theme header .logo-img,
@@ -401,15 +401,15 @@ html.dark-theme .header-container .logo-img {
 }
 footer .logo-img {
     content: url('../img/mygk-kulup-logosu-footer.png');
-    height: 100px;
-    max-width: 240px;
+    height: 76px;
+    max-width: 400px;
     filter: none;
 }
 #main-header.scrolled .logo-img {
-    height: 78px;
+    height: 64px;
 }
 .logo:hover .logo-img {
-    transform: scale(1.05) translateY(-2px);
+    transform: scale(1.03) translateY(-1px);
 }
 .logo-icon {
     font-size: 1.6rem;
@@ -2455,8 +2455,16 @@ body.admin-mode-active #main-header {
     }
 }
 
-/* --- Admin Toolbar Mobile Optimization (Horizontal Swipe) --- */
+/* --- Admin Toolbar & Logo Mobile Optimization --- */
 @media (max-width: 768px) {
+    .logo {
+        margin-left: 5px;
+        margin-right: 10px;
+    }
+    .logo-img {
+        height: 48px;
+        max-width: 230px;
+    }
     .admin-toolbar {
         overflow-x: auto;
         white-space: nowrap;
