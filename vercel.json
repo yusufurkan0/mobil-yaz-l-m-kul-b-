@@ -1,4 +1,17 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "mobil-yaz-l-m-kul-b.vercel.app"
+        }
+      ],
+      "destination": "https://gedikmygk.vercel.app/:path*",
+      "permanent": true
+    }
+  ]
 }
